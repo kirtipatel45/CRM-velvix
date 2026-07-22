@@ -28,78 +28,98 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center text-white">
-          <h1 className="text-3xl font-bold">CRM Velvix</h1>
-          <p className="mt-2 text-brand-100">Create a New Account</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="card">
-          <h2 className="mb-6 text-xl font-semibold">Sign Up</h2>
-
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
-          )}
-
-          <div className="mb-4">
-            <label className="label">Name</label>
-            <input
-              type="text"
-              className="input-field"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="label">Email</label>
-            <input
-              type="email"
-              className="input-field"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="label">Role</label>
-            <select
-              className="input-field"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            >
-              <option value="admin">Admin</option>
-              <option value="lead_gen">Lead Generation</option>
-              <option value="sales">Sales</option>
-              <option value="marketing">Marketing</option>
-              <option value="manager">Manager</option>
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <label className="label">Password</label>
-            <input
-              type="password"
-              className="input-field"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-
-          <button type="submit" className="btn-primary w-full" disabled={loading}>
-            {loading ? 'Registering...' : 'Sign Up'}
-          </button>
-
-          <p className="mt-4 text-center text-sm text-slate-500">
-            Already have an account? <Link to="/login" className="text-brand-600 hover:underline">Log in</Link>
+    <div className="flex min-h-screen bg-white">
+      {/* Left side - Branding */}
+      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/70 to-brand-900/40"></div>
+        <div className="relative z-10 mx-auto max-w-lg">
+          <h1 className="mb-6 text-5xl font-bold tracking-tight">CRM Velvix</h1>
+          <p className="text-lg leading-relaxed text-brand-100">
+            Join the platform that helps teams streamline Lead Generation, Sales, and Marketing into one unified workflow.
           </p>
-        </form>
+        </div>
+      </div>
+
+      {/* Right side - Form */}
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
+        <div className="w-full max-w-md">
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold text-slate-900 lg:hidden mb-2">CRM Velvix</h2>
+            <h3 className="text-2xl font-semibold text-slate-800">Create an account</h3>
+            <p className="mt-2 text-slate-500">Sign up to get started with your 14-day free trial.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100">{error}</div>
+            )}
+
+            <div>
+              <label className="label">Full name</label>
+              <input
+                type="text"
+                className="input-field"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label className="label">Email address</label>
+              <input
+                type="email"
+                className="input-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="john@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="label">Role</label>
+              <select
+                className="input-field"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="admin">Admin</option>
+                <option value="lead_gen">Lead Generation</option>
+                <option value="sales">Sales</option>
+                <option value="marketing">Marketing</option>
+                <option value="manager">Manager</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="label">Password</label>
+              <input
+                type="password"
+                className="input-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="Create a strong password"
+              />
+            </div>
+
+            <button type="submit" className="btn-primary w-full py-2.5 text-base mt-2" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create account'}
+            </button>
+
+            <div className="flex items-center justify-center space-x-1 text-sm text-slate-500 pt-4">
+              <span>Already have an account?</span>
+              <Link to="/login" className="font-medium text-brand-600 hover:text-brand-700 transition">
+                Log in
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

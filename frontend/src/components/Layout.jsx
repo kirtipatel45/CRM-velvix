@@ -29,7 +29,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -52,7 +52,7 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav className="mt-4 space-y-1 px-3">
+        <nav className="mt-4 space-y-1 px-3 overflow-y-auto" style={{ maxHeight: "calc(100vh - 140px)" }}>
           {navItems
             .filter((item) => !item.roles || item.roles.includes(user?.role) || user?.role === 'admin')
             .map(({ to, icon: Icon, label }) => (
@@ -75,7 +75,7 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="absolute bottom-0 w-full border-t border-brand-700 p-4">
+        <div className="absolute bottom-0 w-full border-t border-brand-700 p-4 bg-brand-900">
           <div className="mb-3 truncate text-sm">
             <p className="font-medium">{user?.name}</p>
             <p className="text-xs text-brand-300">{user?.role}</p>
@@ -90,7 +90,7 @@ export default function Layout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-y-auto">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white px-4 lg:px-8">
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu size={24} />
