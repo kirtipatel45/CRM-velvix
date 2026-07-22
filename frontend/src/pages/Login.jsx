@@ -54,8 +54,9 @@ export default function Login() {
             )}
 
             <div>
-              <label className="label">Email address</label>
+              <label htmlFor="email" className="label">Email address</label>
               <input
+                id="email"
                 type="email"
                 className="input-field"
                 value={email}
@@ -66,8 +67,9 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="label">Password</label>
+              <label htmlFor="password" className="label">Password</label>
               <input
+                id="password"
                 type="password"
                 className="input-field"
                 value={password}
