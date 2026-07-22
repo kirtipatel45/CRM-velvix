@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   X,
+  Bell
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -89,19 +90,37 @@ export default function Layout() {
       </aside>
 
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white px-4 lg:px-8">
-          <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+        <header className="sticky top-0 z-30 flex shrink-0 h-20 items-center gap-4 border-b border-slate-200 bg-white px-4 lg:px-8 shadow-sm">
+          <button className="lg:hidden text-slate-500 hover:text-slate-700" onClick={() => setSidebarOpen(true)}>
             <Menu size={24} />
           </button>
+          
+          <div className="hidden lg:block">
+            <h2 className="text-xl font-semibold text-slate-800">
+              Welcome back, {user?.name?.split(' ')[0] || 'User'}! 👋
+            </h2>
+          </div>
+
           <div className="flex-1" />
-          <span className="text-sm text-slate-500">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </span>
+
+          <div className="flex items-center gap-4">
+            <button className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+            
+            <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+            
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="text-sm font-medium text-slate-700">{user?.name || 'User'}</span>
+                <span className="text-xs text-brand-600 font-medium capitalize">{user?.role?.replace('_', ' ') || 'Role'}</span>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm border border-brand-200">
+                {user?.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            </div>
+          </div>
         </header>
 
         <main className="flex-1 p-4 lg:p-8">

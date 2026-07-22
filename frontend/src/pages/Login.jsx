@@ -3,8 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@velvix.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -33,7 +33,7 @@ export default function Login() {
         <div className="relative z-10 mx-auto max-w-lg">
           <h1 className="mb-6 text-5xl font-bold tracking-tight">CRM Velvix</h1>
           <p className="text-lg leading-relaxed text-brand-100">
-            A comprehensive, professional solution for Lead Generation, Sales, and Marketing. 
+            A comprehensive, professional solution for Lead Generation, Sales, and Marketing.
             Empower your teams to close more deals faster.
           </p>
         </div>
@@ -88,9 +88,7 @@ export default function Login() {
               </Link>
             </div>
 
-            <p className="mt-8 text-center text-xs text-slate-400">
-              Demo: admin@velvix.com / admin123
-            </p>
+
           </form>
         </div>
       </div>
