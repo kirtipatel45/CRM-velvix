@@ -41,7 +41,7 @@ router.get('/export', protect, async (req, res) => {
       filter.entryDate = { $gte: start, $lte: end };
     }
 
-    const records = await Sales.find(filter).sort({ entryDate: -1 }).lean();
+    const records = await Sales.find(filter).sort({ createdAt: -1 }).lean();
     
     const exportData = records.map(r => ({
       'Sales Executive': r.salesExecutiveName,
@@ -99,7 +99,7 @@ router.get('/', protect, async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [records, total] = await Promise.all([
-      Sales.find(filter).sort({ entryDate: -1 }).skip(skip).limit(parseInt(limit)),
+      Sales.find(filter).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)),
       Sales.countDocuments(filter),
     ]);
 

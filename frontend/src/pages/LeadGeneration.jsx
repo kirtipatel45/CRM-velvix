@@ -3,6 +3,9 @@ import { Plus, Pencil, Trash2, Search, Download } from "lucide-react";
 import { leadGenAPI } from "../services/api";
 import Modal from "../components/Modal";
 import { AlertBadge } from "../components/TargetAlert";
+import TargetNotMetModal from "../components/TargetNotMetModal";
+import { toast } from "react-hot-toast";
+import { useNotification } from "../context/NotificationContext";
 
 const emptyForm = {
   employeeName: "",
@@ -24,6 +27,9 @@ export default function LeadGeneration() {
   const [form, setForm] = useState(emptyForm);
   const [filterDate, setFilterDate] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [targetModalOpen, setTargetModalOpen] = useState(false);
+  const [targetMessage, setTargetMessage] = useState("");
+  const { addNotification } = useNotification();
 
   const fetchRecords = async () => {
     setLoading(true);
@@ -71,13 +77,26 @@ export default function LeadGeneration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let result;
       if (editingId) {
-        await leadGenAPI.update(editingId, form);
+        result = await leadGenAPI.update(editingId, form);
       } else {
-        await leadGenAPI.create(form);
+        result = await leadGenAPI.create(form);
       }
       setModalOpen(false);
       fetchRecords();
+
+      const dateStr = form.entryDate ? new Date(form.entryDate).toLocaleDateString() : 'today';
+
+      if (result?.data?.data?.targetsNotMet) {
+        setTargetMessage(`You have not fulfilled your daily lead generation targets for ${dateStr}.`);
+        setTargetModalOpen(true);
+        toast.error(`Not completed for ${dateStr}`);
+        addNotification("Targets Not Met", `You did not meet your daily lead generation targets for ${dateStr}.`, "error");
+      } else {
+        toast.success(`Completed work for ${dateStr}`);
+        addNotification("Targets Met", `Congratulations! You have completed your daily lead generation targets for ${dateStr}.`, "success");
+      }
     } catch (err) {
       alert(err.response?.data?.message || "Error saving record");
     }
@@ -386,6 +405,12 @@ export default function LeadGeneration() {
           </div>
         </form>
       </Modal>
+
+      <TargetNotMetModal
+        isOpen={targetModalOpen}
+        onClose={() => setTargetModalOpen(false)}
+        message={targetMessage}
+      />
     </div>
   );
 }

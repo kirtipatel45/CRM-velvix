@@ -3,6 +3,9 @@ import { Plus, Pencil, Trash2, Search, Download } from "lucide-react";
 import { salesAPI } from "../services/api";
 import Modal from "../components/Modal";
 import { AlertBadge } from "../components/TargetAlert";
+import TargetNotMetModal from "../components/TargetNotMetModal";
+import { toast } from "react-hot-toast";
+import { useNotification } from "../context/NotificationContext";
 
 const emptyForm = {
   salesExecutiveName: "",
@@ -31,6 +34,9 @@ export default function Sales() {
   const [form, setForm] = useState(emptyForm);
   const [filterDate, setFilterDate] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [targetModalOpen, setTargetModalOpen] = useState(false);
+  const [targetMessage, setTargetMessage] = useState("");
+  const { addNotification } = useNotification();
 
   const fetchRecords = async () => {
     setLoading(true);
@@ -81,13 +87,26 @@ export default function Sales() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let result;
       if (editingId) {
-        await salesAPI.update(editingId, form);
+        result = await salesAPI.update(editingId, form);
       } else {
-        await salesAPI.create(form);
+        result = await salesAPI.create(form);
       }
       setModalOpen(false);
       fetchRecords();
+
+      const dateStr = form.entryDate ? new Date(form.entryDate).toLocaleDateString() : 'today';
+      
+      if (result?.data?.data?.targetsNotMet) {
+        setTargetMessage(`You have not fulfilled your daily sales call targets for ${dateStr}.`);
+        setTargetModalOpen(true);
+        toast.error(`Not completed for ${dateStr}`);
+        addNotification("Targets Not Met", `You did not meet your daily sales targets for ${dateStr}.`, "error");
+      } else {
+        toast.success(`Completed work for ${dateStr}`);
+        addNotification("Targets Met", `Congratulations! You have completed your daily sales targets for ${dateStr}.`, "success");
+      }
     } catch (err) {
       alert(err.response?.data?.message || "Error saving record");
     }
@@ -458,6 +477,12 @@ export default function Sales() {
           </div>
         </form>
       </Modal>
+
+      <TargetNotMetModal
+        isOpen={targetModalOpen}
+        onClose={() => setTargetModalOpen(false)}
+        message={targetMessage}
+      />
     </div>
   );
 }

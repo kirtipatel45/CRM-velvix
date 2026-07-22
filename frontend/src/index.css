@@ -34,6 +34,6 @@
   }
 
   .alert-row {
-    @apply bg-red-50 ring-1 ring-red-200;
+    @apply bg-red-50 hover:bg-red-100;
   }
 }

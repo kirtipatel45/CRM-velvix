@@ -8,6 +8,7 @@ import leadGenerationRoutes from './routes/leadGeneration.js';
 import salesRoutes from './routes/sales.js';
 import marketingRoutes from './routes/marketing.js';
 import dashboardRoutes from './routes/dashboard.js';
+import notificationRoutes from './routes/notifications.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/lead-generation', leadGenerationRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/marketing', marketingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

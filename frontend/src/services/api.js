@@ -68,4 +68,12 @@ export const marketingAPI = {
   export: (params) => api.get('/marketing/export', { params, responseType: 'blob' }),
 };
 
+export const notificationAPI = {
+  getAll: () => api.get('/notifications'),
+  create: (data) => api.post('/notifications', data),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  clearAll: () => api.delete('/notifications'),
+};
+
 export default api;

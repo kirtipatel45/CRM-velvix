@@ -9,8 +9,9 @@ import {
   X,
   Bell,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNotification } from "../context/NotificationContext";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -39,6 +40,22 @@ export default function Layout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { notifications, clearNotifications, markAsRead, markAllAsRead } = useNotification();
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -133,10 +150,90 @@ export default function Layout() {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowUserMenu(false);
+                }}
+                className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              
+              {showNotifications && (
+                <>
+                  <div 
+                    className="fixed inset-0 bg-black/20 z-40" 
+                    onClick={() => setShowNotifications(false)}
+                  />
+                  <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 bg-white">
+                      <h3 className="font-bold text-lg text-slate-800">Notifications</h3>
+                      <button 
+                        onClick={() => setShowNotifications(false)} 
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-100">
+                      {unreadCount > 0 ? (
+                        <button onClick={markAllAsRead} className="text-xs text-brand-600 hover:text-brand-800 font-medium transition-colors">
+                          Mark all read
+                        </button>
+                      ) : <div />}
+                      {notifications.length > 0 && (
+                        <button onClick={clearNotifications} className="text-xs text-slate-500 hover:text-slate-700 font-medium transition-colors">
+                          Clear all
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-sm text-slate-500">
+                        No new notifications
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {notifications.map((notif) => (
+                          <div 
+                            key={notif._id} 
+                            onClick={() => {
+                              if (!notif.read) markAsRead(notif._id);
+                            }}
+                            className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.read ? 'bg-brand-50/30' : ''}`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className={`text-sm font-semibold ${notif.type === 'error' ? 'text-red-600' : notif.type === 'success' ? 'text-brand-600' : 'text-slate-700'}`}>
+                                  {notif.title}
+                                </p>
+                                <p className="text-sm text-slate-600 mt-0.5">
+                                  {notif.message}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">
+                                  {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              {!notif.read && (
+                                <div className="mt-1 h-2 w-2 rounded-full bg-brand-500 shrink-0"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                </>
+              )}
+            </div>
 
             <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
@@ -144,7 +241,10 @@ export default function Layout() {
             <div className="relative hidden sm:block">
               <button
                 className="flex items-center gap-3 rounded-lg p-1 pr-2 hover:bg-slate-100 transition-colors"
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={() => {
+                  setShowUserMenu(!showUserMenu);
+                  setShowNotifications(false);
+                }}
               >
                 <div className="flex flex-col items-end">
                   <span className="text-sm font-medium text-slate-700">
