@@ -14,6 +14,7 @@ const salesSchema = new mongoose.Schema(
     voiceMailCount: { type: Number, min: 0, default: 0 },
     followUpsRequired: { type: Number, min: 0, default: 0 },
     followUpDate: { type: Date },
+    followUpReminderSent: { type: Boolean, default: false },
     interestedCandidates: { type: Number, min: 0, default: 0 },
     interestedStage: {
       type: String,

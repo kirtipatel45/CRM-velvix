@@ -9,6 +9,7 @@ import salesRoutes from './routes/sales.js';
 import marketingRoutes from './routes/marketing.js';
 import dashboardRoutes from './routes/dashboard.js';
 import notificationRoutes from './routes/notifications.js';
+import { startFollowUpCronJob } from './jobs/followUpReminder.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 connectDB();
+startFollowUpCronJob();
 
 app.use(cors());
 app.use(express.json());

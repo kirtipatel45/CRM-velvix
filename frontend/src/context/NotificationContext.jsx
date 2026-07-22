@@ -20,11 +20,16 @@ export const NotificationProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    let intervalId;
     if (user) {
       fetchNotifications();
+      intervalId = setInterval(fetchNotifications, 10000); // Poll every 10 seconds
     } else {
       setNotifications([]);
     }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [user]);
 
   const addNotification = async (title, message, type = 'info') => {
