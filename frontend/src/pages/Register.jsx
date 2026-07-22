@@ -46,7 +46,7 @@ export default function Register() {
           <div className="mb-10">
             <h2 className="text-3xl font-bold text-slate-900 lg:hidden mb-2">CRM Velvix</h2>
             <h3 className="text-2xl font-semibold text-slate-800">Create an account</h3>
-            <p className="mt-2 text-slate-500">Sign up to get started with your 14-day free trial.</p>
+            <p className="mt-2 text-slate-500">Create an account to access the company CRM portal.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
