@@ -6,8 +6,8 @@ import Modal from "../components/Modal";
 const emptyCandidate = {
   candidateName: "",
   jobTitle: "",
-  experienceYears: 0,
-  experienceMonths: 0,
+  experienceYears: "",
+  experienceMonths: "",
 };
 
 const emptyForm = {
@@ -143,14 +143,14 @@ export default function Marketing() {
       const res = await marketingAPI.export(params);
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'marketing.xlsx');
+      link.setAttribute("download", "marketing.xlsx");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      alert('Error exporting data');
+      alert("Error exporting data");
     }
   };
 
@@ -362,7 +362,7 @@ export default function Marketing() {
                     placeholder="Years"
                     value={c.experienceYears}
                     onChange={(e) =>
-                      updateCandidate(i, "experienceYears", +e.target.value)
+                      updateCandidate(i, "experienceYears", e.target.value === '' ? '' : +e.target.value)
                     }
                   />
                   <input
@@ -373,7 +373,7 @@ export default function Marketing() {
                     placeholder="Months"
                     value={c.experienceMonths}
                     onChange={(e) =>
-                      updateCandidate(i, "experienceMonths", +e.target.value)
+                      updateCandidate(i, "experienceMonths", e.target.value === '' ? '' : +e.target.value)
                     }
                   />
                   {form.candidates.length > 1 && (
