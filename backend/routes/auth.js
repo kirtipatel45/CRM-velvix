@@ -28,7 +28,8 @@ router.post(
       if (exists) {
         return res.status(400).json({ success: false, message: 'User already exists' });
       }
-      const user = await User.create({ name, email, password, role: role || 'admin' });
+      const normalizedRole = role ? role.toLowerCase() : 'admin';
+      const user = await User.create({ name, email, password, role: normalizedRole });
       res.status(201).json({
         success: true,
         data: {
