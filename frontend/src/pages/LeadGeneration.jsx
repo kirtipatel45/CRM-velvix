@@ -104,7 +104,7 @@ export default function LeadGeneration() {
       if (filterDate) params.date = filterDate;
       if (searchName) params.employeeName = searchName;
       const res = await leadGenAPI.export(params);
-      
+
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;

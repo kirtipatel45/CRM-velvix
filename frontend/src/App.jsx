@@ -17,9 +17,9 @@ function PrivateRoute({ children, roles }) {
       </div>
     );
   }
-  
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  
+
   if (roles && !roles.includes(user?.role) && user?.role !== 'admin') {
     return <Navigate to="/" replace />;
   }

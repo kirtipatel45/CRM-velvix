@@ -105,7 +105,7 @@ export default function Sales() {
       if (filterDate) params.date = filterDate;
       if (searchName) params.salesExecutiveName = searchName;
       const res = await salesAPI.export(params);
-      
+
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;

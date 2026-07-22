@@ -18,7 +18,6 @@ export default function Register() {
     setLoading(true);
     try {
       await register(name, email, password, role);
-      alert('Registration successful! Please log in.');
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
