@@ -8,6 +8,7 @@ import {
   formatMinutesToDuration,
   SALES_TARGETS,
 } from '../utils/calculations.js';
+import { sendEmail } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -138,6 +139,16 @@ router.post(
         ...data,
         createdBy: req.user._id,
       });
+      
+      if (record.targetsNotMet) {
+        const dateStr = record.entryDate ? new Date(record.entryDate).toLocaleDateString() : 'today';
+        sendEmail({
+          email: req.user.email,
+          subject: 'Daily Targets Not Met - Sales',
+          message: `Hello ${req.user.name},\n\nYou did not meet your daily sales targets for ${dateStr}.\n\nPlease review your activity and ensure you are on track.`,
+        }).catch(err => console.error("Email error:", err));
+      }
+
       res.status(201).json({ success: true, data: record });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
@@ -148,11 +159,23 @@ router.post(
 router.put('/:id', protect, async (req, res) => {
   try {
     const data = applyMetrics(req.body);
-    const record = await Sales.findByIdAndUpdate(req.params.id, data, {
-      new: true,
-      runValidators: true,
-    });
+    const record = await Sales.findByIdAndUpdate(
+      req.params.id,
+      { ...data },
+      { new: true, runValidators: true }
+    );
+
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });
+
+    if (record.targetsNotMet) {
+      const dateStr = record.entryDate ? new Date(record.entryDate).toLocaleDateString() : 'today';
+      sendEmail({
+        email: req.user.email,
+        subject: 'Daily Targets Not Met - Sales (Updated)',
+        message: `Hello ${req.user.name},\n\nYou recently updated an entry for ${dateStr} and still did not meet your daily sales targets.\n\nPlease review your activity and ensure you are on track.`,
+      }).catch(err => console.error("Email error:", err));
+    }
+
     res.json({ success: true, data: record });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
