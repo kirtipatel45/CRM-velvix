@@ -6,6 +6,7 @@ import { AlertBadge } from "../components/TargetAlert";
 import TargetNotMetModal from "../components/TargetNotMetModal";
 import { toast } from "react-hot-toast";
 import { useNotification } from "../context/NotificationContext";
+import { useAuth } from "../context/AuthContext";
 
 const emptyForm = {
   employeeName: "",
@@ -19,6 +20,7 @@ const emptyForm = {
 };
 
 export default function LeadGeneration() {
+  const { user } = useAuth();
   const [records, setRecords] = useState([]);
   const [connectionRanges, setConnectionRanges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -259,18 +261,22 @@ export default function LeadGeneration() {
                     {r.targetsNotMet && <AlertBadge />}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => openEdit(r)}
-                      className="mr-2 text-brand-600 hover:text-brand-800"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(r._id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (r.createdBy?._id || r.createdBy)) && (
+                      <>
+                        <button
+                          onClick={() => openEdit(r)}
+                          className="mr-2 text-brand-600 hover:text-brand-800"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(r._id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
