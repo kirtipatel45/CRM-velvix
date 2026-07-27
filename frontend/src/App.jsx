@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
 const Sales = lazy(() => import("./pages/Sales"));
@@ -39,6 +40,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/"
           element={

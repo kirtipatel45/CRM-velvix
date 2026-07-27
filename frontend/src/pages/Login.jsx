@@ -67,7 +67,12 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="label">Password</label>
+              <div className="flex justify-between items-center">
+                <label htmlFor="password" className="label mb-0">Password</label>
+                <Link to="/forgot-password" className="text-sm font-medium text-brand-600 hover:text-brand-700">
+                  Forgot Password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"

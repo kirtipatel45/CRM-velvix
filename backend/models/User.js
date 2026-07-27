@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
       default: 'admin',
     },
     isActive: { type: Boolean, default: true },
+    resetPasswordOtp: { type: String },
+    resetPasswordOtpExpire: { type: Date },
   },
   { timestamps: true }
 );
