@@ -9,6 +9,7 @@ import {
   LEAD_GEN_TARGETS,
 } from '../utils/calculations.js';
 import { sendEmail } from '../utils/email.js';
+import { createExportWorksheet } from '../utils/exportHelper.js';
 
 const router = express.Router();
 
@@ -41,19 +42,19 @@ router.get('/export', protect, async (req, res) => {
     const records = await LeadGeneration.find(filter).sort({ createdAt: -1 }).lean();
     
     const exportData = records.map(r => ({
-      'Employee Name': r.employeeName,
-      'Date': r.entryDate ? r.entryDate.toISOString().split('T')[0] : '',
-      'LinkedIn Accounts': r.linkedInAccountsCount,
-      'Resume Leads': r.dailyResumeLeads,
-      'Chat Leads': r.dailyChatLeads,
-      'Total Leads': r.totalLeadsGenerated,
-      'Resume Ratio (%)': r.resumeLeadRatio,
-      'Chat Ratio (%)': r.chatLeadRatio,
+      'Employee Name': r.employeeName || '',
+      'Date': r.entryDate ? new Date(r.entryDate).toISOString().split('T')[0] : '',
+      'LinkedIn Accounts': r.linkedInAccountsCount || 0,
+      'Resume Leads': r.dailyResumeLeads || 0,
+      'Chat Leads': r.dailyChatLeads || 0,
+      'Total Leads': r.totalLeadsGenerated || 0,
+      'Resume Ratio (%)': r.resumeLeadRatio !== undefined ? Number(r.resumeLeadRatio.toFixed(2)) : 0,
+      'Chat Ratio (%)': r.chatLeadRatio !== undefined ? Number(r.chatLeadRatio.toFixed(2)) : 0,
       'Targets Met': !r.targetsNotMet ? 'Yes' : 'No',
       'Notes': r.notes || ''
     }));
 
-    const ws = xlsx.utils.json_to_sheet(exportData);
+    const ws = createExportWorksheet(exportData);
     const wb = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(wb, ws, 'Lead Generation');
     

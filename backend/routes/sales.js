@@ -9,6 +9,7 @@ import {
   SALES_TARGETS,
 } from '../utils/calculations.js';
 import { sendEmail } from '../utils/email.js';
+import { createExportWorksheet } from '../utils/exportHelper.js';
 
 const router = express.Router();
 
@@ -45,23 +46,24 @@ router.get('/export', protect, async (req, res) => {
     const records = await Sales.find(filter).sort({ createdAt: -1 }).lean();
     
     const exportData = records.map(r => ({
-      'Sales Executive': r.salesExecutiveName,
-      'Date': r.entryDate ? r.entryDate.toISOString().split('T')[0] : '',
-      'Assigned Leads': r.dailyAssignedLeadsCount,
-      'Self Sourced': r.extraSelfSourcedLeads,
-      'Total Leads': r.totalAssignedLeads,
-      'Call Count': r.dailyCallCount,
-      'Call Duration (mins)': r.callDurationMinutes,
-      'Not Answered': r.notAnsweredCalls,
-      'Not Interested': r.notInterestedCalls,
-      'Voicemail': r.voiceMailCount,
-      'Follow Ups': r.followUpsRequired,
-      'Interested': r.interestedCandidates,
+      'Sales Executive': r.salesExecutiveName || '',
+      'Date': r.entryDate ? new Date(r.entryDate).toISOString().split('T')[0] : '',
+      'Assigned Leads': r.dailyAssignedLeadsCount || 0,
+      'Self Sourced': r.extraSelfSourcedLeads || 0,
+      'Total Leads': r.totalAssignedLeads || 0,
+      'Call Count': r.dailyCallCount || 0,
+      'Call Duration (mins)': r.callDurationMinutes || 0,
+      'Formatted Duration': r.dailyCallDuration || '0h 0m',
+      'Not Answered': r.notAnsweredCalls || 0,
+      'Not Interested': r.notInterestedCalls || 0,
+      'Voicemail': r.voiceMailCount || 0,
+      'Follow Ups': r.followUpsRequired || 0,
+      'Interested': r.interestedCandidates || 0,
       'Targets Met': !r.targetsNotMet ? 'Yes' : 'No',
       'Notes': r.notes || ''
     }));
 
-    const ws = xlsx.utils.json_to_sheet(exportData);
+    const ws = createExportWorksheet(exportData);
     const wb = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(wb, ws, 'Sales');
     

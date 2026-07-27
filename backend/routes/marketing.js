@@ -4,6 +4,7 @@ import Marketing from '../models/Marketing.js';
 import { protect } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import { INTERVIEW_STAGES } from '../utils/calculations.js';
+import { createExportWorksheet } from '../utils/exportHelper.js';
 
 const router = express.Router();
 
@@ -31,18 +32,20 @@ router.get('/export', protect, async (req, res) => {
     const records = await Marketing.find(filter).sort({ createdAt: -1 }).lean();
     
     const exportData = records.map(r => ({
-      'TL Name': r.teamLeaderName,
-      'Recruiter Name': r.employeeName,
-      'Date': r.entryDate ? r.entryDate.toISOString().split('T')[0] : '',
+      'TL Name': r.teamLeaderName || '',
+      'Recruiter Name': r.employeeName || '',
+      'Date': r.entryDate ? new Date(r.entryDate).toISOString().split('T')[0] : '',
       'Candidates': r.candidates ? r.candidates.length : 0,
-      'Total Applications': r.totalApplications,
-      'Assessments': r.assessmentsReceived,
-      'Screening Calls': r.screeningCallsCompleted,
-      'Total Interviews': r.totalInterviews,
+      'Long Applications': r.longApplicationsSubmitted || 0,
+      'Easy Applications': r.easyApplicationsSubmitted || 0,
+      'Total Applications': r.totalApplications || 0,
+      'Assessments': r.assessmentsReceived || 0,
+      'Screening Calls': r.screeningCallsCompleted || 0,
+      'Total Interviews': r.totalInterviews || 0,
       'Notes': r.notes || ''
     }));
 
-    const ws = xlsx.utils.json_to_sheet(exportData);
+    const ws = createExportWorksheet(exportData);
     const wb = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(wb, ws, 'Marketing');
     
