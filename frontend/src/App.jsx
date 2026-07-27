@@ -10,6 +10,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
 const Sales = lazy(() => import("./pages/Sales"));
 const Marketing = lazy(() => import("./pages/Marketing"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 function PrivateRoute({ children, roles }) {
   const { user, isAuthenticated, loading } = useAuth();
@@ -73,6 +74,10 @@ export default function App() {
                 <Marketing />
               </PrivateRoute>
             }
+          />
+          <Route 
+            path="profile" 
+            element={<Profile />} 
           />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

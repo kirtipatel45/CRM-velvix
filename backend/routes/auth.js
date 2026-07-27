@@ -82,6 +82,32 @@ router.get('/me', protect, async (req, res) => {
   res.json({ success: true, data: req.user });
 });
 
+router.put(
+  '/change-password',
+  protect,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
+  ],
+  validate,
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user._id).select('+password');
+      
+      if (!(await user.matchPassword(req.body.currentPassword))) {
+        return res.status(401).json({ success: false, message: 'Invalid current password' });
+      }
+
+      user.password = req.body.newPassword;
+      await user.save();
+
+      res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
 router.post(
   '/forgot-password',
   [body('email').isEmail().withMessage('Valid email is required')],
