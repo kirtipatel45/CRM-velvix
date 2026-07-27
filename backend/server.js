@@ -13,6 +13,10 @@ import { startFollowUpCronJob } from './jobs/followUpReminder.js';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ WARNING: JWT_SECRET environment variable is not defined. Using fallback key.');
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

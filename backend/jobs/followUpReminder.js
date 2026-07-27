@@ -5,8 +5,9 @@ import Notification from '../models/Notification.js';
 import { sendEmail } from '../utils/email.js';
 
 export const startFollowUpCronJob = () => {
-  // Run every minute for testing. For production, you could use '0 8 * * *' (every day at 8:00 AM)
-  cron.schedule('* * * * *', async () => {
+  // Run once daily at 8:00 AM by default, or as configured by env
+  const schedulePattern = process.env.FOLLOWUP_CRON_SCHEDULE || '0 8 * * *';
+  cron.schedule(schedulePattern, async () => {
     try {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);

@@ -34,6 +34,8 @@ const salesSchema = new mongoose.Schema(
 );
 
 salesSchema.index({ entryDate: -1, salesExecutiveName: 1 });
+salesSchema.index({ followUpDate: 1, followUpReminderSent: 1 });
+salesSchema.index({ createdBy: 1, entryDate: -1 });
 
 const Sales = mongoose.model('Sales', salesSchema);
 export default Sales;

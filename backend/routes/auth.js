@@ -30,7 +30,8 @@ router.post(
       if (exists) {
         return res.status(400).json({ success: false, message: 'User already exists' });
       }
-      const normalizedRole = role ? role.toLowerCase() : 'admin';
+      const allowedRoles = ['lead_gen', 'sales', 'marketing', 'manager', 'admin'];
+      const normalizedRole = role && allowedRoles.includes(role.toLowerCase()) ? role.toLowerCase() : 'lead_gen';
       const user = await User.create({ name, email, password, role: normalizedRole });
       res.status(201).json({
         success: true,

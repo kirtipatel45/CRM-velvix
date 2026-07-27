@@ -28,6 +28,7 @@ const leadGenerationSchema = new mongoose.Schema(
 );
 
 leadGenerationSchema.index({ entryDate: -1, employeeName: 1 });
+leadGenerationSchema.index({ createdBy: 1, entryDate: -1 });
 
 const LeadGeneration = mongoose.model('LeadGeneration', leadGenerationSchema);
 export default LeadGeneration;

@@ -37,6 +37,7 @@ const marketingSchema = new mongoose.Schema(
 );
 
 marketingSchema.index({ entryDate: -1, employeeName: 1 });
+marketingSchema.index({ createdBy: 1, entryDate: -1 });
 
 const Marketing = mongoose.model('Marketing', marketingSchema);
 export default Marketing;
