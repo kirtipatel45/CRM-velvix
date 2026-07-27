@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
+  User,
   Phone,
   Megaphone,
   LogOut,
@@ -72,9 +73,8 @@ export default function Layout() {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-brand-900 text-white transition-transform lg:static lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-brand-900 text-white transition-transform lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex h-16 items-center justify-between px-6">
           <div>
@@ -104,10 +104,9 @@ export default function Layout() {
                 end={to === "/"}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-brand-700 text-white"
-                      : "text-brand-100 hover:bg-brand-800 hover:text-white"
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+                    ? "bg-brand-700 text-white"
+                    : "text-brand-100 hover:bg-brand-800 hover:text-white"
                   }`
                 }
               >
@@ -165,18 +164,18 @@ export default function Layout() {
                   </span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <>
-                  <div 
-                    className="fixed inset-0 bg-black/20 z-40" 
+                  <div
+                    className="fixed inset-0 bg-black/20 z-40"
                     onClick={() => setShowNotifications(false)}
                   />
                   <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
                     <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 bg-white">
                       <h3 className="font-bold text-lg text-slate-800">Notifications</h3>
-                      <button 
-                        onClick={() => setShowNotifications(false)} 
+                      <button
+                        onClick={() => setShowNotifications(false)}
                         className="text-slate-400 hover:text-slate-600 transition-colors"
                       >
                         <X size={20} />
@@ -195,42 +194,42 @@ export default function Layout() {
                       )}
                     </div>
                     <div className="flex-1 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-sm text-slate-500">
-                        No new notifications
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-slate-100">
-                        {notifications.map((notif) => (
-                          <div 
-                            key={notif._id} 
-                            onClick={() => {
-                              if (!notif.read) markAsRead(notif._id);
-                            }}
-                            className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.read ? 'bg-brand-50/30' : ''}`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <p className={`text-sm font-semibold ${notif.type === 'error' ? 'text-red-600' : notif.type === 'success' ? 'text-brand-600' : 'text-slate-700'}`}>
-                                  {notif.title}
-                                </p>
-                                <p className="text-sm text-slate-600 mt-0.5">
-                                  {notif.message}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-6 text-center text-sm text-slate-500">
+                          No new notifications
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-slate-100">
+                          {notifications.map((notif) => (
+                            <div
+                              key={notif._id}
+                              onClick={() => {
+                                if (!notif.read) markAsRead(notif._id);
+                              }}
+                              className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.read ? 'bg-brand-50/30' : ''}`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <p className={`text-sm font-semibold ${notif.type === 'error' ? 'text-red-600' : notif.type === 'success' ? 'text-brand-600' : 'text-slate-700'}`}>
+                                    {notif.title}
+                                  </p>
+                                  <p className="text-sm text-slate-600 mt-0.5">
+                                    {notif.message}
+                                  </p>
+                                  <p className="text-xs text-slate-400 mt-1">
+                                    {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                                {!notif.read && (
+                                  <div className="mt-1 h-2 w-2 rounded-full bg-brand-500 shrink-0"></div>
+                                )}
                               </div>
-                              {!notif.read && (
-                                <div className="mt-1 h-2 w-2 rounded-full bg-brand-500 shrink-0"></div>
-                              )}
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
                 </>
               )}
             </div>
@@ -268,6 +267,16 @@ export default function Layout() {
                     <p className="text-xs text-slate-500">{user?.email}</p>
                   </div>
                   <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate("/profile");
+                      }}
+                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      <User size={16} className="text-slate-500" />
+                      <span className="font-medium flex-1 text-left">Profile</span>
+                    </button>
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
