@@ -1,4 +1,4 @@
-export default function Modal({ isOpen, onClose, title, children, size = 'md' }) {
+export default function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
   if (!isOpen) return null;
 
   const sizes = {

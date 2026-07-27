@@ -15,39 +15,7 @@ const validate = (req, res, next) => {
   next();
 };
 
-router.post(
-  '/register',
-  [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  ],
-  validate,
-  async (req, res) => {
-    try {
-      const { name, email, password, role } = req.body;
-      const exists = await User.findOne({ email });
-      if (exists) {
-        return res.status(400).json({ success: false, message: 'User already exists' });
-      }
-      const allowedRoles = ['lead_gen', 'sales', 'marketing', 'manager', 'admin'];
-      const normalizedRole = role && allowedRoles.includes(role.toLowerCase()) ? role.toLowerCase() : 'lead_gen';
-      const user = await User.create({ name, email, password, role: normalizedRole });
-      res.status(201).json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          token: generateToken(user._id),
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-);
+// Public registration removed - Only Admin can create users via /api/users
 
 router.post(
   '/login',
@@ -63,6 +31,14 @@ router.post(
       if (!user || !(await user.matchPassword(password))) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
+
+      if (user.status === 'Inactive' || user.isActive === false) {
+        return res.status(401).json({ success: false, message: 'Account is deactivated. Please contact admin.' });
+      }
+
+      user.lastLogin = new Date();
+      await user.save({ validateBeforeSave: false });
+
       res.json({
         success: true,
         data: {
@@ -70,6 +46,8 @@ router.post(
           name: user.name,
           email: user.email,
           role: user.role,
+          status: user.status || 'Active',
+          mobileNumber: user.mobileNumber || '',
           token: generateToken(user._id),
         },
       });
@@ -100,6 +78,7 @@ router.put(
       }
 
       user.password = req.body.newPassword;
+      user.passwordChangedAt = new Date();
       await user.save();
 
       res.json({ success: true, message: 'Password updated successfully' });

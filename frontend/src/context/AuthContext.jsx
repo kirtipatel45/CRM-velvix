@@ -37,12 +37,6 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
-  const register = async (name, email, password, role) => {
-    const res = await authAPI.register({ name, email, password, role });
-    // Do NOT auto-login. Let the user redirect to login page.
-    return res.data;
-  };
-
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -50,7 +44,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

@@ -88,13 +88,6 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
 
-            <div className="flex items-center justify-center space-x-1 text-sm text-slate-500">
-              <span>Don't have an account?</span>
-              <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700 transition">
-                Sign up
-              </Link>
-            </div>
-
 
           </form>
         </div>

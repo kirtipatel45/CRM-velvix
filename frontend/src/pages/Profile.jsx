@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { useNotification } from '../context/NotificationContext';
-import { User, Mail, Shield, Key } from 'lucide-react';
+import { User, Mail, Shield, Key, Phone, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { addNotification } = useNotification();
   
   const [currentPassword, setCurrentPassword] = useState('');
@@ -36,12 +38,17 @@ export default function Profile() {
       addNotification({
         type: 'success',
         title: 'Success',
-        message: 'Password changed successfully',
+        message: 'Password changed successfully. Please log in with your new password.',
       });
-      setSuccessMessage('Password successfully changed');
+      setSuccessMessage('Password successfully changed! Logging out in 2 seconds...');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      
+      setTimeout(() => {
+        logout();
+        navigate('/login');
+      }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to change password');
     } finally {
@@ -73,12 +80,28 @@ export default function Profile() {
               </p>
               <p className="mt-1 text-base font-semibold text-slate-900">{user?.email}</p>
             </div>
+            {user?.mobileNumber && (
+              <div>
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                  <Phone size={16} /> Mobile Number
+                </p>
+                <p className="mt-1 text-base font-semibold text-slate-900">{user?.mobileNumber}</p>
+              </div>
+            )}
             <div>
               <p className="text-sm font-medium text-slate-500 flex items-center gap-2">
                 <Shield size={16} /> Role
               </p>
               <p className="mt-1 inline-flex items-center rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-brand-800">
                 {user?.role?.replace('_', ' ')}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                <CheckCircle2 size={16} /> Status
+              </p>
+              <p className="mt-1 inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                {user?.status || 'Active'}
               </p>
             </div>
           </div>

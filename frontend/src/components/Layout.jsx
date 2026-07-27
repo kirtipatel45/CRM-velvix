@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Bell,
+  UserCheck,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +17,12 @@ import { useNotification } from "../context/NotificationContext";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+  {
+    to: "/employees",
+    icon: UserCheck,
+    label: "Employees",
+    roles: ["admin"],
+  },
   {
     to: "/lead-generation",
     icon: Users,

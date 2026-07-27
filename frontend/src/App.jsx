@@ -4,13 +4,13 @@ import { lazy, Suspense } from "react";
 import Layout from "./components/Layout";
 
 const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
 const Sales = lazy(() => import("./pages/Sales"));
 const Marketing = lazy(() => import("./pages/Marketing"));
 const Profile = lazy(() => import("./pages/Profile"));
+const EmployeeManagement = lazy(() => import("./pages/EmployeeManagement"));
 
 function PrivateRoute({ children, roles }) {
   const { user, isAuthenticated, loading } = useAuth();
@@ -40,7 +40,7 @@ export default function App() {
     }>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/"
@@ -72,6 +72,14 @@ export default function App() {
             element={
               <PrivateRoute roles={['marketing', 'manager']}>
                 <Marketing />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="employees"
+            element={
+              <PrivateRoute roles={['admin']}>
+                <EmployeeManagement />
               </PrivateRoute>
             }
           />

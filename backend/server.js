@@ -9,6 +9,7 @@ import salesRoutes from './routes/sales.js';
 import marketingRoutes from './routes/marketing.js';
 import dashboardRoutes from './routes/dashboard.js';
 import notificationRoutes from './routes/notifications.js';
+import userRoutes from './routes/user.js';
 import { startFollowUpCronJob } from './jobs/followUpReminder.js';
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/lead-generation', leadGenerationRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/marketing', marketingRoutes);
