@@ -70,9 +70,10 @@ const applyMetrics = (body) => {
     }));
   }
 
-  const totalInterviews =
-    body.totalInterviews ??
-    interviewStages.reduce((sum, s) => sum + (s.completed || 0), 0);
+  const totalInterviews = interviewStages.reduce(
+    (sum, s) => sum + (Number(s.completed) || 0),
+    0
+  );
 
   return {
     ...body,
