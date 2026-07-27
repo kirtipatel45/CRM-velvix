@@ -185,17 +185,21 @@ export default function Marketing() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
+              id="mktg-search"
               className="input-field pl-9"
               placeholder="Search by recruiter name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
+              aria-label="Search by recruiter name"
             />
           </div>
           <input
+            id="mktg-date-filter"
             type="date"
             className="input-field sm:w-48"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
+            aria-label="Filter by date"
           />
         </div>
       </div>
@@ -211,25 +215,25 @@ export default function Marketing() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   TL / Recruiter
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Candidates
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Applications
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Screening
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Interviews
                 </th>
-                <th className="px-4 py-3 text-right font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
                   Actions
                 </th>
               </tr>
@@ -265,12 +269,14 @@ export default function Marketing() {
                         <button
                           onClick={() => openEdit(r)}
                           className="mr-2 text-brand-600 hover:text-brand-800"
+                          aria-label={`Edit marketing entry for ${r.employeeName}`}
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(r._id)}
                           className="text-red-500 hover:text-red-700"
+                          aria-label={`Delete marketing entry for ${r.employeeName}`}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -293,8 +299,9 @@ export default function Marketing() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label className="label">Team Leader Name *</label>
+              <label htmlFor="mktg-tl-name" className="label">Team Leader Name *</label>
               <input
+                id="mktg-tl-name"
                 className="input-field"
                 value={form.teamLeaderName}
                 onChange={(e) =>
@@ -304,8 +311,9 @@ export default function Marketing() {
               />
             </div>
             <div>
-              <label className="label">Recruiter Name *</label>
+              <label htmlFor="mktg-rec-name" className="label">Recruiter Name *</label>
               <input
+                id="mktg-rec-name"
                 className="input-field"
                 value={form.employeeName}
                 onChange={(e) =>
@@ -315,8 +323,9 @@ export default function Marketing() {
               />
             </div>
             <div>
-              <label className="label">Entry Date</label>
+              <label htmlFor="mktg-entry-date" className="label">Entry Date</label>
               <input
+                id="mktg-entry-date"
                 type="date"
                 className="input-field"
                 value={form.entryDate}
@@ -329,7 +338,7 @@ export default function Marketing() {
 
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <label className="label mb-0">Candidate Details</label>
+              <span className="label mb-0 font-medium text-slate-700">Candidate Details</span>
               <button
                 type="button"
                 onClick={addCandidate}
@@ -346,22 +355,27 @@ export default function Marketing() {
                   className="grid gap-3 rounded-lg border border-slate-200 p-3 sm:grid-cols-5"
                 >
                   <input
+                    id={`cand-name-${i}`}
                     className="input-field"
                     placeholder="Candidate Name"
                     value={c.candidateName}
                     onChange={(e) =>
                       updateCandidate(i, "candidateName", e.target.value)
                     }
+                    aria-label={`Candidate ${i + 1} Name`}
                   />
                   <input
+                    id={`cand-title-${i}`}
                     className="input-field"
                     placeholder="Job Title"
                     value={c.jobTitle}
                     onChange={(e) =>
                       updateCandidate(i, "jobTitle", e.target.value)
                     }
+                    aria-label={`Candidate ${i + 1} Job Title`}
                   />
                   <input
+                    id={`cand-years-${i}`}
                     type="number"
                     min="0"
                     className="input-field"
@@ -370,8 +384,10 @@ export default function Marketing() {
                     onChange={(e) =>
                       updateCandidate(i, "experienceYears", e.target.value === '' ? '' : +e.target.value)
                     }
+                    aria-label={`Candidate ${i + 1} Experience Years`}
                   />
                   <input
+                    id={`cand-months-${i}`}
                     type="number"
                     min="0"
                     max="11"
@@ -381,12 +397,14 @@ export default function Marketing() {
                     onChange={(e) =>
                       updateCandidate(i, "experienceMonths", e.target.value === '' ? '' : +e.target.value)
                     }
+                    aria-label={`Candidate ${i + 1} Experience Months`}
                   />
                   {form.candidates.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeCandidate(i)}
                       className="btn-danger text-xs"
+                      aria-label={`Remove Candidate ${i + 1}`}
                     >
                       Remove
                     </button>
@@ -397,13 +415,14 @@ export default function Marketing() {
           </div>
 
           <div>
-            <label className="label">Application Metrics</label>
+            <span className="label font-medium text-slate-700 block mb-2">Application Metrics</span>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="text-xs text-slate-500">
+                <label htmlFor="mktg-long-apps" className="text-xs text-slate-500 block mb-1">
                   Long Applications Submitted
                 </label>
                 <input
+                  id="mktg-long-apps"
                   type="number"
                   min="0"
                   className="input-field"
@@ -417,10 +436,11 @@ export default function Marketing() {
                 />
               </div>
               <div>
-                <label className="text-xs text-slate-500">
+                <label htmlFor="mktg-easy-apps" className="text-xs text-slate-500 block mb-1">
                   Easy Applications Submitted
                 </label>
                 <input
+                  id="mktg-easy-apps"
                   type="number"
                   min="0"
                   className="input-field"
@@ -437,13 +457,14 @@ export default function Marketing() {
           </div>
 
           <div>
-            <label className="label">Screening & Assessment</label>
+            <span className="label font-medium text-slate-700 block mb-2">Screening & Assessment</span>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="text-xs text-slate-500">
+                <label htmlFor="mktg-assessments" className="text-xs text-slate-500 block mb-1">
                   Assessments Received
                 </label>
                 <input
+                  id="mktg-assessments"
                   type="number"
                   min="0"
                   className="input-field"
@@ -454,10 +475,11 @@ export default function Marketing() {
                 />
               </div>
               <div>
-                <label className="text-xs text-slate-500">
+                <label htmlFor="mktg-screening" className="text-xs text-slate-500 block mb-1">
                   Screening Calls Completed
                 </label>
                 <input
+                  id="mktg-screening"
                   type="number"
                   min="0"
                   className="input-field"
@@ -474,7 +496,7 @@ export default function Marketing() {
           </div>
 
           <div>
-            <label className="label">Interview Tracking (Round 1, 2, 3)</label>
+            <span className="label font-medium text-slate-700 block mb-2">Interview Tracking (Round 1, 2, 3)</span>
             <div className="space-y-2">
               {form.interviewStages.map((stage, i) => (
                 <div
@@ -485,8 +507,9 @@ export default function Marketing() {
                     {stage.stage}
                   </span>
                   <div>
-                    <label className="text-xs text-slate-500">Scheduled</label>
+                    <label htmlFor={`stage-sched-${i}`} className="text-xs text-slate-500 block mb-1">Scheduled</label>
                     <input
+                      id={`stage-sched-${i}`}
                       type="number"
                       min="0"
                       className="input-field"
@@ -497,8 +520,9 @@ export default function Marketing() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Completed</label>
+                    <label htmlFor={`stage-comp-${i}`} className="text-xs text-slate-500 block mb-1">Completed</label>
                     <input
+                      id={`stage-comp-${i}`}
                       type="number"
                       min="0"
                       className="input-field"
@@ -514,8 +538,9 @@ export default function Marketing() {
           </div>
 
           <div>
-            <label className="label">Notes</label>
+            <label htmlFor="mktg-notes" className="label">Notes</label>
             <textarea
+              id="mktg-notes"
               className="input-field"
               rows={2}
               value={form.notes}

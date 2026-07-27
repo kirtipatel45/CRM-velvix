@@ -25,7 +25,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <main className="flex min-h-screen bg-white">
       {/* Left side - Branding */}
       <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
@@ -50,7 +50,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100">{error}</div>
+              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100" role="alert">{error}</div>
             )}
 
             <div>
@@ -87,11 +87,9 @@ export default function Login() {
             <button type="submit" className="btn-primary w-full py-2.5 text-base" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
-
-
           </form>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

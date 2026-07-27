@@ -322,7 +322,7 @@ export default function EmployeeManagement() {
           {/* Filters & Search */}
           <div className="card grid gap-4 md:grid-cols-4 items-end">
             <div className="md:col-span-2">
-              <label className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-search" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
                 <Search size={14} /> Search Employees
               </label>
               <div className="relative">
@@ -331,6 +331,7 @@ export default function EmployeeManagement() {
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                 />
                 <input
+                  id="emp-search"
                   type="text"
                   placeholder="Search by name, email, mobile..."
                   className="input-field pl-9"
@@ -341,10 +342,11 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-role-filter" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
                 <Filter size={14} /> Filter by Role
               </label>
               <select
+                id="emp-role-filter"
                 className="input-field py-2"
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
@@ -359,10 +361,11 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-status-filter" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
                 <Filter size={14} /> Filter by Status
               </label>
               <select
+                id="emp-status-filter"
                 className="input-field py-2"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -389,12 +392,12 @@ export default function EmployeeManagement() {
                 <table className="w-full text-left text-sm text-slate-600">
                   <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                     <tr>
-                      <th className="px-6 py-3.5 font-semibold">Employee</th>
-                      <th className="px-6 py-3.5 font-semibold">Mobile</th>
-                      <th className="px-6 py-3.5 font-semibold">Role</th>
-                      <th className="px-6 py-3.5 font-semibold">Status</th>
-                      <th className="px-6 py-3.5 font-semibold">Created Date</th>
-                      <th className="px-6 py-3.5 font-semibold text-right">Actions</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold">Employee</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold">Mobile</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold">Role</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold">Status</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold">Created Date</th>
+                      <th scope="col" className="px-6 py-3.5 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -427,6 +430,7 @@ export default function EmployeeManagement() {
                           <button
                             onClick={() => toggleStatus(emp)}
                             title="Click to toggle status"
+                            aria-label={`Toggle status for ${emp.name}`}
                             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition ${
                               emp.status === 'Inactive' || emp.isActive === false
                                 ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
@@ -453,6 +457,7 @@ export default function EmployeeManagement() {
                               onClick={() => openEditModal(emp)}
                               className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition"
                               title="Edit Employee"
+                              aria-label={`Edit ${emp.name}`}
                             >
                               <Edit2 size={16} />
                             </button>
@@ -460,6 +465,7 @@ export default function EmployeeManagement() {
                               onClick={() => openResetModal(emp)}
                               className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition"
                               title="Reset Password"
+                              aria-label={`Reset password for ${emp.name}`}
                             >
                               <Key size={16} />
                             </button>
@@ -498,11 +504,11 @@ export default function EmployeeManagement() {
               <table className="w-full text-left text-sm text-slate-600">
                 <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3.5 font-semibold">Date & Time</th>
-                    <th className="px-6 py-3.5 font-semibold">Admin</th>
-                    <th className="px-6 py-3.5 font-semibold">Action</th>
-                    <th className="px-6 py-3.5 font-semibold">Target Employee</th>
-                    <th className="px-6 py-3.5 font-semibold">Details</th>
+                    <th scope="col" className="px-6 py-3.5 font-semibold">Date & Time</th>
+                    <th scope="col" className="px-6 py-3.5 font-semibold">Admin</th>
+                    <th scope="col" className="px-6 py-3.5 font-semibold">Action</th>
+                    <th scope="col" className="px-6 py-3.5 font-semibold">Target Employee</th>
+                    <th scope="col" className="px-6 py-3.5 font-semibold">Details</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -538,15 +544,16 @@ export default function EmployeeManagement() {
       {showCreateModal && (
         <Modal isOpen={showCreateModal} title="Create New Employee" onClose={() => setShowCreateModal(false)}>
           {formError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {formError}
             </div>
           )}
 
           <form onSubmit={handleCreateSubmit} className="space-y-4">
             <div>
-              <label className="label">Full Name *</label>
+              <label htmlFor="create-name" className="label">Full Name *</label>
               <input
+                id="create-name"
                 type="text"
                 className="input-field"
                 placeholder="e.g. Jane Smith"
@@ -557,8 +564,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Email Address *</label>
+              <label htmlFor="create-email" className="label">Email Address *</label>
               <input
+                id="create-email"
                 type="email"
                 className="input-field"
                 placeholder="e.g. jane@company.com"
@@ -569,8 +577,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Mobile Number (Optional)</label>
+              <label htmlFor="create-mobile" className="label">Mobile Number (Optional)</label>
               <input
+                id="create-mobile"
                 type="text"
                 className="input-field"
                 placeholder="e.g. +1 555-0199"
@@ -580,8 +589,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Role *</label>
+              <label htmlFor="create-role" className="label">Role *</label>
               <select
+                id="create-role"
                 className="input-field"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -596,8 +606,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Password *</label>
+              <label htmlFor="create-password" className="label">Password *</label>
               <input
+                id="create-password"
                 type="password"
                 className="input-field"
                 placeholder="Set initial password (min 6 chars)"
@@ -609,8 +620,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Account Status</label>
+              <label htmlFor="create-status" className="label">Account Status</label>
               <select
+                id="create-status"
                 className="input-field"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -644,15 +656,16 @@ export default function EmployeeManagement() {
       {showEditModal && (
         <Modal isOpen={showEditModal} title="Edit Employee" onClose={() => setShowEditModal(false)}>
           {formError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {formError}
             </div>
           )}
 
           <form onSubmit={handleEditSubmit} className="space-y-4">
             <div>
-              <label className="label">Full Name</label>
+              <label htmlFor="edit-name" className="label">Full Name</label>
               <input
+                id="edit-name"
                 type="text"
                 className="input-field"
                 value={formData.name}
@@ -662,8 +675,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Email Address</label>
+              <label htmlFor="edit-email" className="label">Email Address</label>
               <input
+                id="edit-email"
                 type="email"
                 className="input-field"
                 value={formData.email}
@@ -673,8 +687,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Mobile Number</label>
+              <label htmlFor="edit-mobile" className="label">Mobile Number</label>
               <input
+                id="edit-mobile"
                 type="text"
                 className="input-field"
                 value={formData.mobileNumber}
@@ -683,8 +698,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Role</label>
+              <label htmlFor="edit-role" className="label">Role</label>
               <select
+                id="edit-role"
                 className="input-field"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -698,8 +714,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Account Status</label>
+              <label htmlFor="edit-status" className="label">Account Status</label>
               <select
+                id="edit-status"
                 className="input-field"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
@@ -733,7 +750,7 @@ export default function EmployeeManagement() {
       {showResetModal && selectedUser && (
         <Modal isOpen={showResetModal} title={`Reset Password for ${selectedUser.name}`} onClose={() => setShowResetModal(false)}>
           {formError && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {formError}
             </div>
           )}
@@ -744,8 +761,9 @@ export default function EmployeeManagement() {
 
           <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
             <div>
-              <label className="label">New Temporary Password *</label>
+              <label htmlFor="reset-new-password" className="label">New Temporary Password *</label>
               <input
+                id="reset-new-password"
                 type="password"
                 className="input-field"
                 placeholder="Enter temporary password"
@@ -757,8 +775,9 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label className="label">Confirm Temporary Password *</label>
+              <label htmlFor="reset-confirm-password" className="label">Confirm Temporary Password *</label>
               <input
+                id="reset-confirm-password"
                 type="password"
                 className="input-field"
                 placeholder="Confirm temporary password"

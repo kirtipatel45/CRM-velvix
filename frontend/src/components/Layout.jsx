@@ -88,7 +88,7 @@ export default function Layout() {
             <h1 className="text-xl font-bold">CRM Velvix</h1>
             <p className="text-xs text-brand-200">Lead • Sales • Marketing</p>
           </div>
-          <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <button className="lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close navigation sidebar">
             <X size={20} />
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function Layout() {
           <button
             className="lg:hidden text-slate-500 hover:text-slate-700 p-1"
             onClick={() => setSidebarOpen(true)}
-            aria-label="Open Menu"
+            aria-label="Open navigation menu"
           >
             <Menu size={24} />
           </button>
@@ -182,6 +182,7 @@ export default function Layout() {
                 }}
                 className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
                 aria-label="Notifications"
+                aria-expanded={showNotifications}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -203,6 +204,7 @@ export default function Layout() {
                       <button
                         onClick={() => setShowNotifications(false)}
                         className="text-slate-400 hover:text-slate-600 transition-colors"
+                        aria-label="Close notifications panel"
                       >
                         <X size={20} />
                       </button>
@@ -271,6 +273,8 @@ export default function Layout() {
                   setShowNotifications(false);
                 }}
                 title="Profile & Settings"
+                aria-label="User account menu"
+                aria-expanded={showUserMenu}
               >
                 <div className="hidden sm:flex flex-col items-end">
                   <span className="text-sm font-medium text-slate-700">

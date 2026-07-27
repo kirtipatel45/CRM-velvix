@@ -115,21 +115,22 @@ export default function Profile() {
           </h2>
           
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {error}
             </div>
           )}
           
           {successMessage && (
-            <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-600 border border-green-100">
+            <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-600 border border-green-100" role="status">
               {successMessage}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="label">Current Password</label>
+              <label htmlFor="curr-pass" className="label">Current Password</label>
               <input
+                id="curr-pass"
                 type="password"
                 className="input-field"
                 value={currentPassword}
@@ -139,8 +140,9 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="label">New Password</label>
+              <label htmlFor="new-pass" className="label">New Password</label>
               <input
+                id="new-pass"
                 type="password"
                 className="input-field"
                 value={newPassword}
@@ -151,8 +153,9 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="label">Confirm New Password</label>
+              <label htmlFor="conf-pass" className="label">Confirm New Password</label>
               <input
+                id="conf-pass"
                 type="password"
                 className="input-field"
                 value={confirmPassword}

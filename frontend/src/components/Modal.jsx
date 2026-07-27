@@ -1,4 +1,6 @@
-export default function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
+import { memo } from 'react';
+
+function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
   if (!isOpen) return null;
 
   const sizes = {
@@ -9,8 +11,8 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <div
         className={`relative z-10 w-full ${sizes[size]} max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl`}
       >
@@ -19,6 +21,7 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
           <button
             onClick={onClose}
             className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Close modal"
           >
             ✕
           </button>
@@ -28,3 +31,5 @@ export default function Modal({ isOpen = true, onClose, title, children, size = 
     </div>
   );
 }
+
+export default memo(Modal);

@@ -1,16 +1,18 @@
+import { memo } from "react";
 import { AlertTriangle, X } from "lucide-react";
 
-export default function TargetNotMetModal({ isOpen, onClose, message }) {
+function TargetNotMetModal({ isOpen, onClose, message }) {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900">Attention Required</h2>
           <button
             onClick={onClose}
             className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            aria-label="Close attention required modal"
           >
             <X size={20} />
           </button>
@@ -32,3 +34,5 @@ export default function TargetNotMetModal({ isOpen, onClose, message }) {
     </div>
   );
 }
+
+export default memo(TargetNotMetModal);

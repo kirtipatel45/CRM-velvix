@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Phone, Megaphone, AlertTriangle, TrendingUp, PieChart as PieChartIcon, BarChart2 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-function StatCard({ title, value, subtitle, icon: Icon, color, alert }) {
+const StatCard = memo(function StatCard({ title, value, subtitle, icon: Icon, color, alert }) {
   return (
     <div className="card relative overflow-hidden">
       {alert > 0 && (
@@ -25,7 +25,7 @@ function StatCard({ title, value, subtitle, icon: Icon, color, alert }) {
       </div>
     </div>
   );
-}
+});
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -41,6 +41,21 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, [filterDate]);
 
+  const today = stats?.today;
+  const totals = stats?.totals;
+
+  const pieData = useMemo(() => totals ? [
+    { name: 'Lead Gen', value: totals.leadGeneration, color: '#3b82f6' },
+    { name: 'Sales', value: totals.sales, color: '#10b981' },
+    { name: 'Marketing', value: totals.marketing, color: '#8b5cf6' },
+  ] : [], [totals]);
+
+  const barData = useMemo(() => today ? [
+    { name: 'Lead Gen', count: today.leadGeneration?.count || 0, fill: '#3b82f6' },
+    { name: 'Sales', count: today.sales?.count || 0, fill: '#10b981' },
+    { name: 'Marketing', count: today.marketing?.count || 0, fill: '#8b5cf6' },
+  ] : [], [today]);
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -48,21 +63,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const today = stats?.today;
-  const totals = stats?.totals;
-
-  const pieData = totals ? [
-    { name: 'Lead Gen', value: totals.leadGeneration, color: '#3b82f6' }, // blue-500
-    { name: 'Sales', value: totals.sales, color: '#10b981' }, // emerald-500
-    { name: 'Marketing', value: totals.marketing, color: '#8b5cf6' }, // violet-500
-  ] : [];
-
-  const barData = today ? [
-    { name: 'Lead Gen', count: today.leadGeneration?.count || 0, fill: '#3b82f6' },
-    { name: 'Sales', count: today.sales?.count || 0, fill: '#10b981' },
-    { name: 'Marketing', count: today.marketing?.count || 0, fill: '#8b5cf6' },
-  ] : [];
 
   return (
     <div>
@@ -72,10 +72,12 @@ export default function Dashboard() {
           <p className="text-slate-500">Performance overview across all teams</p>
         </div>
         <input
+          id="dashboard-date-filter"
           type="date"
           className="input-field sm:w-48"
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
+          aria-label="Filter records by date"
         />
       </div>
 

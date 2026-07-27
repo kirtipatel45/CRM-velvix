@@ -167,17 +167,21 @@ export default function LeadGeneration() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
+              id="leadgen-search"
               className="input-field pl-9"
               placeholder="Search by employee name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
+              aria-label="Search by employee name"
             />
           </div>
           <input
+            id="leadgen-date-filter"
             type="date"
             className="input-field sm:w-48"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
+            aria-label="Filter by date"
           />
         </div>
         <p className="mt-3 text-xs text-slate-500">
@@ -197,31 +201,31 @@ export default function LeadGeneration() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Employee
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   LinkedIn
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Resume
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Chat
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Total
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Ratios
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Status
                 </th>
-                <th className="px-4 py-3 text-right font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
                   Actions
                 </th>
               </tr>
@@ -266,12 +270,14 @@ export default function LeadGeneration() {
                         <button
                           onClick={() => openEdit(r)}
                           className="mr-2 text-brand-600 hover:text-brand-800"
+                          aria-label={`Edit lead generation entry for ${r.employeeName}`}
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(r._id)}
                           className="text-red-500 hover:text-red-700"
+                          aria-label={`Delete lead generation entry for ${r.employeeName}`}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -296,8 +302,9 @@ export default function LeadGeneration() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Employee Name *</label>
+              <label htmlFor="lg-emp-name" className="label">Employee Name *</label>
               <input
+                id="lg-emp-name"
                 className="input-field"
                 value={form.employeeName}
                 onChange={(e) =>
@@ -307,8 +314,9 @@ export default function LeadGeneration() {
               />
             </div>
             <div>
-              <label className="label">Entry Date</label>
+              <label htmlFor="lg-entry-date" className="label">Entry Date</label>
               <input
+                id="lg-entry-date"
                 type="date"
                 className="input-field"
                 value={form.entryDate}
@@ -318,8 +326,9 @@ export default function LeadGeneration() {
               />
             </div>
             <div>
-              <label className="label">LinkedIn Accounts Count</label>
+              <label htmlFor="lg-li-count" className="label">LinkedIn Accounts Count</label>
               <input
+                id="lg-li-count"
                 type="number"
                 min="0"
                 className="input-field"
@@ -330,8 +339,9 @@ export default function LeadGeneration() {
               />
             </div>
             <div>
-              <label className="label">Daily Resume Leads (Min 30) *</label>
+              <label htmlFor="lg-resume-leads" className="label">Daily Resume Leads (Min 30) *</label>
               <input
+                id="lg-resume-leads"
                 type="number"
                 min="0"
                 className="input-field"
@@ -343,8 +353,9 @@ export default function LeadGeneration() {
               />
             </div>
             <div>
-              <label className="label">Daily Chat Leads (Min 3) *</label>
+              <label htmlFor="lg-chat-leads" className="label">Daily Chat Leads (Min 3) *</label>
               <input
+                id="lg-chat-leads"
                 type="number"
                 min="0"
                 className="input-field"
@@ -358,8 +369,9 @@ export default function LeadGeneration() {
           </div>
 
           <div>
-            <label className="label">LinkedIn Profile Names / URLs</label>
+            <label htmlFor="lg-li-profiles" className="label">LinkedIn Profile Names / URLs</label>
             <textarea
+              id="lg-li-profiles"
               className="input-field"
               rows={3}
               placeholder="One profile per line"
@@ -371,7 +383,7 @@ export default function LeadGeneration() {
           </div>
 
           <div>
-            <label className="label">Connections Range</label>
+            <span className="label block mb-2 font-medium text-slate-700">Connections Range</span>
             <div className="flex flex-wrap gap-3">
               {connectionRanges.map((range) => (
                 <label key={range} className="flex items-center gap-2 text-sm">
@@ -388,8 +400,9 @@ export default function LeadGeneration() {
           </div>
 
           <div>
-            <label className="label">Notes</label>
+            <label htmlFor="lg-notes" className="label">Notes</label>
             <textarea
+              id="lg-notes"
               className="input-field"
               rows={2}
               value={form.notes}

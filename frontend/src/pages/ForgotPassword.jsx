@@ -45,7 +45,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <main className="flex min-h-screen bg-white">
       {/* Left side - Branding */}
       <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
@@ -75,12 +75,12 @@ export default function ForgotPassword() {
           </div>
 
           {error && (
-            <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100">
+            <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100" role="alert">
               {error}
             </div>
           )}
           {message && (
-            <div className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600 border border-green-100">
+            <div className="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-600 border border-green-100" role="status">
               {message}
             </div>
           )}
@@ -146,6 +146,6 @@ export default function ForgotPassword() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

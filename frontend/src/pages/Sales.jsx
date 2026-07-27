@@ -168,17 +168,21 @@ export default function Sales() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
+              id="sales-search"
               className="input-field pl-9"
               placeholder="Search by executive name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
+              aria-label="Search by executive name"
             />
           </div>
           <input
+            id="sales-date-filter"
             type="date"
             className="input-field sm:w-48"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
+            aria-label="Filter by date"
           />
         </div>
         <p className="mt-3 text-xs text-slate-500">
@@ -198,31 +202,31 @@ export default function Sales() {
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Executive
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Leads
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Calls
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Duration
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Dispositions
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Interested
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
                   Status
                 </th>
-                <th className="px-4 py-3 text-right font-medium text-slate-600">
+                <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
                   Actions
                 </th>
               </tr>
@@ -273,12 +277,14 @@ export default function Sales() {
                         <button
                           onClick={() => openEdit(r)}
                           className="mr-2 text-brand-600 hover:text-brand-800"
+                          aria-label={`Edit sales entry for ${r.salesExecutiveName}`}
                         >
                           <Pencil size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(r._id)}
                           className="text-red-500 hover:text-red-700"
+                          aria-label={`Delete sales entry for ${r.salesExecutiveName}`}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -301,8 +307,9 @@ export default function Sales() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label className="label">Sales Executive Name *</label>
+              <label htmlFor="sales-exec-name" className="label">Sales Executive Name *</label>
               <input
+                id="sales-exec-name"
                 className="input-field"
                 value={form.salesExecutiveName}
                 onChange={(e) =>
@@ -312,8 +319,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Entry Date</label>
+              <label htmlFor="sales-entry-date" className="label">Entry Date</label>
               <input
+                id="sales-entry-date"
                 type="date"
                 className="input-field"
                 value={form.entryDate}
@@ -323,8 +331,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Daily Assigned Leads</label>
+              <label htmlFor="sales-assigned-leads" className="label">Daily Assigned Leads</label>
               <input
+                id="sales-assigned-leads"
                 type="number"
                 min="0"
                 className="input-field"
@@ -335,8 +344,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Extra / Self-Sourced Leads</label>
+              <label htmlFor="sales-extra-leads" className="label">Extra / Self-Sourced Leads</label>
               <input
+                id="sales-extra-leads"
                 type="number"
                 min="0"
                 className="input-field"
@@ -347,8 +357,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Daily Call Count (Min 100) *</label>
+              <label htmlFor="sales-call-count" className="label">Daily Call Count (Min 100) *</label>
               <input
+                id="sales-call-count"
                 type="number"
                 min="0"
                 className="input-field"
@@ -360,8 +371,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Daily Call Duration (Min 2h 30m)</label>
+              <label htmlFor="sales-call-duration" className="label">Daily Call Duration (Min 2h 30m)</label>
               <input
+                id="sales-call-duration"
                 className="input-field"
                 placeholder="e.g. 2h 30m or 150"
                 value={form.dailyCallDuration}
@@ -371,8 +383,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Not Answered Calls</label>
+              <label htmlFor="sales-unanswered-calls" className="label">Not Answered Calls</label>
               <input
+                id="sales-unanswered-calls"
                 type="number"
                 min="0"
                 className="input-field"
@@ -383,8 +396,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Not Interested Calls</label>
+              <label htmlFor="sales-not-interested" className="label">Not Interested Calls</label>
               <input
+                id="sales-not-interested"
                 type="number"
                 min="0"
                 className="input-field"
@@ -395,8 +409,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Voice Mail Count</label>
+              <label htmlFor="sales-voicemail" className="label">Voice Mail Count</label>
               <input
+                id="sales-voicemail"
                 type="number"
                 min="0"
                 className="input-field"
@@ -407,8 +422,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Follow-ups Required</label>
+              <label htmlFor="sales-followups-req" className="label">Follow-ups Required</label>
               <input
+                id="sales-followups-req"
                 type="number"
                 min="0"
                 className="input-field"
@@ -419,8 +435,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Follow-up Date</label>
+              <label htmlFor="sales-followup-date" className="label">Follow-up Date</label>
               <input
+                id="sales-followup-date"
                 type="date"
                 className="input-field"
                 value={form.followUpDate}
@@ -430,8 +447,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Interested Candidates</label>
+              <label htmlFor="sales-interested-cand" className="label">Interested Candidates</label>
               <input
+                id="sales-interested-cand"
                 type="number"
                 min="0"
                 className="input-field"
@@ -442,8 +460,9 @@ export default function Sales() {
               />
             </div>
             <div>
-              <label className="label">Interested Stage</label>
+              <label htmlFor="sales-interested-stage" className="label">Interested Stage</label>
               <select
+                id="sales-interested-stage"
                 className="input-field"
                 value={form.interestedStage}
                 onChange={(e) =>
@@ -460,8 +479,9 @@ export default function Sales() {
           </div>
 
           <div>
-            <label className="label">Notes</label>
+            <label htmlFor="sales-notes" className="label">Notes</label>
             <textarea
+              id="sales-notes"
               className="input-field"
               rows={2}
               value={form.notes}
