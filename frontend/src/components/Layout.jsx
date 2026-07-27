@@ -121,24 +121,42 @@ export default function Layout() {
             <p className="font-medium">{user?.name}</p>
             <p className="text-xs text-brand-300">{user?.role}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-200 transition hover:bg-brand-800 hover:text-white"
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
+          <div className="space-y-1">
+            <button
+              onClick={() => {
+                setSidebarOpen(false);
+                navigate("/profile");
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-200 transition hover:bg-brand-800 hover:text-white"
+            >
+              <User size={16} />
+              Profile
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-200 transition hover:bg-brand-800 hover:text-white"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
 
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <header className="sticky top-0 z-30 flex shrink-0 h-20 items-center gap-4 border-b border-slate-200 bg-white px-4 lg:px-8 shadow-sm">
+        <header className="sticky top-0 z-30 flex shrink-0 h-20 items-center gap-3 sm:gap-4 border-b border-slate-200 bg-white px-4 lg:px-8 shadow-sm">
           <button
-            className="lg:hidden text-slate-500 hover:text-slate-700"
+            className="lg:hidden text-slate-500 hover:text-slate-700 p-1"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Open Menu"
           >
             <Menu size={24} />
           </button>
+
+          {/* CRM Velvix title for mobile view */}
+          <div className="lg:hidden flex items-center gap-2">
+            <h1 className="text-lg font-bold text-brand-900 tracking-tight">CRM Velvix</h1>
+          </div>
 
           <div className="hidden lg:block">
             <h2 className="text-xl font-semibold text-slate-800">
@@ -148,7 +166,7 @@ export default function Layout() {
 
           <div className="flex-1" />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="relative">
               <button
                 onClick={() => {
@@ -156,6 +174,7 @@ export default function Layout() {
                   setShowUserMenu(false);
                 }}
                 className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
+                aria-label="Notifications"
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -234,18 +253,19 @@ export default function Layout() {
               )}
             </div>
 
-            <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+            <div className="h-6 w-px bg-slate-200 mx-0.5 sm:mx-1"></div>
 
-            {/* User Dropdown */}
-            <div className="relative hidden sm:block">
+            {/* User Dropdown & Profile Button (Visible on Mobile & Desktop) */}
+            <div className="relative">
               <button
-                className="flex items-center gap-3 rounded-lg p-1 pr-2 hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 rounded-lg p-1 sm:pr-2 hover:bg-slate-100 transition-colors"
                 onClick={() => {
                   setShowUserMenu(!showUserMenu);
                   setShowNotifications(false);
                 }}
+                title="Profile & Settings"
               >
-                <div className="flex flex-col items-end">
+                <div className="hidden sm:flex flex-col items-end">
                   <span className="text-sm font-medium text-slate-700">
                     {user?.name || "User"}
                   </span>
@@ -253,18 +273,18 @@ export default function Layout() {
                     {user?.role?.replace("_", " ") || "Role"}
                   </span>
                 </div>
-                <div className="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm border border-brand-200">
+                <div className="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm border border-brand-200 shrink-0">
                   {user?.name?.charAt(0).toUpperCase() || "U"}
                 </div>
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-lg z-50">
                   <div className="border-b border-slate-100 px-3 py-2">
                     <p className="text-sm font-medium text-slate-800">
                       {user?.name}
                     </p>
-                    <p className="text-xs text-slate-500">{user?.email}</p>
+                    <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                   </div>
                   <div className="pt-2">
                     <button
@@ -272,20 +292,20 @@ export default function Layout() {
                         setShowUserMenu(false);
                         navigate("/profile");
                       }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
                     >
                       <User size={16} className="text-slate-500" />
-                      <span className="font-medium flex-1 text-left">Profile</span>
+                      <span className="flex-1 text-left">Profile</span>
                     </button>
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
                         handleLogout();
                       }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                     >
                       <LogOut size={16} />
-                      Logout
+                      <span>Logout</span>
                     </button>
                   </div>
                 </div>
