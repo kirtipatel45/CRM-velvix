@@ -149,7 +149,6 @@ export default function EmployeeManagement() {
     designation: '',
     role: 'employee',
     allowedModules: ['lead_generation', 'leads'],
-    password: '',
     status: 'Active',
   });
 
@@ -284,13 +283,8 @@ export default function EmployeeManagement() {
     e.preventDefault();
     setFormError('');
 
-    if (!formData.name || !formData.email || !formData.password) {
-      setFormError('Please fill in all required fields');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setFormError('Password must be at least 6 characters long');
+    if (!formData.name || !formData.email) {
+      setFormError('Please fill in employee name and email address');
       return;
     }
 
@@ -304,8 +298,8 @@ export default function EmployeeManagement() {
       await userAPI.create(formData);
       addNotification({
         type: 'success',
-        title: 'Success',
-        message: `Employee "${formData.name}" created successfully`,
+        title: 'Employee Created',
+        message: `Employee "${formData.name}" created. Temporary login password sent via email.`,
       });
       setShowCreateModal(false);
       resetForm();
@@ -314,6 +308,23 @@ export default function EmployeeManagement() {
       setFormError(err.response?.data?.message || 'Failed to create employee');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleResendInvite = async (emp) => {
+    try {
+      await userAPI.resendInvite(emp._id);
+      addNotification({
+        type: 'success',
+        title: 'Invitation Sent',
+        message: `Fresh temporary login credentials emailed to ${emp.email}`,
+      });
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        title: 'Resend Failed',
+        message: err.response?.data?.message || 'Failed to resend invite email',
+      });
     }
   };
 
@@ -460,7 +471,6 @@ export default function EmployeeManagement() {
       designation: user.designation || '',
       role: user.role === 'admin' ? 'admin' : 'employee',
       allowedModules: getUserModules(user),
-      password: '',
       status: user.status || 'Active',
     });
     setFormError('');
@@ -487,7 +497,6 @@ export default function EmployeeManagement() {
       designation: '',
       role: 'employee',
       allowedModules: ['lead_generation', 'leads'],
-      password: '',
       status: 'Active',
     });
     setFormError('');
@@ -720,34 +729,49 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <button
-                              onClick={() => !isSelf && toggleStatus(emp)}
-                              disabled={isSelf}
-                              title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
-                                isSelf ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
-                              } ${
-                                emp.status === 'Inactive' || emp.isActive === false
-                                  ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
-                                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                              }`}
-                            >
-                              {emp.status === 'Inactive' || emp.isActive === false ? (
-                                <>
-                                  <XCircle size={14} /> Inactive
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle2 size={14} /> Active
-                                </>
+                            <div className="flex flex-col gap-1 items-start">
+                              <button
+                                onClick={() => !isSelf && toggleStatus(emp)}
+                                disabled={isSelf}
+                                title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
+                                  isSelf ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
+                                } ${
+                                  emp.status === 'Inactive' || emp.isActive === false
+                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+                                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                                }`}
+                              >
+                                {emp.status === 'Inactive' || emp.isActive === false ? (
+                                  <>
+                                    <XCircle size={14} /> Inactive
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle2 size={14} /> Active
+                                  </>
+                                )}
+                              </button>
+                              {(emp.accountStatus === 'invited' || emp.mustResetPassword) && (
+                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-medium">
+                                  <Clock size={11} /> Invited (Temp Pass)
+                                </span>
                               )}
-                            </button>
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-xs text-slate-500">
                             {new Date(emp.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => handleResendInvite(emp)}
+                                className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                                title="Resend Invitation Email & Temp Password"
+                                aria-label={`Resend invite to ${emp.name}`}
+                              >
+                                <Send size={16} />
+                              </button>
                               <button
                                 onClick={() => openEditModal(emp)}
                                 className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition"
@@ -1606,32 +1630,29 @@ export default function EmployeeManagement() {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="create-password" className="label">Initial Password *</label>
-                <input
-                  id="create-password"
-                  type="password"
-                  className="input-field"
-                  placeholder="Set initial password (min 6 chars)"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
-                />
-              </div>
+            <div>
+              <label htmlFor="create-account-type" className="label">Account Role</label>
+              <select
+                id="create-account-type"
+                className="input-field"
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              >
+                <option value="employee">Standard Employee (Custom Modules)</option>
+                <option value="admin">Administrator (Full Access)</option>
+              </select>
+            </div>
 
-              <div>
-                <label htmlFor="create-account-type" className="label">Account Role</label>
-                <select
-                  id="create-account-type"
-                  className="input-field"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                >
-                  <option value="employee">Standard Employee (Custom Modules)</option>
-                  <option value="admin">Administrator (Full Access)</option>
-                </select>
+            {/* Temporary Credentials Notice */}
+            <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3.5 flex items-start gap-3">
+              <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-700 mt-0.5 shrink-0">
+                <Send size={15} />
+              </div>
+              <div className="text-xs text-indigo-950 space-y-0.5">
+                <p className="font-semibold text-indigo-900">Automated Invitation & Temporary Password</p>
+                <p className="text-indigo-700/90 leading-relaxed">
+                  The employee will receive an automated invitation email with a secure temporary password (valid for 72 hours). Upon their first sign-in, they will be prompted to set their permanent password.
+                </p>
               </div>
             </div>
 

@@ -254,7 +254,7 @@ router.post(
   async (req, res) => {
     try {
       const leadId = req.params.id;
-      const { email, firstName, lastName, phone, assignedTo, profileId, profileName } = req.body;
+      const { email, firstName, lastName, phone, assignedTo, profileId, profileName, jobExperiences } = req.body;
       const normalizedEmail = email.toLowerCase().trim();
 
       // Step 1: Duplicate check against Candidate collection (case-insensitive)
@@ -294,10 +294,16 @@ router.post(
         if (targetProfile.convertedToCandidateId) {
           return res.status(400).json({
             success: false,
-            code: 'PROFILE_ALREADY_CONVERTED',
+            code: 'ALREADY_CONVERTED',
             message: `This person profile (${targetProfile.profileName || normalizedEmail}) has already been converted to a candidate.`,
           });
         }
+      } else if ((!lead.linkedInProfiles || lead.linkedInProfiles.length === 0) && lead.convertedToCandidateId) {
+        return res.status(400).json({
+          success: false,
+          code: 'ALREADY_CONVERTED',
+          message: 'This lead has already been converted to a candidate.',
+        });
       }
 
       // Step 4: Determine candidate names from body or prefill from lead
@@ -331,12 +337,24 @@ router.post(
       const expiryHours = parseInt(process.env.CANDIDATE_INVITE_EXPIRY_HOURS, 10) || 72;
       const expiresAt = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
 
-      // Step 8: Create Candidate record
+      // Step 8: Parse jobExperiences if provided
+      let formattedExperiences = [];
+      if (Array.isArray(jobExperiences)) {
+        formattedExperiences = jobExperiences
+          .map((exp) => ({
+            jobTitle: (exp.jobTitle || '').trim(),
+            experience: (exp.experience || '').trim(),
+          }))
+          .filter((exp) => exp.jobTitle || exp.experience);
+      }
+
+      // Step 9: Create Candidate record
       const candidate = await Candidate.create({
         firstName: resolvedFirstName || 'Candidate',
         lastName: resolvedLastName || '',
         email: normalizedEmail,
         phone: phone?.trim() || '',
+        jobExperiences: formattedExperiences,
         sourceLeadId: lead._id,
         assignedTo: assignedTo || null,
         convertedBy: req.user._id,

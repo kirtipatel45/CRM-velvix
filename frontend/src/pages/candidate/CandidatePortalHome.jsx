@@ -80,6 +80,12 @@ export default function CandidatePortalHome() {
     preferredJobCities: candidate?.preferredJobCities || [],
     preferredJobTitles: candidate?.preferredJobTitles || [],
     visaStatus: candidate?.visaStatus || "",
+    jobExperiences: candidate?.jobExperiences?.length
+      ? candidate.jobExperiences.map((e) => ({
+          jobTitle: e.jobTitle || "",
+          experience: e.experience || "",
+        }))
+      : [{ jobTitle: "", experience: "" }],
   });
 
   const [customCityInput, setCustomCityInput] = useState("");
@@ -91,6 +97,31 @@ export default function CandidatePortalHome() {
   const [downloadingResume, setDownloadingResume] = useState(false);
   const [downloadingAtsResume, setDownloadingAtsResume] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const handleExperienceChange = (index, field, value) => {
+    setFormData((prev) => {
+      const updated = [...prev.jobExperiences];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, jobExperiences: updated };
+    });
+  };
+
+  const handleAddExperience = () => {
+    setFormData((prev) => ({
+      ...prev,
+      jobExperiences: [...prev.jobExperiences, { jobTitle: "", experience: "" }],
+    }));
+  };
+
+  const handleRemoveExperience = (index) => {
+    setFormData((prev) => {
+      const updated = prev.jobExperiences.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        jobExperiences: updated.length > 0 ? updated : [{ jobTitle: "", experience: "" }],
+      };
+    });
+  };
 
   // Application Metrics from Marketing Team
   const [appMetrics, setAppMetrics] = useState({
@@ -267,6 +298,11 @@ export default function CandidatePortalHome() {
       data.append("preferredJobCities", JSON.stringify(formData.preferredJobCities));
       data.append("preferredJobTitles", JSON.stringify(formData.preferredJobTitles));
 
+      const cleanExperiences = (formData.jobExperiences || []).filter(
+        (exp) => (exp.jobTitle || "").trim() || (exp.experience || "").trim()
+      );
+      data.append("jobExperiences", JSON.stringify(cleanExperiences));
+
       if (selectedFile) {
         data.append("resume", selectedFile);
       }
@@ -342,6 +378,12 @@ export default function CandidatePortalHome() {
       preferredJobCities: candidate?.preferredJobCities || [],
       preferredJobTitles: candidate?.preferredJobTitles || [],
       visaStatus: candidate?.visaStatus || "",
+      jobExperiences: candidate?.jobExperiences?.length
+        ? candidate.jobExperiences.map((e) => ({
+            jobTitle: e.jobTitle || "",
+            experience: e.experience || "",
+          }))
+        : [{ jobTitle: "", experience: "" }],
     });
     setCustomCityInput("");
     setCustomTitleInput("");
@@ -591,11 +633,118 @@ export default function CandidatePortalHome() {
               </div>
             </div>
 
-            {/* Step 3: Preferred Job Titles */}
+            {/* Step 3: Work & Job Experience (Add Multiple) */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-2">
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <Briefcase size={16} className="text-brand-600" />
+                  <span>3. Work & Job Experience (Enter Multiple)</span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleAddExperience}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold text-brand-700 hover:bg-brand-100 transition shadow-2xs self-start sm:self-auto"
+                >
+                  <Plus size={13} />
+                  <span>Add Experience</span>
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-500">
+                List your past or current job titles along with the duration / years of experience. You can add multiple roles.
+              </p>
+
+              <div className="space-y-3">
+                {formData.jobExperiences.map((exp, index) => (
+                  <div
+                    key={index}
+                    className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3 relative group transition hover:border-slate-300"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-100 text-brand-700 text-[11px] font-bold">
+                          {index + 1}
+                        </span>
+                        <span>Experience Entry #{index + 1}</span>
+                      </span>
+
+                      {formData.jobExperiences.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExperience(index)}
+                          className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition"
+                          title="Remove this experience entry"
+                        >
+                          <X size={14} />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="label">
+                          Job Title <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Briefcase
+                            size={15}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                          />
+                          <input
+                            type="text"
+                            className="input-field pl-9 text-xs"
+                            placeholder="e.g. Senior Full Stack Developer, Java Engineer, Data Analyst"
+                            value={exp.jobTitle}
+                            onChange={(e) =>
+                              handleExperienceChange(index, "jobTitle", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="label">
+                          Experience (Duration / Years) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Clock
+                            size={15}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                          />
+                          <input
+                            type="text"
+                            className="input-field pl-9 text-xs"
+                            placeholder="e.g. 3 Years, 4.5 Years, 5+ Years, 2 Years 6 Months"
+                            value={exp.experience}
+                            onChange={(e) =>
+                              handleExperienceChange(index, "experience", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleAddExperience}
+                  className="btn-secondary text-xs py-2 px-4 inline-flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>Add Another Experience</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Step 4: Preferred Job Titles */}
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
-                <Briefcase size={16} className="text-brand-600" />
-                <span>3. Preferred Job Titles (Enter Multiple)</span>
+                <Award size={16} className="text-brand-600" />
+                <span>4. Target Job Titles / Roles (Enter Multiple)</span>
               </h3>
 
               <div className="space-y-3">
@@ -665,11 +814,11 @@ export default function CandidatePortalHome() {
               </div>
             </div>
 
-            {/* Step 4: Job Preferences & Preferred Cities */}
+            {/* Step 5: Job Preferences & Preferred Cities */}
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                 <Compass size={16} className="text-brand-600" />
-                <span>4. City of Job Preference (Select Multiple)</span>
+                <span>5. City of Job Preference (Select Multiple)</span>
               </h3>
 
               <div className="space-y-3">
@@ -761,11 +910,11 @@ export default function CandidatePortalHome() {
               </div>
             </div>
 
-            {/* Step 5: Resume File Upload */}
+            {/* Step 6: Resume File Upload */}
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
                 <FileText size={16} className="text-brand-600" />
-                <span>5. Resume Upload <span className="text-red-500">*</span></span>
+                <span>6. Resume Upload <span className="text-red-500">*</span></span>
               </h3>
 
               <div
@@ -1024,6 +1173,71 @@ export default function CandidatePortalHome() {
                       <p className="text-[11px] text-slate-400 mt-0.5">
                         Your assigned marketing team is actively preparing and matching client job openings.
                       </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Work & Job Experiences Card */}
+              <div className="card shadow-xs border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 border border-brand-100">
+                      <Briefcase size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-sm">
+                        Work & Job Experiences
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Past & Current Roles Recorded on Profile
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openEditModal}
+                    className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                  >
+                    <Edit3 size={13} />
+                    <span>Manage Experience</span>
+                  </button>
+                </div>
+
+                <div>
+                  {candidate?.jobExperiences && candidate.jobExperiences.length > 0 ? (
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {candidate.jobExperiences.map((exp, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-100/70 transition shadow-2xs"
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700 flex-shrink-0 mt-0.5">
+                            <Briefcase size={15} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-xs font-bold text-slate-900 truncate">
+                              {exp.jobTitle || "Role / Position"}
+                            </h4>
+                            <div className="flex items-center gap-1 text-[11px] font-semibold text-brand-700 mt-0.5">
+                              <Clock size={11} className="text-brand-500" />
+                              <span>Experience: {exp.experience || "Not specified"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-4 text-center text-xs text-slate-500">
+                      <p className="font-semibold text-slate-700">No job experiences added yet</p>
+                      <button
+                        type="button"
+                        onClick={openEditModal}
+                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline"
+                      >
+                        <Plus size={13} />
+                        <span>Add Work Experiences</span>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -1440,6 +1654,73 @@ export default function CandidatePortalHome() {
                         </button>
                       );
                     })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Work & Job Experiences */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="label mb-0">
+                Work & Job Experiences (Add Multiple)
+              </label>
+              <button
+                type="button"
+                onClick={handleAddExperience}
+                className="inline-flex items-center gap-1 rounded-md bg-brand-50 border border-brand-200 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100 transition shadow-2xs"
+              >
+                <Plus size={12} />
+                <span>Add Experience</span>
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {formData.jobExperiences.map((exp, index) => (
+                <div
+                  key={index}
+                  className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2 relative"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-600">
+                      Experience #{index + 1}
+                    </span>
+                    {formData.jobExperiences.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExperience(index)}
+                        className="text-red-500 hover:text-red-700 p-0.5 rounded"
+                        title="Remove experience"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div>
+                      <input
+                        type="text"
+                        className="input-field text-xs py-1.5"
+                        placeholder="Job Title (e.g. Senior Java Dev)"
+                        value={exp.jobTitle}
+                        onChange={(e) =>
+                          handleExperienceChange(index, "jobTitle", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        className="input-field text-xs py-1.5"
+                        placeholder="Experience (e.g. 4 Years)"
+                        value={exp.experience}
+                        onChange={(e) =>
+                          handleExperienceChange(index, "experience", e.target.value)
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               ))}

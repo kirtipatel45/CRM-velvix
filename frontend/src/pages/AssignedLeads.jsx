@@ -97,6 +97,8 @@ const emptyConvertForm = {
   firstName: "",
   lastName: "",
   phone: "",
+  jobTitle: "",
+  experience: "",
   assignedTo: "",
   profileId: "",
   profileName: "",
@@ -245,7 +247,19 @@ export default function AssignedLeads() {
     setConvertLoading(true);
 
     try {
-      const res = await leadGenAPI.convertToCandidate(convertingRecord._id, convertForm);
+      const payload = {
+        ...convertForm,
+        jobExperiences:
+          convertForm.jobTitle?.trim() || convertForm.experience?.trim()
+            ? [
+                {
+                  jobTitle: convertForm.jobTitle?.trim() || "",
+                  experience: convertForm.experience?.trim() || "",
+                },
+              ]
+            : [],
+      };
+      const res = await leadGenAPI.convertToCandidate(convertingRecord._id, payload);
       toast.success(res.data.message || `Candidate created! Invite sent to ${convertForm.email}`);
       setConvertModalOpen(false);
       setConvertingRecord(null);
@@ -1541,6 +1555,33 @@ export default function AssignedLeads() {
               value={convertForm.phone}
               onChange={(e) => setConvertForm({ ...convertForm, phone: e.target.value })}
             />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="convert-job-title" className="label">
+                Job Title (Optional)
+              </label>
+              <input
+                id="convert-job-title"
+                className="input-field"
+                placeholder="e.g. Senior React Developer"
+                value={convertForm.jobTitle}
+                onChange={(e) => setConvertForm({ ...convertForm, jobTitle: e.target.value })}
+              />
+            </div>
+            <div>
+              <label htmlFor="convert-experience" className="label">
+                Experience (Optional)
+              </label>
+              <input
+                id="convert-experience"
+                className="input-field"
+                placeholder="e.g. 4 Years"
+                value={convertForm.experience}
+                onChange={(e) => setConvertForm({ ...convertForm, experience: e.target.value })}
+              />
+            </div>
           </div>
 
           <div>

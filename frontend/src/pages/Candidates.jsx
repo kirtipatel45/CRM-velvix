@@ -221,6 +221,10 @@ export default function Candidates() {
     const primarySkill = (c.primarySkill || "").toLowerCase();
     const prefCities = (c.preferredJobCities || []).join(" ").toLowerCase();
     const prefTitles = (c.preferredJobTitles || []).join(" ").toLowerCase();
+    const experiences = (c.jobExperiences || [])
+      .map((e) => `${e.jobTitle || ""} ${e.experience || ""}`)
+      .join(" ")
+      .toLowerCase();
     const converter = (c.convertedBy?.name || "").toLowerCase();
     const leadGen = (c.sourceLeadId?.employeeName || "").toLowerCase();
 
@@ -233,6 +237,7 @@ export default function Candidates() {
       primarySkill.includes(q) ||
       prefCities.includes(q) ||
       prefTitles.includes(q) ||
+      experiences.includes(q) ||
       converter.includes(q) ||
       leadGen.includes(q)
     );
@@ -359,7 +364,7 @@ export default function Candidates() {
                   Visa Status
                 </th>
                 <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
-                  Target Job Titles
+                  Job Experience & Titles
                 </th>
                 <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
                   Job City Preferences
@@ -423,9 +428,31 @@ export default function Candidates() {
                       )}
                     </td>
 
-                    {/* Target Job Titles */}
+                    {/* Job Experience & Titles */}
                     <td className="px-5 py-4">
-                      {c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
+                      {c.jobExperiences && c.jobExperiences.length > 0 ? (
+                        <div className="space-y-1.5 max-w-[240px]">
+                          {c.jobExperiences.slice(0, 2).map((exp, eIdx) => (
+                            <div
+                              key={eIdx}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-900 border border-brand-200"
+                            >
+                              <Briefcase size={11} className="text-brand-600 flex-shrink-0" />
+                              <span className="truncate max-w-[130px]">{exp.jobTitle || "Role"}</span>
+                              {exp.experience && (
+                                <span className="text-[10px] font-bold bg-white text-brand-700 px-1.5 py-0.2 rounded border border-brand-200 flex-shrink-0">
+                                  {exp.experience}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                          {c.jobExperiences.length > 2 && (
+                            <span className="text-[11px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200 block w-fit">
+                              +{c.jobExperiences.length - 2} more roles
+                            </span>
+                          )}
+                        </div>
+                      ) : c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
                         <div className="flex flex-wrap gap-1 max-w-[220px]">
                           {c.preferredJobTitles.slice(0, 2).map((title) => (
                             <span
@@ -443,7 +470,7 @@ export default function Candidates() {
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">None entered</span>
+                        <span className="text-xs text-slate-400 italic">None specified</span>
                       )}
                     </td>
 
@@ -659,10 +686,45 @@ export default function Candidates() {
                 </div>
               </div>
 
+              {/* Work & Job Experiences List */}
+              <div className="space-y-2 pt-1">
+                <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                  <Briefcase size={14} className="text-brand-600" />
+                  <span>Work & Job Experiences (Candidate Background):</span>
+                </span>
+                {selectedCandidate.jobExperiences && selectedCandidate.jobExperiences.length > 0 ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {selectedCandidate.jobExperiences.map((exp, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/80 shadow-2xs"
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700 font-bold text-xs flex-shrink-0 mt-0.5">
+                          <Briefcase size={14} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-slate-900 text-xs truncate">
+                            {exp.jobTitle || "Role / Position"}
+                          </p>
+                          <div className="flex items-center gap-1 text-[11px] font-semibold text-brand-700 mt-0.5">
+                            <Clock size={11} className="text-brand-500" />
+                            <span>Experience: {exp.experience || "Not specified"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 italic">
+                    Candidate has not entered specific work experiences yet.
+                  </div>
+                )}
+              </div>
+
               {/* Preferred Job Titles Pills */}
               <div className="space-y-1.5 pt-1">
                 <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                  <Briefcase size={14} className="text-indigo-600" />
+                  <Award size={14} className="text-indigo-600" />
                   <span>Target Job Title(s) / Preferred Roles:</span>
                 </span>
                 <div className="flex flex-wrap gap-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100 min-h-[44px]">

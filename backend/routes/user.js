@@ -8,8 +8,29 @@ import Candidate from '../models/Candidate.js';
 import Marketing from '../models/Marketing.js';
 import Sales from '../models/Sales.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { sendEmployeeInviteEmail } from '../utils/email.js';
 
 const router = express.Router();
+
+const generateSecureTempPassword = () => {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijkmnopqrstuvwxyz';
+  const numbers = '23456789';
+  const special = '!@#$%&*';
+
+  let pwd = 'Vx!';
+  for (let i = 0; i < 3; i++) {
+    pwd += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    pwd += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+  }
+  for (let i = 0; i < 2; i++) {
+    pwd += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  pwd += special.charAt(Math.floor(Math.random() * special.length));
+  return pwd;
+};
 
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -501,12 +522,11 @@ router.post(
   [
     body('name').trim().notEmpty().withMessage('Full name is required'),
     body('email').isEmail().withMessage('Valid email address is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   ],
   validate,
   async (req, res) => {
     try {
-      const { name, email, password, role, status, mobileNumber, designation, allowedModules } = req.body;
+      const { name, email, role, status, mobileNumber, designation, allowedModules } = req.body;
 
       const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
@@ -534,29 +554,54 @@ router.post(
 
       const userStatus = status === 'Inactive' ? 'Inactive' : 'Active';
 
+      const tempPassword = generateSecureTempPassword();
+      const expiryDate = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+
       const newUser = await User.create({
         name,
         email: email.toLowerCase(),
-        password,
+        password: tempPassword,
         mobileNumber: mobileNumber || '',
         designation: designation || '',
         role: normalizedRole,
         allowedModules: modulesToAssign,
         status: userStatus,
         isActive: userStatus === 'Active',
+        accountStatus: 'invited',
+        mustResetPassword: true,
+        tempCredential: {
+          expiresAt: expiryDate,
+          used: false,
+        },
         createdBy: req.user._id,
       });
+
+      let emailSent = false;
+      try {
+        emailSent = await sendEmployeeInviteEmail({
+          email: newUser.email,
+          name: newUser.name,
+          tempPassword,
+          designation: newUser.designation,
+          role: newUser.role,
+          expiryHours: 72,
+          adminEmail: req.user.email || 'admin@velvix.com',
+        });
+      } catch (emailErr) {
+        console.error('Failed to send employee invite email:', emailErr);
+      }
 
       await createAuditLog({
         req,
         action: 'CREATE_EMPLOYEE',
         targetEmployee: newUser,
-        details: `Created employee "${newUser.name}" (${newUser.email}) - Designation: "${newUser.designation || 'N/A'}" with modules [${newUser.allowedModules.join(', ')}]`,
+        details: `Created employee "${newUser.name}" (${newUser.email}) - Designation: "${newUser.designation || 'N/A'}" with modules [${newUser.allowedModules.join(', ')}]. Invitation sent via email.`,
       });
 
       res.status(201).json({
         success: true,
-        message: 'Employee account created successfully',
+        message: 'Employee account created and invitation email sent with temporary password.',
+        emailSent,
         data: {
           _id: newUser._id,
           name: newUser.name,
@@ -567,6 +612,8 @@ router.post(
           allowedModules: newUser.allowedModules,
           status: newUser.status,
           isActive: newUser.isActive,
+          accountStatus: newUser.accountStatus,
+          mustResetPassword: newUser.mustResetPassword,
           createdAt: newUser.createdAt,
         },
       });
@@ -575,6 +622,58 @@ router.post(
     }
   }
 );
+
+// POST /api/users/:id/resend-invite - Resend employee temporary credentials email
+router.post('/:id/resend-invite', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Employee not found' });
+    }
+
+    const tempPassword = generateSecureTempPassword();
+    const expiryDate = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
+    user.password = tempPassword;
+    user.mustResetPassword = true;
+    user.accountStatus = 'invited';
+    user.tempCredential = {
+      expiresAt: expiryDate,
+      used: false,
+    };
+    await user.save();
+
+    let emailSent = false;
+    try {
+      emailSent = await sendEmployeeInviteEmail({
+        email: user.email,
+        name: user.name,
+        tempPassword,
+        designation: user.designation,
+        role: user.role,
+        expiryHours: 72,
+        adminEmail: req.user.email || 'admin@velvix.com',
+      });
+    } catch (emailErr) {
+      console.error('Failed to resend employee invite email:', emailErr);
+    }
+
+    await createAuditLog({
+      req,
+      action: 'RESEND_EMPLOYEE_INVITE',
+      targetEmployee: user,
+      details: `Resent invitation email with fresh temporary password to "${user.name}" (${user.email})`,
+    });
+
+    res.json({
+      success: true,
+      message: `Fresh invitation email sent successfully to ${user.email}`,
+      emailSent,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 // PUT /api/users/:id - Admin update employee details / status / role / allowedModules / designation
 router.put(

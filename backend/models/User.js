@@ -24,6 +24,20 @@ const userSchema = new mongoose.Schema(
       default: 'Active',
     },
     isActive: { type: Boolean, default: true },
+    accountStatus: {
+      type: String,
+      enum: ['invited', 'active', 'disabled'],
+      default: 'active',
+    },
+    mustResetPassword: {
+      type: Boolean,
+      default: false,
+    },
+    tempCredential: {
+      tokenHash: { type: String, select: false },
+      expiresAt: { type: Date },
+      used: { type: Boolean, default: false },
+    },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     lastLogin: { type: Date },
     passwordChangedAt: { type: Date },
@@ -43,6 +57,11 @@ userSchema.pre('save', async function () {
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.matchToken = async function (enteredToken) {
+  if (!this.tempCredential?.tokenHash) return false;
+  return bcrypt.compare(enteredToken, this.tempCredential.tokenHash);
 };
 
 const User = mongoose.model('User', userSchema);

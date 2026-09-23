@@ -29,6 +29,7 @@ const formatCandidateResponse = (candidate) => ({
   visaStatus: candidate.visaStatus || '',
   primarySkill: candidate.primarySkill || '',
   experienceYears: candidate.experienceYears || 0,
+  jobExperiences: candidate.jobExperiences || [],
   isOnboarded: candidate.isOnboarded || false,
   onboardedAt: candidate.onboardedAt,
   hasResume: !!(candidate.resume && candidate.resume.filename),
@@ -86,6 +87,7 @@ router.post(
       if (candidate.tempCredential?.used) {
         return res.status(400).json({
           success: false,
+          code: 'INVITE_ALREADY_USED',
           message: 'This invitation link has already been used. Please log in with your permanent password.',
           isUsed: true,
         });
@@ -260,6 +262,7 @@ router.put('/onboarding', protectCandidate, uploadResume.single('resume'), async
       preferredJobCities,
       preferredJobTitles,
       visaStatus,
+      jobExperiences,
     } = req.body;
 
     if (firstName) candidate.firstName = firstName.trim();
@@ -267,6 +270,26 @@ router.put('/onboarding', protectCandidate, uploadResume.single('resume'), async
     if (phone !== undefined) candidate.phone = phone.trim();
     if (currentCity !== undefined) candidate.currentCity = currentCity.trim();
     if (visaStatus !== undefined) candidate.visaStatus = visaStatus.trim();
+
+    // Parse job experiences (array of { jobTitle, experience })
+    if (jobExperiences !== undefined) {
+      let parsedExp = [];
+      if (typeof jobExperiences === 'string') {
+        try {
+          parsedExp = JSON.parse(jobExperiences);
+        } catch {
+          parsedExp = [];
+        }
+      } else if (Array.isArray(jobExperiences)) {
+        parsedExp = jobExperiences;
+      }
+      candidate.jobExperiences = (Array.isArray(parsedExp) ? parsedExp : [])
+        .map((exp) => ({
+          jobTitle: (exp.jobTitle || '').trim(),
+          experience: (exp.experience || '').trim(),
+        }))
+        .filter((exp) => exp.jobTitle || exp.experience);
+    }
 
     // Parse preferred job cities (can be JSON array string or array)
     if (preferredJobCities) {

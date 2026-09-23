@@ -47,7 +47,11 @@ api.interceptors.response.use(
       } else {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
+        const isEmployeeAuthPage =
+          window.location.pathname === '/login' ||
+          window.location.pathname === '/set-password' ||
+          window.location.pathname === '/forgot-password';
+        if (!isEmployeeAuthPage) {
           window.location.href = '/login';
         }
       }
@@ -62,6 +66,10 @@ export const authAPI = {
   forgotPassword: (data) => api.post('/auth/forgot-password', data),
   resetPassword: (data) => api.post('/auth/reset-password', data),
   changePassword: (data) => api.put('/auth/change-password', data),
+  setPassword: (data, resetToken) =>
+    api.post('/auth/set-password', data, {
+      headers: resetToken ? { Authorization: `Bearer ${resetToken}` } : {},
+    }),
 };
 
 export const userAPI = {
@@ -70,6 +78,7 @@ export const userAPI = {
   create: (data) => api.post('/users', data),
   update: (id, data) => api.put(`/users/${id}`, data),
   delete: (id) => api.delete(`/users/${id}`),
+  resendInvite: (id) => api.post(`/users/${id}/resend-invite`),
   resetPassword: (id, data) => api.post(`/users/${id}/reset-password`, data),
   getAuditLogs: () => api.get('/users/audit-logs'),
   getActivitySummary: (params) => api.get('/users/activity-summary', { params }),

@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,12 +11,25 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const urlEmail = searchParams.get('email');
+    if (urlEmail) {
+      setEmail(urlEmail);
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      const res = await login(email, password);
+      if (res?.mustResetPassword) {
+        sessionStorage.setItem('employeeResetToken', res.resetToken);
+        sessionStorage.setItem('employeeResetUser', JSON.stringify(res.user));
+        navigate('/set-password', { replace: true });
+        return;
+      }
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');

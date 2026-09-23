@@ -34,14 +34,23 @@ export function AuthProvider({ children }) {
     }
   }, [logout]);
 
-  const login = useCallback(async (email, password) => {
-    const res = await authAPI.login({ email, password });
-    const userData = res.data.data;
+  const completeLogin = useCallback((userData) => {
     localStorage.setItem('token', userData.token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
-    return userData;
+    sessionStorage.removeItem('employeeResetToken');
+    sessionStorage.removeItem('employeeResetUser');
   }, []);
+
+  const login = useCallback(async (email, password) => {
+    const res = await authAPI.login({ email, password });
+    if (res.data.mustResetPassword) {
+      return res.data;
+    }
+    const userData = res.data.data;
+    completeLogin(userData);
+    return userData;
+  }, [completeLogin]);
 
   const hasModule = useCallback(
     (moduleName) => {
@@ -54,8 +63,8 @@ export function AuthProvider({ children }) {
   );
 
   const value = useMemo(
-    () => ({ user, login, logout, loading, isAuthenticated: !!user, hasModule }),
-    [user, login, logout, loading, hasModule]
+    () => ({ user, login, completeLogin, logout, loading, isAuthenticated: !!user, hasModule }),
+    [user, login, completeLogin, logout, loading, hasModule]
   );
 
   return (

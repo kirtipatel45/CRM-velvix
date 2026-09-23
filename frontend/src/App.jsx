@@ -6,6 +6,7 @@ import Layout from "./components/Layout";
 
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const EmployeeSetPassword = lazy(() => import("./pages/EmployeeSetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
 const Sales = lazy(() => import("./pages/Sales"));
@@ -70,6 +71,7 @@ export default function App() {
       <Routes>
         {/* Employee Auth Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/set-password" element={<EmployeeSetPassword />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 

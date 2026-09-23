@@ -78,6 +78,12 @@ const candidateSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    jobExperiences: [
+      {
+        jobTitle: { type: String, trim: true, default: '' },
+        experience: { type: String, trim: true, default: '' },
+      },
+    ],
     resume: {
       originalName: { type: String },
       filename: { type: String },
