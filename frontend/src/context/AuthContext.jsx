@@ -43,9 +43,19 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
+  const hasModule = useCallback(
+    (moduleName) => {
+      if (!user) return false;
+      if (user.role === 'admin') return true;
+      const userModules = user.allowedModules || [];
+      return userModules.includes(moduleName);
+    },
+    [user]
+  );
+
   const value = useMemo(
-    () => ({ user, login, logout, loading, isAuthenticated: !!user }),
-    [user, login, logout, loading]
+    () => ({ user, login, logout, loading, isAuthenticated: !!user, hasModule }),
+    [user, login, logout, loading, hasModule]
   );
 
   return (

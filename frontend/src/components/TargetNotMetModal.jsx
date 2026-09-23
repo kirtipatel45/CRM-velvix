@@ -1,7 +1,22 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { AlertTriangle, X } from "lucide-react";
 
 function TargetNotMetModal({ isOpen, onClose, message }) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" || e.keyCode === 27) {
+        onClose?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -36,3 +51,4 @@ function TargetNotMetModal({ isOpen, onClose, message }) {
 }
 
 export default memo(TargetNotMetModal);
+

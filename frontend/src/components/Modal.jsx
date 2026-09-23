@@ -1,6 +1,21 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 
 function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        onClose?.();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const sizes = {
@@ -33,3 +48,4 @@ function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
 }
 
 export default memo(Modal);
+

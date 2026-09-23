@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { useCandidateAuth } from "./context/CandidateAuthContext";
 import { lazy, Suspense } from "react";
 import Layout from "./components/Layout";
 
@@ -11,9 +12,18 @@ const Sales = lazy(() => import("./pages/Sales"));
 const Marketing = lazy(() => import("./pages/Marketing"));
 const Profile = lazy(() => import("./pages/Profile"));
 const EmployeeManagement = lazy(() => import("./pages/EmployeeManagement"));
+const AssignedLeads = lazy(() => import("./pages/AssignedLeads"));
+const Candidates = lazy(() => import("./pages/Candidates"));
 
-function PrivateRoute({ children, roles }) {
-  const { user, isAuthenticated, loading } = useAuth();
+// Candidate Portal Pages
+const CandidateLogin = lazy(() => import("./pages/candidate/CandidateLogin"));
+const CandidateFirstLogin = lazy(() => import("./pages/candidate/CandidateFirstLogin"));
+const CandidateSetPassword = lazy(() => import("./pages/candidate/CandidateSetPassword"));
+const CandidatePortalHome = lazy(() => import("./pages/candidate/CandidatePortalHome"));
+const CandidateLayout = lazy(() => import("./components/CandidateLayout"));
+
+function PrivateRoute({ children, requiredModule, adminOnly }) {
+  const { user, isAuthenticated, loading, hasModule } = useAuth();
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -24,9 +34,28 @@ function PrivateRoute({ children, roles }) {
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  if (roles && !roles.includes(user?.role) && user?.role !== 'admin') {
+  if (adminOnly && user?.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
+
+  if (requiredModule && !hasModule(requiredModule)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+function CandidatePrivateRoute({ children }) {
+  const { isCandidateAuthenticated, loading } = useCandidateAuth();
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!isCandidateAuthenticated) return <Navigate to="/candidate/login" replace />;
 
   return children;
 }
@@ -39,9 +68,28 @@ export default function App() {
       </div>
     }>
       <Routes>
+        {/* Employee Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Candidate Portal Routes */}
+        <Route path="/candidate/login" element={<CandidateLogin />} />
+        <Route path="/candidate/first-login" element={<CandidateFirstLogin />} />
+        <Route path="/candidate/set-password" element={<CandidateSetPassword />} />
+        <Route
+          path="/candidate/portal"
+          element={
+            <CandidatePrivateRoute>
+              <CandidateLayout />
+            </CandidatePrivateRoute>
+          }
+        >
+          <Route index element={<CandidatePortalHome />} />
+        </Route>
+        <Route path="/candidate" element={<Navigate to="/candidate/portal" replace />} />
+
+        {/* Employee CRM Workspace */}
         <Route
           path="/"
           element={
@@ -54,23 +102,31 @@ export default function App() {
           <Route
             path="lead-generation"
             element={
-              <PrivateRoute roles={['lead_gen', 'manager']}>
+              <PrivateRoute requiredModule="lead_generation">
                 <LeadGeneration />
               </PrivateRoute>
             }
           />
           <Route
-            path="sales"
+            path="leads"
             element={
-              <PrivateRoute roles={['sales', 'manager']}>
-                <Sales />
+              <PrivateRoute requiredModule="leads">
+                <AssignedLeads />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="candidates"
+            element={
+              <PrivateRoute requiredModule="candidates">
+                <Candidates />
               </PrivateRoute>
             }
           />
           <Route
             path="marketing"
             element={
-              <PrivateRoute roles={['marketing', 'manager']}>
+              <PrivateRoute requiredModule="marketing">
                 <Marketing />
               </PrivateRoute>
             }
@@ -78,7 +134,7 @@ export default function App() {
           <Route
             path="employees"
             element={
-              <PrivateRoute roles={['admin']}>
+              <PrivateRoute adminOnly>
                 <EmployeeManagement />
               </PrivateRoute>
             }

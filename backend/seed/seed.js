@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import connectDB, { closeDB } from '../config/db.js';
 import User from '../models/User.js';
 import LeadGeneration from '../models/LeadGeneration.js';
 import Sales from '../models/Sales.js';
@@ -10,7 +10,7 @@ dotenv.config();
 
 const seed = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/crm-velvix');
+    await connectDB();
     console.log('Connected to MongoDB for seeding...');
 
     await Promise.all([
@@ -136,6 +136,7 @@ const seed = async () => {
 
     console.log('Seed completed successfully!');
     console.log('Login: admin@velvix.com / admin123');
+    await closeDB();
     process.exit(0);
   } catch (error) {
     console.error('Seed error:', error);

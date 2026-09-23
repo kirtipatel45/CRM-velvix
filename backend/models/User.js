@@ -7,10 +7,16 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6, select: false },
     mobileNumber: { type: String, trim: true },
+    designation: { type: String, trim: true, default: '' },
     role: {
       type: String,
-      enum: ['admin', 'lead_gen', 'sales', 'marketing', 'manager'],
-      default: 'admin',
+      enum: ['admin', 'lead_gen', 'sales', 'marketing', 'manager', 'employee'],
+      default: 'employee',
+    },
+    allowedModules: {
+      type: [String],
+      enum: ['lead_generation', 'leads', 'candidates', 'marketing'],
+      default: ['lead_generation', 'leads'],
     },
     status: {
       type: String,
@@ -27,10 +33,12 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (this.role === 'admin') {
+    this.allowedModules = ['lead_generation', 'leads', 'candidates', 'marketing'];
+  }
+  if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {

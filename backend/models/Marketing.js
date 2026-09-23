@@ -3,7 +3,13 @@ import { INTERVIEW_STAGES } from '../utils/calculations.js';
 
 const candidateSchema = new mongoose.Schema(
   {
+    candidateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Candidate',
+      default: null,
+    },
     candidateName: { type: String, required: true, trim: true },
+    candidateEmail: { type: String, trim: true, default: '' },
     jobTitle: { type: String, trim: true, default: '' },
     experienceYears: { type: Number, min: 0, default: 0 },
     experienceMonths: { type: Number, min: 0, max: 11, default: 0 },
@@ -13,8 +19,8 @@ const candidateSchema = new mongoose.Schema(
 
 const marketingSchema = new mongoose.Schema(
   {
-    teamLeaderName: { type: String, required: true, trim: true },
-    employeeName: { type: String, required: true, trim: true },
+    teamLeaderName: { type: String, trim: true, default: 'General' },
+    employeeName: { type: String, trim: true, default: '' },
     candidates: [candidateSchema],
     longApplicationsSubmitted: { type: Number, min: 0, default: 0 },
     easyApplicationsSubmitted: { type: Number, min: 0, default: 0 },

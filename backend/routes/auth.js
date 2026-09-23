@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import { generateToken, protect } from '../middleware/auth.js';
 import { sendEmail } from '../utils/email.js';
 import crypto from 'crypto';
+import { logUserActivity } from '../utils/activityLogger.js';
 
 const router = express.Router();
 
@@ -39,6 +40,27 @@ router.post(
       user.lastLogin = new Date();
       await user.save({ validateBeforeSave: false });
 
+      // Log Login Activity
+      logUserActivity({
+        user,
+        req,
+        module: 'auth',
+        actionType: 'login',
+        title: `User logged in`,
+        description: `${user.name} (${user.role}) logged in successfully.`,
+      });
+
+      const allowedModules =
+        user.allowedModules && user.allowedModules.length > 0
+          ? user.allowedModules
+          : user.role === 'admin'
+          ? ['lead_generation', 'leads', 'candidates', 'marketing']
+          : user.role === 'lead_gen'
+          ? ['lead_generation', 'leads']
+          : user.role === 'marketing'
+          ? ['candidates', 'marketing']
+          : ['lead_generation', 'leads'];
+
       res.json({
         success: true,
         data: {
@@ -46,6 +68,7 @@ router.post(
           name: user.name,
           email: user.email,
           role: user.role,
+          allowedModules,
           status: user.status || 'Active',
           mobileNumber: user.mobileNumber || '',
           token: generateToken(user._id),

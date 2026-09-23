@@ -2,44 +2,47 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
-  User,
-  Phone,
   Megaphone,
   LogOut,
   Menu,
   X,
-  Bell,
   UserCheck,
+  Briefcase,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNotification } from "../context/NotificationContext";
 
 const navItems = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/", icon: LayoutDashboard, label: "Dashboard", isUniversal: true },
   {
     to: "/employees",
     icon: UserCheck,
     label: "Employees",
-    roles: ["admin"],
+    adminOnly: true,
   },
   {
     to: "/lead-generation",
     icon: Users,
     label: "Lead Generation",
-    roles: ["lead_gen", "manager", "admin"],
+    module: "lead_generation",
   },
   {
-    to: "/sales",
-    icon: Phone,
-    label: "Sales Team",
-    roles: ["sales", "manager", "admin"],
+    to: "/leads",
+    icon: Briefcase,
+    label: "Leads",
+    module: "leads",
+  },
+  {
+    to: "/candidates",
+    icon: UserCheck,
+    label: "Candidates",
+    module: "candidates",
   },
   {
     to: "/marketing",
     icon: Megaphone,
     label: "Marketing Team",
-    roles: ["marketing", "manager", "admin"],
+    module: "marketing",
   },
 ];
 
@@ -47,23 +50,6 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const { notifications, clearNotifications, markAsRead, markAllAsRead } = useNotification();
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const notifRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (notifRef.current && !notifRef.current.contains(event.target)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -71,39 +57,59 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-100/90 p-2 sm:p-3 lg:p-3.5 gap-3 lg:gap-3.5">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
+      {/* Floating Liquid Glass Sidebar - Light Mode */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-brand-900 text-white transition-transform lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-3 left-3 z-50 w-64 transform rounded-2xl bg-white/85 text-slate-800 backdrop-blur-2xl border border-white/80 ring-1 ring-slate-900/5 shadow-[0_15px_35px_rgba(15,23,42,0.07),0_2px_8px_rgba(15,23,42,0.04)] transition-all duration-300 lg:static lg:translate-x-0 lg:h-full lg:flex lg:flex-col lg:justify-between shrink-0 overflow-hidden relative ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
       >
-        <div className="flex h-16 items-center justify-between px-6">
+        {/* Ambient liquid glass lights */}
+        <div className="pointer-events-none absolute -top-12 -left-12 h-36 w-36 rounded-full bg-brand-500/10 blur-2xl" />
+        <div className="pointer-events-none absolute top-1/2 -right-12 h-36 w-36 rounded-full bg-indigo-500/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-sky-500/10 blur-2xl" />
+
+        {/* Top Brand Area (V icon removed) */}
+        <div className="relative z-10 flex h-18 items-center justify-between px-5 border-b border-slate-100">
           <div>
-            <h1 className="text-xl font-bold">CRM Velvix</h1>
-            <p className="text-xs text-brand-200">Lead • Sales • Marketing</p>
+            <h1 className="text-lg font-black tracking-tight text-slate-900 leading-tight">
+              CRM <span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Velvix</span>
+            </h1>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Enterprise Portal
+            </p>
           </div>
-          <button className="lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close navigation sidebar">
-            <X size={20} />
+          <button
+            className="lg:hidden text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation sidebar"
+          >
+            <X size={18} />
           </button>
         </div>
 
+        {/* Navigation Items with Liquid Glass Highlights */}
         <nav
-          className="mt-4 space-y-1 px-3 overflow-y-auto"
-          style={{ maxHeight: "calc(100vh - 140px)" }}
+          className="relative z-10 mt-3 space-y-1.5 px-3 overflow-y-auto flex-1 custom-scrollbar"
+          style={{ maxHeight: "calc(100vh - 200px)" }}
         >
           {navItems
-            .filter(
-              (item) =>
-                !item.roles ||
-                item.roles.includes(user?.role) ||
-                user?.role === "admin",
-            )
+            .filter((item) => {
+              if (item.isUniversal) return true;
+              if (user?.role === "admin") return true;
+              if (item.adminOnly) return false;
+              if (item.module) {
+                return (user?.allowedModules || []).includes(item.module);
+              }
+              return true;
+            })
             .map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
@@ -111,221 +117,66 @@ export default function Layout() {
                 end={to === "/"}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
-                    ? "bg-brand-700 text-white"
-                    : "text-brand-100 hover:bg-brand-800 hover:text-white"
+                  `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 text-white shadow-md shadow-brand-500/25 border border-white/30 backdrop-blur-md font-semibold"
+                      : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent"
                   }`
                 }
               >
-                <Icon size={18} />
-                {label}
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      size={18}
+                      className={`shrink-0 transition-transform group-hover:scale-110 ${
+                        isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"
+                      }`}
+                    />
+                    <span className="truncate">{label}</span>
+                    {isActive && (
+                      <span className="ml-auto h-2 w-2 rounded-full bg-white shadow-[0_0_8px_#ffffff]" />
+                    )}
+                  </>
+                )}
               </NavLink>
             ))}
         </nav>
 
-        <div className="absolute bottom-0 w-full border-t border-brand-700 p-4 bg-brand-900">
-          <div className="mb-3 truncate text-sm">
-            <p className="font-medium">{user?.name}</p>
-            <p className="text-xs text-brand-300">{user?.role}</p>
+        {/* Bottom User Card in Light Frosted Glass */}
+        <div className="relative z-10 p-3 border-t border-slate-100 bg-slate-50/60 backdrop-blur-md">
+          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/90 border border-slate-200/70 shadow-xs mb-2">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-xs border border-white/40 shrink-0">
+              {user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <div className="truncate text-xs flex-1">
+              <p className="font-semibold text-slate-800 truncate leading-tight">{user?.name}</p>
+              <p className="text-[10px] text-brand-600 font-medium truncate mt-0.5">
+                {user?.designation || user?.role || "Employee"}
+              </p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <button
-              onClick={() => {
-                setSidebarOpen(false);
-                navigate("/profile");
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-200 transition hover:bg-brand-800 hover:text-white"
-            >
-              <User size={16} />
-              Profile
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-200 transition hover:bg-brand-800 hover:text-white"
-            >
-              <LogOut size={16} />
-              Logout
-            </button>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 hover:text-red-700 border border-transparent hover:border-red-200/80 transition"
+          >
+            <LogOut size={14} />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        <header className="sticky top-0 z-30 flex shrink-0 h-20 items-center gap-3 sm:gap-4 border-b border-slate-200 bg-white px-4 lg:px-8 shadow-sm">
-          <button
-            className="lg:hidden text-slate-500 hover:text-slate-700 p-1"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open navigation menu"
-          >
-            <Menu size={24} />
-          </button>
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col overflow-hidden bg-white rounded-2xl border border-slate-200/80 shadow-xs relative">
+        {/* Mobile Hamburger Toggle Button */}
+        <button
+          className="lg:hidden absolute top-4 right-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-slate-700 shadow-sm border border-slate-200/80 backdrop-blur-sm hover:bg-slate-50 transition"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open navigation menu"
+        >
+          <Menu size={20} />
+        </button>
 
-          {/* CRM Velvix title for mobile view */}
-          <div className="lg:hidden flex items-center gap-2">
-            <h1 className="text-lg font-bold text-brand-900 tracking-tight">CRM Velvix</h1>
-          </div>
-
-          <div className="hidden lg:block">
-            <h2 className="text-xl font-semibold text-slate-800">
-              Welcome back, {user?.name?.split(" ")[0] || "User"}! 👋
-            </h2>
-          </div>
-
-          <div className="flex-1" />
-
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowUserMenu(false);
-                }}
-                className="relative p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
-                aria-label="Notifications"
-                aria-expanded={showNotifications}
-              >
-                <Bell size={20} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <>
-                  <div
-                    className="fixed inset-0 bg-black/20 z-40"
-                    onClick={() => setShowNotifications(false)}
-                  />
-                  <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
-                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4 bg-white">
-                      <h3 className="font-bold text-lg text-slate-800">Notifications</h3>
-                      <button
-                        onClick={() => setShowNotifications(false)}
-                        className="text-slate-400 hover:text-slate-600 transition-colors"
-                        aria-label="Close notifications panel"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-100">
-                      {unreadCount > 0 ? (
-                        <button onClick={markAllAsRead} className="text-xs text-brand-600 hover:text-brand-800 font-medium transition-colors">
-                          Mark all read
-                        </button>
-                      ) : <div />}
-                      {notifications.length > 0 && (
-                        <button onClick={clearNotifications} className="text-xs text-slate-500 hover:text-slate-700 font-medium transition-colors">
-                          Clear all
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-6 text-center text-sm text-slate-500">
-                          No new notifications
-                        </div>
-                      ) : (
-                        <div className="divide-y divide-slate-100">
-                          {notifications.map((notif) => (
-                            <div
-                              key={notif._id}
-                              onClick={() => {
-                                if (!notif.read) markAsRead(notif._id);
-                              }}
-                              className={`px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.read ? 'bg-brand-50/30' : ''}`}
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <p className={`text-sm font-semibold ${notif.type === 'error' ? 'text-red-600' : notif.type === 'success' ? 'text-brand-600' : 'text-slate-700'}`}>
-                                    {notif.title}
-                                  </p>
-                                  <p className="text-sm text-slate-600 mt-0.5">
-                                    {notif.message}
-                                  </p>
-                                  <p className="text-xs text-slate-400 mt-1">
-                                    {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </p>
-                                </div>
-                                {!notif.read && (
-                                  <div className="mt-1 h-2 w-2 rounded-full bg-brand-500 shrink-0"></div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="h-6 w-px bg-slate-200 mx-0.5 sm:mx-1"></div>
-
-            {/* User Dropdown & Profile Button (Visible on Mobile & Desktop) */}
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 rounded-lg p-1 sm:pr-2 hover:bg-slate-100 transition-colors"
-                onClick={() => {
-                  setShowUserMenu(!showUserMenu);
-                  setShowNotifications(false);
-                }}
-                title="Profile & Settings"
-                aria-label="User account menu"
-                aria-expanded={showUserMenu}
-              >
-                <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-sm font-medium text-slate-700">
-                    {user?.name || "User"}
-                  </span>
-                  <span className="text-xs text-brand-600 font-medium capitalize">
-                    {user?.role?.replace("_", " ") || "Role"}
-                  </span>
-                </div>
-                <div className="h-9 w-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm border border-brand-200 shrink-0">
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
-                </div>
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-lg z-50">
-                  <div className="border-b border-slate-100 px-3 py-2">
-                    <p className="text-sm font-medium text-slate-800">
-                      {user?.name}
-                    </p>
-                    <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                  </div>
-                  <div className="pt-2">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        navigate("/profile");
-                      }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
-                    >
-                      <User size={16} className="text-slate-500" />
-                      <span className="flex-1 text-left">Profile</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        handleLogout();
-                      }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut size={16} />
-                      <span>Logout</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-4 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           <Outlet />
         </main>
       </div>

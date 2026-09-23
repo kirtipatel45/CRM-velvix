@@ -149,10 +149,6 @@ export default function Sales() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={handleExport} className="btn-secondary">
-            <Download size={16} className="mr-2" />
-            Export
-          </button>
           <button onClick={openCreate} className="btn-primary">
             <Plus size={16} className="mr-2" />
             Add Entry

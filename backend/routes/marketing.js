@@ -1,10 +1,31 @@
 import express from 'express';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
 import { body, validationResult } from 'express-validator';
 import Marketing from '../models/Marketing.js';
+import Candidate from '../models/Candidate.js';
 import { protect } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import { INTERVIEW_STAGES } from '../utils/calculations.js';
 import { createExportWorksheet } from '../utils/exportHelper.js';
+import { sendCandidateInviteEmail } from '../utils/email.js';
+import { uploadResume } from '../config/multerConfig.js';
+import { logUserActivity } from '../utils/activityLogger.js';
+
+const generateSecureTempPassword = () => {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const numbers = '23456789';
+  let result = 'Vx!';
+  for (let i = 0; i < 4; i++) {
+    result += letters.charAt(Math.floor(Math.random() * letters.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return result;
+};
 
 const router = express.Router();
 
@@ -59,30 +80,22 @@ router.get('/export', protect, async (req, res) => {
   }
 });
 
-const applyMetrics = (body) => {
-  const longApps = body.longApplicationsSubmitted || 0;
-  const easyApps = body.easyApplicationsSubmitted || 0;
+const applyMetrics = (body, user) => {
+  const longApps = Number(body.longApplicationsSubmitted) || 0;
+  const easyApps = Number(body.easyApplicationsSubmitted) || 0;
   const totalApplications = longApps + easyApps;
-
-  let interviewStages = body.interviewStages || [];
-  if (interviewStages.length === 0) {
-    interviewStages = INTERVIEW_STAGES.map((stage) => ({
-      stage,
-      scheduled: 0,
-      completed: 0,
-    }));
-  }
-
-  const totalInterviews = interviewStages.reduce(
-    (sum, s) => sum + (Number(s.completed) || 0),
-    0
-  );
 
   return {
     ...body,
+    employeeName: body.employeeName || user?.name || 'Recruiter',
+    teamLeaderName: body.teamLeaderName || user?.name || 'General',
+    longApplicationsSubmitted: longApps,
+    easyApplicationsSubmitted: easyApps,
     totalApplications,
-    totalInterviews,
-    interviewStages,
+    assessmentsReceived: Number(body.assessmentsReceived) || 0,
+    screeningCallsCompleted: Number(body.screeningCallsCompleted) || 0,
+    totalInterviews: Number(body.totalInterviews) || 0,
+    interviewStages: body.interviewStages || [],
   };
 };
 
@@ -120,6 +133,182 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+// @route   GET /api/marketing/assigned-candidates
+// @desc    Get candidates assigned to the logged-in marketing employee
+// @access  Protected
+router.get('/assigned-candidates', protect, async (req, res) => {
+  try {
+    const query = {};
+    if (req.user.role === 'marketing') {
+      query.assignedTo = req.user._id;
+    } else if (req.user.role === 'sales') {
+      query.convertedBy = req.user._id;
+    } else if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      query.assignedTo = req.user._id;
+    }
+
+    const candidates = await Candidate.find(query)
+      .populate('assignedTo', 'name email role mobileNumber')
+      .populate('convertedBy', 'name email role')
+      .populate('sourceLeadId', 'date employeeName leadSource submissionType status linkedInProfiles entryDate')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({ success: true, count: candidates.length, data: candidates });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route   POST /api/marketing/candidates/:id/resend-invite
+// @desc    Resend candidate portal invite with fresh temp credentials
+// @access  Protected
+router.post('/candidates/:id/resend-invite', protect, async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    const tempPassword = generateSecureTempPassword();
+    const inviteToken = crypto.randomBytes(32).toString('hex');
+
+    const passwordSalt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(tempPassword, passwordSalt);
+
+    const tokenSalt = await bcrypt.genSalt(10);
+    const tokenHash = await bcrypt.hash(inviteToken, tokenSalt);
+
+    const expiryHours = parseInt(process.env.CANDIDATE_INVITE_EXPIRY_HOURS, 10) || 72;
+    const expiresAt = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
+
+    candidate.passwordHash = passwordHash;
+    candidate.tempCredential = {
+      tokenHash,
+      expiresAt,
+      used: false,
+    };
+    candidate.accountStatus = 'invited';
+    candidate.mustResetPassword = true;
+    await candidate.save();
+
+    await sendCandidateInviteEmail({
+      email: candidate.email,
+      firstName: candidate.firstName,
+      tempPassword,
+      inviteToken,
+      expiryHours,
+      recruiterEmail: req.user.email || 'recruiting@velvix.com',
+    });
+
+    res.json({
+      success: true,
+      message: `Fresh invite email successfully sent to ${candidate.email}`,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route   GET /api/marketing/candidates/:id/resume
+// @desc    Download candidate resume
+// @access  Protected
+router.get('/candidates/:id/resume', protect, async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    if (!candidate.resume?.path || !fs.existsSync(candidate.resume.path)) {
+      return res.status(404).json({ success: false, message: 'No resume uploaded for this candidate' });
+    }
+
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodeURIComponent(candidate.resume.originalName || `${candidate.firstName}_Resume.pdf`)}"`
+    );
+    res.setHeader('Content-Type', candidate.resume.mimetype || 'application/octet-stream');
+    res.sendFile(path.resolve(candidate.resume.path));
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route   POST /api/marketing/candidates/:id/ats-resume
+// @desc    Upload or update candidate ATS-friendly resume
+// @access  Protected (Recruiter / Marketing / Admin)
+router.post('/candidates/:id/ats-resume', protect, uploadResume.single('atsResume'), async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload an ATS-friendly resume file' });
+    }
+
+    // Clean up old ATS resume file if it exists
+    if (candidate.atsResume?.path && fs.existsSync(candidate.atsResume.path)) {
+      try {
+        fs.unlinkSync(candidate.atsResume.path);
+      } catch (err) {
+        console.error('Error removing old ATS resume file:', err);
+      }
+    }
+
+    candidate.atsResume = {
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      path: req.file.path,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      uploadedAt: new Date(),
+      uploadedBy: req.user._id,
+    };
+
+    await candidate.save();
+
+    res.json({
+      success: true,
+      message: 'ATS-friendly resume uploaded successfully!',
+      atsResume: candidate.atsResume,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route   GET /api/marketing/candidates/:id/ats-resume
+// @desc    Download candidate ATS-friendly resume
+// @access  Protected (Employee)
+router.get('/candidates/:id/ats-resume', protect, async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    if (!candidate.atsResume?.path || !fs.existsSync(candidate.atsResume.path)) {
+      return res.status(404).json({ success: false, message: 'No ATS-friendly resume uploaded for this candidate' });
+    }
+
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${encodeURIComponent(candidate.atsResume.originalName || `${candidate.firstName}_ATS_Resume.pdf`)}"`
+    );
+    res.setHeader('Content-Type', candidate.atsResume.mimetype || 'application/octet-stream');
+    res.sendFile(path.resolve(candidate.atsResume.path));
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 router.get('/:id', protect, async (req, res) => {
   try {
     const record = await Marketing.findById(req.params.id);
@@ -130,31 +319,38 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-router.post(
-  '/',
-  protect,
-  [
-    body('teamLeaderName').trim().notEmpty().withMessage('Team leader name is required'),
-    body('employeeName').trim().notEmpty().withMessage('Employee name is required'),
-  ],
-  validate,
-  async (req, res) => {
-    try {
-      const data = applyMetrics(req.body);
-      const record = await Marketing.create({
-        ...data,
-        createdBy: req.user._id,
-      });
-      res.status(201).json({ success: true, data: record });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
+router.post('/', protect, async (req, res) => {
+  try {
+    const data = applyMetrics(req.body, req.user);
+    const record = await Marketing.create({
+      ...data,
+      createdBy: req.user._id,
+    });
+
+    // Log Marketing Submission Activity
+    logUserActivity({
+      req,
+      module: 'marketing',
+      actionType: 'marketing_submitted',
+      title: `Submitted ${data.totalApplications || (data.longApplicationsSubmitted + data.easyApplicationsSubmitted)} client applications`,
+      description: `Long: ${data.longApplicationsSubmitted || 0}, Easy: ${data.easyApplicationsSubmitted || 0} for ${data.candidates?.map(c => c.candidateName).join(', ') || 'candidates'}.`,
+      metadata: {
+        longApplications: data.longApplicationsSubmitted || 0,
+        easyApplications: data.easyApplicationsSubmitted || 0,
+        totalApplications: data.totalApplications || (data.longApplicationsSubmitted + data.easyApplicationsSubmitted),
+        candidateNames: data.candidates?.map(c => c.candidateName).filter(Boolean),
+      },
+    });
+
+    res.status(201).json({ success: true, data: record });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-);
+});
 
 router.put('/:id', protect, async (req, res) => {
   try {
-    const data = applyMetrics(req.body);
+    const data = applyMetrics(req.body, req.user);
     const record = await Marketing.findByIdAndUpdate(req.params.id, data, {
       new: true,
       runValidators: true,

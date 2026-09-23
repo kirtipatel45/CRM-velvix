@@ -21,3 +21,9 @@ Thumbs.db
 
 # MongoDB
 data/
+.mongo-data/
+backend/.mongo-data/
+
+# Uploads
+uploads/
+backend/uploads/
