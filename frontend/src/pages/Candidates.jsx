@@ -370,21 +370,12 @@ export default function Candidates() {
                   Job City Preferences
                 </th>
                 <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
-                  Onboarding & Resume
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
-                  Converted By
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-right font-semibold text-slate-400 w-44">
-                  Actions
+                  Onboarding
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {filteredCandidates.map((c) => {
-                const isActive = c.accountStatus === "active";
-                const hasResume = !!(c.resume?.filename || c.resume?.path);
-
                 return (
                   <tr
                     key={c._id}
@@ -477,110 +468,17 @@ export default function Candidates() {
                       )}
                     </td>
 
-                    {/* Onboarding & Resume Status */}
+                    {/* Onboarding Status */}
                     <td className="px-5 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-xs">
-                          {c.isOnboarded ? (
-                            <span className="font-semibold text-emerald-600">
-                              Onboarded
-                            </span>
-                          ) : (
-                            <span className="font-semibold text-amber-600">
-                              Pending
-                            </span>
-                          )}
-
-                          <span className="text-slate-300">·</span>
-
-                          {c.atsResume?.filename ? (
-                            <span className="font-semibold text-purple-600" title="ATS-optimized resume ready">
-                              ATS Ready
-                            </span>
-                          ) : (
-                            <span className="font-medium text-slate-400">
-                              No ATS
-                            </span>
-                          )}
-                        </div>
-
-                        {hasResume && (
-                          <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
-                            <FileCheck size={11} className="text-emerald-600" />
-                            <span>Original Attached</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Converted By */}
-                    <td className="px-5 py-4">
-                      {c.convertedBy ? (
-                        <div>
-                          <p className="font-semibold text-slate-700 text-xs">
-                            {c.convertedBy.name}
-                          </p>
-                          <span className="text-[11px] text-slate-400">
-                            {c.convertedBy.role?.toUpperCase()}
-                          </span>
-                        </div>
+                      {c.isOnboarded ? (
+                        <span className="text-xs font-semibold text-emerald-600">
+                          Onboarded
+                        </span>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">System</span>
+                        <span className="text-xs font-semibold text-amber-600">
+                          Pending
+                        </span>
                       )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-5 py-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1.5">
-                        {c.atsResume?.filename ? (
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadAtsResume(c)}
-                            disabled={downloadingAtsId === c._id}
-                            className="inline-flex items-center gap-1 rounded-lg border border-purple-200 bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700 hover:bg-purple-100 transition shadow-2xs"
-                            title="Download candidate's ATS-friendly resume"
-                          >
-                            <Sparkles size={12} className="text-purple-600" />
-                            <span>{downloadingAtsId === c._id ? "..." : "ATS Resume"}</span>
-                          </button>
-                        ) : hasResume ? (
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadResume(c)}
-                            disabled={downloadingId === c._id}
-                            className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition shadow-2xs"
-                            title="Download original candidate resume"
-                          >
-                            <Download size={12} />
-                            <span>{downloadingId === c._id ? "..." : "Resume"}</span>
-                          </button>
-                        ) : null}
-
-                        {!isActive && (
-                          <button
-                            type="button"
-                            onClick={() => handleResendInvite(c)}
-                            disabled={resendingId === c._id}
-                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs disabled:opacity-50"
-                            title="Resend 72-hour invite email"
-                          >
-                            <RefreshCw
-                              size={12}
-                              className={resendingId === c._id ? "animate-spin text-brand-600" : ""}
-                            />
-                            <span>Invite</span>
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => openCandidateDetails(c)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100 transition shadow-2xs"
-                        >
-                          <span>View</span>
-                          <ArrowRight size={12} />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 );
@@ -600,38 +498,31 @@ export default function Candidates() {
         {selectedCandidate && (
           <div className="space-y-6">
             {/* Avatar & Main Info Header */}
-            <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-brand-900 via-brand-800 to-indigo-950 p-5 text-white shadow-md">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white font-bold text-lg uppercase border border-white/30 shadow-inner flex-shrink-0">
+            <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 shadow-2xs">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold text-base sm:text-lg uppercase border border-brand-200 shadow-2xs flex-shrink-0">
                 {selectedCandidate.firstName?.[0] || "C"}
                 {selectedCandidate.lastName?.[0] || ""}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 className="text-xl font-bold truncate">
-                    {selectedCandidate.firstName} {selectedCandidate.lastName}
-                  </h3>
-                  {selectedCandidate.visaStatus && (
-                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold text-brand-100 border border-white/30">
-                      {selectedCandidate.visaStatus}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-brand-200 truncate flex items-center gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 truncate mb-0.5">
+                  {selectedCandidate.firstName} {selectedCandidate.lastName}
+                </h3>
+                <p className="text-xs text-slate-500 truncate flex items-center gap-2">
                   <span>{selectedCandidate.email}</span>
                   {selectedCandidate.phone && <span>• {selectedCandidate.phone}</span>}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${
+                  className={`text-xs font-bold ${
                     selectedCandidate.isOnboarded
-                      ? "bg-emerald-500 text-white"
-                      : "bg-amber-400 text-slate-900"
+                      ? "text-emerald-600"
+                      : "text-amber-600"
                   }`}
                 >
                   {selectedCandidate.isOnboarded ? "Onboarded" : "Pending Onboarding"}
                 </span>
-                <span className="text-[11px] text-brand-200">
+                <span className="text-[11px] font-medium text-slate-400">
                   {selectedCandidate.accountStatus === "active" ? "Portal Active" : "Invite Sent"}
                 </span>
               </div>
