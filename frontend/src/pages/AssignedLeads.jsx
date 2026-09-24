@@ -24,7 +24,6 @@ import {
   PhoneMissed,
   Voicemail,
   History,
-  LayoutGrid,
   List,
   Columns,
   Sparkles,
@@ -115,7 +114,7 @@ export default function AssignedLeads() {
   const [filterSource, setFilterSource] = useState("");
   const [filterAssignedTo, setFilterAssignedTo] = useState("");
   const [filterDate, setFilterDate] = useState("");
-  const [viewMode, setViewMode] = useState("kanban"); // 'kanban' | 'cards' | 'table'
+  const [viewMode, setViewMode] = useState("kanban"); // 'kanban' | 'table'
 
   // Details Modal State
   const [selectedLead, setSelectedLead] = useState(null);
@@ -510,18 +509,6 @@ export default function AssignedLeads() {
           >
             <Columns size={14} />
             <span>Kanban</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("cards")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              viewMode === "cards"
-                ? "bg-white text-indigo-600 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <LayoutGrid size={14} />
-            <span>Cards</span>
           </button>
           <button
             type="button"
@@ -978,184 +965,6 @@ export default function AssignedLeads() {
               )}
             </div>
           </div>
-        </div>
-      ) : viewMode === "cards" ? (
-        /* Leads Cards Grid View */
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredLeads.map((r) => {
-            const profilesList = getUnconvertedProfiles(r);
-            const primaryProfile = profilesList[0];
-            const primaryPhone = primaryProfile?.phone || "";
-            const primaryEmail = primaryProfile?.email || "";
-            const lastCall = primaryProfile?.lastCallStatus || (r.callLogs && r.callLogs[0]?.outcome) || "not_called";
-            const followUp = primaryProfile?.followUpDate || (r.callLogs && r.callLogs[0]?.followUpDate);
-            const hasMultipleProfiles = profilesList.length > 1;
-
-            if (hasMultipleProfiles) {
-              return (
-                <div
-                  key={r._id}
-                  onClick={() => openLeadDetails(r)}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                        <span className="font-semibold text-slate-700">{r.leadSource || "LinkedIn"}</span>
-                        <span>·</span>
-                        <span>{new Date(r.entryDate).toLocaleDateString()}</span>
-                      </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-100">
-                        {profilesList.length} Profiles
-                      </span>
-                    </div>
-
-                    <div className="mt-4 mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                          <Users size={20} />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition">
-                            {profilesList.length} profiles waiting for outreach
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Sourced by: <span className="font-semibold text-slate-700">{r.employeeName}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openLeadDetails(r);
-                      }}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2.5 transition border border-indigo-200/60 shadow-2xs"
-                    >
-                      <Users size={14} />
-                      <span>View Profiles</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div
-                key={r._id}
-                onClick={() => openLeadDetails(r)}
-                className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer"
-              >
-                <div>
-                  {/* Top Bar: Generator & Date */}
-                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs group-hover:bg-indigo-600 group-hover:text-white transition">
-                        {r.employeeName ? r.employeeName.charAt(0).toUpperCase() : "U"}
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold text-slate-800 block leading-tight">
-                          {r.employeeName}
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          {new Date(r.entryDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700 border border-slate-200">
-                      <Tag size={10} className="text-slate-500" />
-                      {r.leadSource || "LinkedIn"}
-                    </span>
-                  </div>
-
-                  {/* Primary Profile / Candidate Contact */}
-                  <div className="mt-3.5 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition truncate">
-                        {primaryProfile?.profileName || "Lead Contact"}
-                      </h3>
-                      <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 flex-shrink-0">
-                        {profilesList.length} {profilesList.length === 1 ? "Profile" : "Profiles"}
-                      </span>
-                    </div>
-
-                    {/* Contact details */}
-                    <div className="space-y-1 text-xs text-slate-600">
-                      {primaryPhone ? (
-                        <div className="flex items-center gap-1.5">
-                          <Phone size={12} className="text-slate-400 flex-shrink-0" />
-                          <span className="font-medium text-slate-800">{primaryPhone}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-slate-400 italic">
-                          <Phone size={12} />
-                          <span>No phone number</span>
-                        </div>
-                      )}
-
-                      {primaryEmail ? (
-                        <div className="flex items-center gap-1.5 truncate">
-                          <Mail size={12} className="text-slate-400 flex-shrink-0" />
-                          <span className="text-indigo-600 truncate">{primaryEmail}</span>
-                        </div>
-                      ) : null}
-                    </div>
-
-                    {/* Status Badges */}
-                    <div className="pt-2 flex flex-wrap items-center gap-1.5">
-                      {renderCallBadge(primaryProfile || r)}
-
-                      {followUp && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-semibold text-purple-700 border border-purple-200">
-                          <Calendar size={10} className="text-purple-600" />
-                          Follow-up: {new Date(followUp).toLocaleDateString()} {new Date(followUp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Actions Card Footer */}
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  {/* Start a Call Action Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => openStartCallModal(r, primaryProfile, e)}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
-                    title="Start a call and record duration & outcome"
-                  >
-                    <PhoneCall size={13} />
-                    <span>Start a Call</span>
-                  </button>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openConvertModal(r, primaryProfile);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition"
-                      title="Convert to candidate"
-                    >
-                      <UserPlus size={12} />
-                      <span>Convert</span>
-                    </button>
-
-                    <span className="inline-flex items-center gap-0.5 text-xs font-bold text-slate-500 hover:text-indigo-600 px-2 py-1.5 transition">
-                      <span>View</span>
-                      <ArrowRight size={13} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
         </div>
       ) : (
         /* Leads Table View */
