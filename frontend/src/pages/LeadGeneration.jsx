@@ -31,6 +31,7 @@ import { leadGenAPI } from "../services/api";
 import Modal from "../components/Modal";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import LinkedInLogo from "../assets/linkedin-logo.svg";
 
 const LEAD_SOURCES = [
   "LinkedIn",
@@ -768,14 +769,20 @@ export default function LeadGeneration() {
                           </div>
 
                           <div className="flex items-center gap-1.5 min-w-0">
-                            <Linkedin size={13} className="text-slate-400 flex-shrink-0" />
-                            <span className="text-slate-400 flex-shrink-0">LinkedIn:</span>
                             {p.url ? (
-                              <a href={p.url.startsWith("http") ? p.url : `https://${p.url}`} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline truncate" title={p.url}>
-                                {p.url}
+                              <a 
+                                href={p.url.startsWith("http") ? p.url : `https://${p.url}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="hover:scale-[1.03] transition-transform cursor-pointer block" 
+                                title="View LinkedIn Profile"
+                              >
+                                <img src={LinkedInLogo} alt="LinkedIn" className="h-5 object-contain" />
                               </a>
                             ) : (
-                              <span className="italic text-slate-400">Not provided</span>
+                              <div className="flex items-center gap-1.5" title="LinkedIn profile not provided">
+                                <img src={LinkedInLogo} alt="LinkedIn" className="h-5 object-contain opacity-40 grayscale" />
+                              </div>
                             )}
                           </div>
                         </div>
