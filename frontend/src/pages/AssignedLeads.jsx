@@ -29,6 +29,7 @@ import {
   Columns,
   Sparkles,
   RotateCcw,
+  Users,
 } from "lucide-react";
 import Modal from "../components/Modal";
 import StartCallModal from "../components/StartCallModal";
@@ -650,6 +651,47 @@ export default function AssignedLeads() {
                       ? [{ profileName: lead.linkedInProfileNames }]
                       : [];
                   const primaryProfile = profilesList[0];
+                  const hasMultipleProfiles = profilesList.length > 1;
+
+                  if (hasMultipleProfiles) {
+                    return (
+                      <div
+                        key={lead._id}
+                        onClick={() => openLeadDetails(lead)}
+                        className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-indigo-300 hover:shadow-xs transition cursor-pointer"
+                      >
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-2.5">
+                          <span className="font-semibold text-slate-700">{lead.leadSource || "LinkedIn"}</span>
+                          <span>·</span>
+                          <span>{new Date(lead.entryDate).toLocaleDateString()}</span>
+                        </div>
+
+                        <div className="mb-3.5">
+                          <p className="text-sm font-bold text-slate-900 leading-tight">
+                            {profilesList.length} profiles waiting for outreach
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1 truncate">
+                            Sourced by: <span className="font-semibold text-slate-700">{lead.employeeName}</span>
+                          </p>
+                        </div>
+
+                        <div className="pt-2.5 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openLeadDetails(lead);
+                            }}
+                            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 shadow-2xs transition border border-indigo-200/60"
+                          >
+                            <Users size={13} />
+                            <span>View Profiles</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={lead._id}
@@ -954,6 +996,60 @@ export default function AssignedLeads() {
             const primaryEmail = primaryProfile?.email || "";
             const lastCall = primaryProfile?.lastCallStatus || (r.callLogs && r.callLogs[0]?.outcome) || "not_called";
             const followUp = primaryProfile?.followUpDate || (r.callLogs && r.callLogs[0]?.followUpDate);
+            const hasMultipleProfiles = profilesList.length > 1;
+
+            if (hasMultipleProfiles) {
+              return (
+                <div
+                  key={r._id}
+                  onClick={() => openLeadDetails(r)}
+                  className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                        <span className="font-semibold text-slate-700">{r.leadSource || "LinkedIn"}</span>
+                        <span>·</span>
+                        <span>{new Date(r.entryDate).toLocaleDateString()}</span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-100">
+                        {profilesList.length} Profiles
+                      </span>
+                    </div>
+
+                    <div className="mt-4 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                          <Users size={20} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition">
+                            {profilesList.length} profiles waiting for outreach
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Sourced by: <span className="font-semibold text-slate-700">{r.employeeName}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openLeadDetails(r);
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2.5 transition border border-indigo-200/60 shadow-2xs"
+                    >
+                      <Users size={14} />
+                      <span>View Profiles</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            }
 
             return (
               <div

@@ -652,7 +652,7 @@ router.post('/:id/resend-invite', async (req, res) => {
         designation: user.designation,
         role: user.role,
         expiryHours: 72,
-        adminEmail: req.user.email || 'admin@velvix.com',
+        adminEmail: req.user?.email || 'admin@velvix.com',
       });
     } catch (emailErr) {
       console.error('Failed to resend employee invite email:', emailErr);

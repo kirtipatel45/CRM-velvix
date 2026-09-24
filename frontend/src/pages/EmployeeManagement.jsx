@@ -139,6 +139,7 @@ export default function EmployeeManagement() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [resendingId, setResendingId] = useState(null);
   const [formError, setFormError] = useState('');
 
   // Form states
@@ -312,6 +313,7 @@ export default function EmployeeManagement() {
   };
 
   const handleResendInvite = async (emp) => {
+    setResendingId(emp._id);
     try {
       await userAPI.resendInvite(emp._id);
       addNotification({
@@ -319,12 +321,15 @@ export default function EmployeeManagement() {
         title: 'Invitation Sent',
         message: `Fresh temporary login credentials emailed to ${emp.email}`,
       });
+      fetchData();
     } catch (err) {
       addNotification({
         type: 'error',
         title: 'Resend Failed',
         message: err.response?.data?.message || 'Failed to resend invite email',
       });
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -729,49 +734,41 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1 items-start">
-                              <button
-                                onClick={() => !isSelf && toggleStatus(emp)}
-                                disabled={isSelf}
-                                title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
-                                  isSelf ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'
-                                } ${
-                                  emp.status === 'Inactive' || emp.isActive === false
-                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
-                                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                                }`}
-                              >
-                                {emp.status === 'Inactive' || emp.isActive === false ? (
-                                  <>
-                                    <XCircle size={14} /> Inactive
-                                  </>
-                                ) : (
-                                  <>
-                                    <CheckCircle2 size={14} /> Active
-                                  </>
-                                )}
-                              </button>
-                              {(emp.accountStatus === 'invited' || emp.mustResetPassword) && (
-                                <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-medium">
-                                  <Clock size={11} /> Invited (Temp Pass)
-                                </span>
-                              )}
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => !isSelf && toggleStatus(emp)}
+                              disabled={isSelf}
+                              title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
+                              className={`text-xs font-semibold transition ${
+                                isSelf ? 'cursor-default' : 'cursor-pointer hover:opacity-80'
+                              } ${
+                                emp.status === 'Inactive' || emp.isActive === false
+                                  ? 'text-red-600'
+                                  : 'text-emerald-600'
+                              }`}
+                            >
+                              {emp.status === 'Inactive' || emp.isActive === false ? 'Inactive' : 'Active'}
+                            </button>
                           </td>
                           <td className="px-6 py-4 text-xs text-slate-500">
                             {new Date(emp.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => handleResendInvite(emp)}
-                                className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-                                title="Resend Invitation Email & Temp Password"
-                                aria-label={`Resend invite to ${emp.name}`}
-                              >
-                                <Send size={16} />
-                              </button>
+                              {!isSelf && (emp.accountStatus === 'invited' || emp.mustResetPassword) && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleResendInvite(emp)}
+                                  disabled={resendingId === emp._id}
+                                  className={`p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition ${
+                                    resendingId === emp._id ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                                  title="Resend Invitation Email & Temp Password"
+                                  aria-label={`Resend invite to ${emp.name}`}
+                                >
+                                  <Send size={16} className={resendingId === emp._id ? 'animate-pulse text-indigo-600' : ''} />
+                                </button>
+                              )}
                               <button
                                 onClick={() => openEditModal(emp)}
                                 className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition"
