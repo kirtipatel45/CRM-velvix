@@ -15,7 +15,7 @@ export default memo(TargetAlert);
 
 export const AlertBadge = memo(function AlertBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+    <span className="text-xs font-semibold text-red-600">
       Target Not Met
     </span>
   );

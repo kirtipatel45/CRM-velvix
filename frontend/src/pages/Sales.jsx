@@ -259,8 +259,8 @@ export default function Sales() {
                   <td className="px-4 py-3">
                     {r.interestedCandidates}
                     {r.interestedStage && (
-                      <span className="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700">
-                        {r.interestedStage}
+                      <span className="ml-1 text-xs font-semibold text-emerald-700">
+                        ({r.interestedStage})
                       </span>
                     )}
                   </td>

@@ -369,12 +369,12 @@ export default function Marketing() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                          className={`font-semibold text-xs capitalize ${
                             c.accountStatus === 'active'
-                              ? 'bg-green-50 text-green-700 border border-green-200'
+                              ? 'text-emerald-600'
                               : c.accountStatus === 'invited'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-slate-100 text-slate-600'
+                              ? 'text-amber-600'
+                              : 'text-slate-600'
                           }`}
                         >
                           {c.accountStatus || 'invited'}

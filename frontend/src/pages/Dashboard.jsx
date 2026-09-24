@@ -459,13 +459,13 @@ export default function Dashboard() {
                       </td>
                       <td className="py-3 px-4 font-medium text-slate-600">{emp.designation}</td>
                       <td className="py-3 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {emp.allowedModules.map((m) => (
+                        <div className="flex flex-wrap gap-1 text-[11px]">
+                          {emp.allowedModules.map((m, mIdx) => (
                             <span
                               key={m}
-                              className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 capitalize"
+                              className="font-medium text-indigo-700 capitalize"
                             >
-                              {m.replace('_', ' ')}
+                              {m.replace('_', ' ')}{mIdx < emp.allowedModules.length - 1 ? ' ·' : ''}
                             </span>
                           ))}
                         </div>
@@ -476,13 +476,12 @@ export default function Dashboard() {
                       <td className="py-3 px-4 font-bold text-amber-600">{emp.applications}</td>
                       <td className="py-3 px-4">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          className={`text-xs font-semibold ${
                             emp.targetStatus === 'On Track'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-amber-50 text-amber-700'
+                              ? 'text-emerald-600'
+                              : 'text-amber-600'
                           }`}
                         >
-                          <CheckCircle2 size={10} />
                           {emp.targetStatus}
                         </span>
                       </td>

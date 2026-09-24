@@ -316,8 +316,7 @@ export default function AssignedLeads() {
 
     if (!status || status === "not_called") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
-          <Clock size={11} className="text-slate-400" />
+        <span className="text-xs font-semibold text-slate-500">
           Not Called
         </span>
       );
@@ -326,23 +325,20 @@ export default function AssignedLeads() {
     if (status === "picked_up") {
       if (interestStatus === "Interested" || isInterested) {
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200 shadow-xs">
-            <PhoneCall size={12} className="text-emerald-600" />
+          <span className="text-xs font-semibold text-emerald-600">
             Picked Up (Interested)
           </span>
         );
       }
       if (interestStatus === "Call Back Later") {
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-200 shadow-xs">
-            <Clock size={12} className="text-indigo-600" />
+          <span className="text-xs font-semibold text-indigo-600">
             Call Back Later
           </span>
         );
       }
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200">
-          <PhoneCall size={12} className="text-slate-500" />
+        <span className="text-xs font-semibold text-slate-700">
           Picked Up
         </span>
       );
@@ -350,8 +346,7 @@ export default function AssignedLeads() {
 
     if (status === "call_cut") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700 border border-rose-200">
-          <PhoneOff size={12} className="text-rose-500" />
+        <span className="text-xs font-semibold text-rose-600">
           Call Cut
         </span>
       );
@@ -359,8 +354,7 @@ export default function AssignedLeads() {
 
     if (status === "voicemail") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
-          <Voicemail size={12} className="text-amber-600" />
+        <span className="text-xs font-semibold text-amber-600">
           Voicemail
         </span>
       );
@@ -368,8 +362,7 @@ export default function AssignedLeads() {
 
     if (status === "not_answered") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
-          <PhoneMissed size={12} className="text-slate-400" />
+        <span className="text-xs font-semibold text-slate-500">
           Not Answered
         </span>
       );
@@ -1218,20 +1211,18 @@ export default function AssignedLeads() {
                       {new Date(r.entryDate).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200 shadow-xs">
-                        <Tag size={11} className="text-slate-500" />
+                      <span className="text-xs font-semibold text-slate-700">
                         {r.leadSource || "LinkedIn"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-200 shadow-xs">
-                          <Linkedin size={12} className="text-blue-600" />
+                        <span className="text-xs font-semibold text-blue-700">
                           {profilesList.length} {profilesList.length === 1 ? "Profile" : "Profiles"}
                         </span>
                         {primaryProfile?.profileName && (
                           <span className="text-xs text-slate-600 truncate max-w-[140px]">
-                            {primaryProfile.profileName}
+                            ({primaryProfile.profileName})
                           </span>
                         )}
                       </div>
@@ -1240,8 +1231,7 @@ export default function AssignedLeads() {
                       {renderCallBadge(primaryProfile || r)}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
-                        <Clock size={11} className="text-slate-400" />
+                      <span className="text-xs font-medium text-slate-500">
                         Available for Outreach
                       </span>
                     </td>

@@ -543,15 +543,13 @@ export default function LeadGeneration() {
                       {new Date(r.entryDate).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-200 shadow-xs">
-                        <Tag size={11} className="text-slate-500" />
+                      <span className="text-xs font-semibold text-slate-700">
                         {r.leadSource || "LinkedIn"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
                       {assignedPerson ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200 shadow-xs">
-                          <UserCheck size={12} className="text-emerald-600" />
+                        <span className="text-xs font-semibold text-emerald-700">
                           {assignedPerson.name}
                         </span>
                       ) : (
@@ -560,32 +558,29 @@ export default function LeadGeneration() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-200 shadow-xs">
-                          <Linkedin size={12} className="text-blue-600" />
+                        <span className="text-xs font-semibold text-blue-700">
                           {profilesList.length} {profilesList.length === 1 ? "Profile" : "Profiles"}
                         </span>
                         {primaryProfile?.profileName && (
                           <span className="text-xs text-slate-600 truncate max-w-[140px]">
-                            {primaryProfile.profileName}
+                            ({primaryProfile.profileName})
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
                       {isConverted ? (
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border shadow-xs ${
+                        <span className={`text-xs font-semibold ${
                           isCandidateActive
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            ? "text-emerald-600"
                             : isInviteExpired
-                            ? "bg-amber-50 text-amber-700 border-amber-200"
-                            : "bg-indigo-50 text-indigo-700 border-indigo-200"
+                            ? "text-amber-600"
+                            : "text-indigo-600"
                         }`}>
-                          <CheckCircle2 size={12} />
                           {isCandidateActive ? "Active Candidate" : isInviteExpired ? "Invite Expired" : "Invite Sent"}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
-                          <Clock size={11} className="text-slate-400" />
+                        <span className="text-xs font-medium text-slate-500">
                           Lead Available
                         </span>
                       )}

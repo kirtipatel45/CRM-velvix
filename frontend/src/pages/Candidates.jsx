@@ -419,9 +419,8 @@ export default function Candidates() {
                     {/* Visa Status */}
                     <td className="px-5 py-4">
                       {c.visaStatus ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          <Award size={12} />
-                          <span>{c.visaStatus}</span>
+                        <span className="text-xs font-bold text-indigo-700">
+                          {c.visaStatus}
                         </span>
                       ) : (
                         <span className="text-xs text-slate-400 italic">Visa not set</span>
@@ -431,40 +430,28 @@ export default function Candidates() {
                     {/* Job Experience & Titles */}
                     <td className="px-5 py-4">
                       {c.jobExperiences && c.jobExperiences.length > 0 ? (
-                        <div className="space-y-1.5 max-w-[240px]">
+                        <div className="space-y-0.5 max-w-[240px]">
                           {c.jobExperiences.slice(0, 2).map((exp, eIdx) => (
-                            <div
-                              key={eIdx}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-900 border border-brand-200"
-                            >
-                              <Briefcase size={11} className="text-brand-600 flex-shrink-0" />
-                              <span className="truncate max-w-[130px]">{exp.jobTitle || "Role"}</span>
+                            <div key={eIdx} className="text-xs">
+                              <span className="font-semibold text-slate-800">{exp.jobTitle || "Role"}</span>
                               {exp.experience && (
-                                <span className="text-[10px] font-bold bg-white text-brand-700 px-1.5 py-0.2 rounded border border-brand-200 flex-shrink-0">
-                                  {exp.experience}
+                                <span className="font-medium text-brand-700 ml-1">
+                                  ({exp.experience})
                                 </span>
                               )}
                             </div>
                           ))}
                           {c.jobExperiences.length > 2 && (
-                            <span className="text-[11px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200 block w-fit">
+                            <span className="text-[11px] font-semibold text-brand-600 block">
                               +{c.jobExperiences.length - 2} more roles
                             </span>
                           )}
                         </div>
                       ) : c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 max-w-[220px]">
-                          {c.preferredJobTitles.slice(0, 2).map((title) => (
-                            <span
-                              key={title}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-50 text-indigo-800 border border-indigo-200"
-                            >
-                              <Briefcase size={10} className="text-indigo-600" />
-                              <span className="truncate max-w-[120px]">{title}</span>
-                            </span>
-                          ))}
+                        <div className="text-xs font-medium text-indigo-800 max-w-[220px]">
+                          {c.preferredJobTitles.slice(0, 2).join(', ')}
                           {c.preferredJobTitles.length > 2 && (
-                            <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">
+                            <span className="text-[11px] font-semibold text-indigo-600 ml-1">
                               +{c.preferredJobTitles.length - 2} more
                             </span>
                           )}
@@ -477,18 +464,10 @@ export default function Candidates() {
                     {/* Job City Preferences */}
                     <td className="px-5 py-4">
                       {c.preferredJobCities && c.preferredJobCities.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 max-w-[220px]">
-                          {c.preferredJobCities.slice(0, 2).map((city) => (
-                            <span
-                              key={city}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200"
-                            >
-                              <Compass size={10} className="text-slate-400" />
-                              <span>{city}</span>
-                            </span>
-                          ))}
+                        <div className="text-xs font-medium text-slate-700 max-w-[220px]">
+                          {c.preferredJobCities.slice(0, 2).join(', ')}
                           {c.preferredJobCities.length > 2 && (
-                            <span className="text-[11px] font-semibold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded border border-brand-200">
+                            <span className="text-[11px] font-semibold text-brand-600 ml-1">
                               +{c.preferredJobCities.length - 2} more
                             </span>
                           )}
@@ -500,28 +479,27 @@ export default function Candidates() {
 
                     {/* Onboarding & Resume Status */}
                     <td className="px-5 py-4">
-                      <div className="space-y-1.5">
-                        <div className="flex flex-wrap items-center gap-1">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-xs">
                           {c.isOnboarded ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <CheckCircle2 size={11} />
-                              <span>Onboarded</span>
+                            <span className="font-semibold text-emerald-600">
+                              Onboarded
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                              <Clock size={11} />
-                              <span>Pending</span>
+                            <span className="font-semibold text-amber-600">
+                              Pending
                             </span>
                           )}
 
+                          <span className="text-slate-300">·</span>
+
                           {c.atsResume?.filename ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="ATS-optimized resume ready">
-                              <Sparkles size={11} className="text-purple-600" />
-                              <span>ATS Ready</span>
+                            <span className="font-semibold text-purple-600" title="ATS-optimized resume ready">
+                              ATS Ready
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                              <span>No ATS</span>
+                            <span className="font-medium text-slate-400">
+                              No ATS
                             </span>
                           )}
                         </div>

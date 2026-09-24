@@ -693,15 +693,15 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="space-y-1">
+                            <div className="space-y-0.5">
                               <span className="font-semibold text-slate-800 text-xs block">
                                 {emp.designation || 'Staff Employee'}
                               </span>
                               <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
+                                className={`text-xs font-semibold ${
                                   emp.role === 'admin'
-                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                    : 'bg-slate-100 text-slate-700 border-slate-200'
+                                    ? 'text-purple-700'
+                                    : 'text-slate-600'
                                 }`}
                               >
                                 {emp.role === 'admin' ? 'Administrator' : 'Employee'}
@@ -709,24 +709,19 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex flex-wrap gap-1 max-w-xs">
+                            <div className="flex flex-wrap items-center gap-1.5 max-w-xs text-xs">
                               {emp.role === 'admin' ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                                <span className="font-semibold text-purple-700">
                                   Full System Access (All Modules)
                                 </span>
                               ) : modules.length === 0 ? (
-                                <span className="text-xs text-slate-400 italic">No modules assigned</span>
+                                <span className="text-slate-400 italic">No modules assigned</span>
                               ) : (
-                                modules.map((modId) => {
+                                modules.map((modId, mIdx) => {
                                   const modDef = SYSTEM_MODULES.find((m) => m.id === modId);
                                   return (
-                                    <span
-                                      key={modId}
-                                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${
-                                        modDef?.badgeClass || 'bg-slate-100 text-slate-700 border-slate-200'
-                                      }`}
-                                    >
-                                      {modDef?.shortLabel || modId}
+                                    <span key={modId} className="font-medium text-indigo-700">
+                                      {modDef?.shortLabel || modId}{mIdx < modules.length - 1 ? ' ·' : ''}
                                     </span>
                                   );
                                 })
@@ -1080,8 +1075,8 @@ export default function EmployeeManagement() {
                                   {u.name}
                                 </div>
                                 <div className="text-[11px] text-slate-500 truncate">{u.email}</div>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                  <span className="text-[10px] font-semibold text-brand-700 bg-brand-50 px-1.5 py-0.2 rounded border border-brand-200">
+                                <div className="mt-0.5">
+                                  <span className="text-[11px] font-semibold text-brand-700">
                                     {u.designation || u.role}
                                   </span>
                                 </div>
@@ -1099,18 +1094,18 @@ export default function EmployeeManagement() {
                                 <span className="text-[11px] text-slate-400">leads</span>
                               </div>
 
-                              {/* Lead Sources Pills */}
+                              {/* Lead Sources Text */}
                               {hasLeads && m.leadSourcesBreakdown && (
-                                <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 max-w-[200px] text-[11px]">
                                   {Object.entries(m.leadSourcesBreakdown)
                                     .filter(([_, count]) => count > 0)
                                     .map(([source, count]) => (
                                       <span
                                         key={source}
-                                        className="inline-flex items-center gap-1 rounded bg-blue-50 text-blue-800 px-1.5 py-0.2 text-[10px] font-semibold border border-blue-200"
+                                        className="font-medium text-blue-700"
                                         title={`${count} sourced from ${source}`}
                                       >
-                                        <span>{source}:</span>
+                                        <span>{source}: </span>
                                         <strong>{count}</strong>
                                       </span>
                                     ))}
@@ -1132,11 +1127,11 @@ export default function EmployeeManagement() {
                               </div>
 
                               {hasCalls && (
-                                <div className="flex items-center gap-1.5 text-[10px]">
-                                  <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.2 rounded font-semibold border border-emerald-200" title="Calls Picked Up">
+                                <div className="flex items-center gap-2 text-[11px]">
+                                  <span className="text-emerald-700 font-medium" title="Calls Picked Up">
                                     Picked: {m.callsPickedUp}
                                   </span>
-                                  <span className="bg-amber-50 text-amber-700 px-1.5 py-0.2 rounded font-semibold border border-amber-200" title="Voicemail">
+                                  <span className="text-amber-700 font-medium" title="Voicemail">
                                     VM: {m.callsVoicemail}
                                   </span>
                                 </div>
@@ -1155,11 +1150,11 @@ export default function EmployeeManagement() {
                               </div>
 
                               {hasApps && (
-                                <div className="flex items-center gap-1 text-[10px]">
-                                  <span className="bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded font-medium border border-blue-200">
+                                <div className="flex items-center gap-2 text-[11px]">
+                                  <span className="text-blue-700 font-medium">
                                     Long: {m.totalLongApplications}
                                   </span>
-                                  <span className="bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-medium border border-indigo-200">
+                                  <span className="text-indigo-700 font-medium">
                                     Easy: {m.totalEasyApplications}
                                   </span>
                                 </div>
@@ -1174,8 +1169,8 @@ export default function EmployeeManagement() {
                                 <span className={`font-extrabold text-sm ${hasConversions ? 'text-emerald-700' : 'text-slate-400'}`}>
                                   {m.candidatesConverted}
                                 </span>
-                                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                                  {m.conversionRate}%
+                                <span className="text-xs font-bold text-emerald-700">
+                                  ({m.conversionRate}%)
                                 </span>
                               </div>
                               <span className="text-[10px] text-slate-400 block">
@@ -1263,7 +1258,7 @@ export default function EmployeeManagement() {
                         {log.adminName}
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+                        <span className="text-xs font-semibold text-indigo-700">
                           {log.action}
                         </span>
                       </td>
