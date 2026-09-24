@@ -744,77 +744,15 @@ export default function LeadGeneration() {
                             </h4>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                            {/* Message on LinkedIn Button */}
-                            <a
-                              href={
-                                p.url
-                                  ? (p.url.startsWith("http") ? p.url : `https://${p.url}`)
-                                  : p.profileName
-                                  ? `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(p.profileName)}`
-                                  : "https://www.linkedin.com/messaging/"
-                              }
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition"
-                              title={`Open LinkedIn to message ${p.profileName || "this person"}`}
-                            >
-                              <MessageSquare size={12} />
-                              <span>Message on LinkedIn</span>
-                            </a>
 
-                            {/* Convert to Candidate Button inside each person profile box */}
-                            {!isProfileConverted ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDetailsModalOpen(false);
-                                  openConvertModal(selectedLead, p);
-                                }}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition"
-                              >
-                                <UserPlus size={13} />
-                                <span>Convert to Candidate</span>
-                              </button>
-                            ) : (
-                              <div className="flex items-center gap-1.5">
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                                  candidateStatus === 'active'
-                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                    : isInviteExpired
-                                    ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-indigo-50 text-indigo-700 border-indigo-200"
-                                }`}>
-                                  <CheckCircle2 size={12} />
-                                  {candidateStatus === 'active'
-                                    ? "Active Candidate"
-                                    : isInviteExpired
-                                    ? "Invite Expired"
-                                    : "Portal Invite Sent"}
-                                </span>
-                                {candidateStatus !== 'active' && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleResendInvite(selectedLead, convertedObj)}
-                                    disabled={resendingId === (convertedObj?._id || selectedLead._id)}
-                                    className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
-                                    title="Resend 72-hour invite email"
-                                  >
-                                    <RefreshCw size={11} className={resendingId === (convertedObj?._id || selectedLead._id) ? "animate-spin" : ""} />
-                                    <span>Resend</span>
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
                         </div>
 
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2 text-xs text-slate-600">
-                          <div className="flex items-center gap-1.5">
+                        <div className="mt-3 grid gap-2 sm:grid-cols-3 text-xs text-slate-600">
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <Mail size={13} className="text-slate-400 flex-shrink-0" />
-                            <span className="text-slate-400">Email:</span>
+                            <span className="text-slate-400 flex-shrink-0">Email:</span>
                             {p.email ? (
-                              <a href={`mailto:${p.email}`} className="font-medium text-indigo-600 hover:underline">
+                              <a href={`mailto:${p.email}`} className="font-medium text-indigo-600 hover:underline truncate" title={p.email}>
                                 {p.email}
                               </a>
                             ) : (
@@ -822,12 +760,24 @@ export default function LeadGeneration() {
                             )}
                           </div>
 
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
                             <Phone size={13} className="text-slate-400 flex-shrink-0" />
-                            <span className="text-slate-400">Phone:</span>
+                            <span className="text-slate-400 flex-shrink-0">Phone:</span>
                             {p.phone ? (
-                              <a href={`tel:${p.phone}`} className="font-medium text-slate-800 hover:underline">
+                              <a href={`tel:${p.phone}`} className="font-medium text-slate-800 hover:underline truncate" title={p.phone}>
                                 {p.phone}
+                              </a>
+                            ) : (
+                              <span className="italic text-slate-400">Not provided</span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <Linkedin size={13} className="text-slate-400 flex-shrink-0" />
+                            <span className="text-slate-400 flex-shrink-0">LinkedIn:</span>
+                            {p.url ? (
+                              <a href={p.url.startsWith("http") ? p.url : `https://${p.url}`} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline truncate" title={p.url}>
+                                {p.url}
                               </a>
                             ) : (
                               <span className="italic text-slate-400">Not provided</span>
