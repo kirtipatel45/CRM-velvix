@@ -53,8 +53,8 @@ const SYSTEM_MODULES = [
   },
   {
     id: 'leads',
-    label: 'Leads',
-    shortLabel: 'Leads',
+    label: 'Sales Team',
+    shortLabel: 'Sales Team',
     description: 'Assigned leads, call logger, follow-ups & convert to candidate',
     icon: Briefcase,
     badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -616,7 +616,7 @@ export default function EmployeeManagement() {
               >
                 <option value="all">All Modules</option>
                 <option value="lead_generation">Lead Generation</option>
-                <option value="leads">Leads & Calling</option>
+                <option value="leads">Sales Team</option>
                 <option value="candidates">Candidates</option>
                 <option value="marketing">Marketing</option>
                 <option value="admin">Administrator Role</option>

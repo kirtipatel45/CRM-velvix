@@ -118,6 +118,14 @@ export default function App() {
             }
           />
           <Route
+            path="sales"
+            element={
+              <PrivateRoute requiredModule="leads">
+                <AssignedLeads />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="candidates"
             element={
               <PrivateRoute requiredModule="candidates">

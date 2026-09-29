@@ -479,9 +479,7 @@ export default function AssignedLeads() {
             <span>
               {user?.role === 'marketing'
                 ? 'Assigned Candidates'
-                : user?.role === 'admin' || user?.role === 'manager'
-                ? 'Assigned Leads (All Teams)'
-                : 'Assigned Leads'}
+                : 'Sales Team'}
             </span>
             <span className="rounded-full bg-indigo-100 px-3 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-200">
               {filteredLeads.length} {user?.role === 'marketing' ? (filteredLeads.length === 1 ? "Candidate" : "Candidates") : (filteredLeads.length === 1 ? "Lead" : "Leads")}
@@ -490,9 +488,7 @@ export default function AssignedLeads() {
           <p className="text-sm text-slate-500 mt-0.5">
             {user?.role === 'marketing'
               ? 'Converted candidates assigned to you for placement, marketing, and candidate follow-up'
-              : user?.role === 'admin' || user?.role === 'manager'
-              ? 'All leads currently assigned across sales executives for outreach and candidate onboarding'
-              : 'Leads assigned to you from the Lead Generation team for outreach, calling, and candidate conversion'}
+              : 'Sales team workspace for lead outreach, calling, and candidate conversion pipeline'}
           </p>
         </div>
 
@@ -535,10 +531,10 @@ export default function AssignedLeads() {
             />
             <input
               className="input-field pl-9 text-sm"
-              placeholder="Search by candidate name, email, phone, generator, or assigned rep..."
+              placeholder="Search by candidate name, email, phone, generator, or assigned sales rep..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search assigned leads"
+              aria-label="Search sales team leads"
             />
           </div>
 
@@ -594,9 +590,9 @@ export default function AssignedLeads() {
       ) : filteredLeads.length === 0 ? (
         <div className="card text-center py-16 border border-slate-200 shadow-sm">
           <Briefcase size={40} className="mx-auto text-slate-300 mb-2" />
-          <p className="text-base font-semibold text-slate-700">No assigned leads found</p>
+          <p className="text-base font-semibold text-slate-700">No leads found in Sales Team queue</p>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            When the Lead Generation team assigns leads to you, they will appear here automatically for outreach and calling.
+            When the Lead Generation team assigns leads to the Sales Team, they will appear here automatically for outreach and calling.
           </p>
         </div>
       ) : viewMode === "kanban" ? (
@@ -607,20 +603,20 @@ export default function AssignedLeads() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                <h2 className="text-sm font-bold text-slate-800">Leads Queue</h2>
+                <h2 className="text-sm font-bold text-slate-800">Sales Queue</h2>
               </div>
               <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700">
                 {kanbanData.queueLeads.length}
               </span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1 mb-3">
-              Uncalled & pending leads waiting for outreach
+              Uncalled & pending leads waiting for sales outreach
             </p>
 
             <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 custom-scrollbar">
               {kanbanData.queueLeads.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400 bg-white/60 rounded-xl border border-dashed border-slate-200">
-                  No pending leads in queue
+                  No pending leads in sales queue
                 </div>
               ) : (
                 kanbanData.queueLeads.map((lead) => {

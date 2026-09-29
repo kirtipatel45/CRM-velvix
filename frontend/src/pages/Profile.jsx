@@ -384,7 +384,7 @@ export default function Profile() {
       <div>
         <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
         <p className="text-sm text-slate-500">
-          Manage your personal account credentials and view candidates/leads assigned to you
+          Manage your personal account credentials and view candidates/sales leads assigned to you
         </p>
       </div>
 
@@ -525,7 +525,7 @@ export default function Profile() {
           <div>
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
               {isMarketing ? <UserCheck className="text-indigo-600" size={20} /> : <Briefcase className="text-indigo-600" size={20} />}
-              <span>{isMarketing ? 'My Assigned Candidates' : 'My Assigned Leads'}</span>
+              <span>{isMarketing ? 'My Assigned Candidates' : 'Sales Team - My Assigned Leads'}</span>
               <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-200">
                 {filteredAssignedLeads.length} {isMarketing ? (filteredAssignedLeads.length === 1 ? 'Candidate' : 'Candidates') : (filteredAssignedLeads.length === 1 ? 'Lead' : 'Leads')}
               </span>

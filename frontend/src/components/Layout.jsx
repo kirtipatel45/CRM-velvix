@@ -29,7 +29,7 @@ const navItems = [
   {
     to: "/leads",
     icon: Briefcase,
-    label: "Leads",
+    label: "Sales Team",
     module: "leads",
   },
   {

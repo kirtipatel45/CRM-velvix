@@ -699,11 +699,21 @@ router.post(
   async (req, res) => {
     try {
       const employeeName = req.body.employeeName?.trim() || req.user.name || 'Staff User';
-      const profiles = Array.isArray(req.body.linkedInProfiles) ? req.body.linkedInProfiles : [];
-      const profilesText = profiles.map(p => p.profileName || p.url || p.email).filter(Boolean).join('\n') || req.body.linkedInProfileNames || '';
-      const accountsCount = req.body.linkedInAccountsCount !== undefined && req.body.linkedInAccountsCount !== ''
-        ? Number(req.body.linkedInAccountsCount)
-        : (profiles.length || 0);
+      let profiles = [];
+      if (Array.isArray(req.body.linkedInProfiles) && req.body.linkedInProfiles.length > 0) {
+        profiles = [req.body.linkedInProfiles[0]];
+      } else if (req.body.profileName || req.body.url || req.body.email || req.body.phone) {
+        profiles = [{
+          profileName: req.body.profileName?.trim() || '',
+          url: req.body.url?.trim() || '',
+          email: req.body.email?.trim() || '',
+          phone: req.body.phone?.trim() || '',
+        }];
+      }
+
+      const primaryProfile = profiles[0] || {};
+      const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || '';
+      const accountsCount = 1;
 
       const leadSource = req.body.leadSource?.trim() || 'LinkedIn';
       const assignedTo = req.body.assignedTo ? req.body.assignedTo : null;
@@ -726,17 +736,16 @@ router.post(
       });
 
       // Log Lead Sourcing Activity
-      const sourcedCount = profiles.length > 0 ? profiles.length : (record.totalLeadsGenerated || 1);
       logUserActivity({
         req,
         module: 'lead_generation',
         actionType: 'lead_created',
-        title: `Sourced ${sourcedCount} lead(s) from ${leadSource}`,
-        description: `${employeeName} added ${sourcedCount} prospective profile(s) via ${leadSource}.`,
+        title: `Sourced lead from ${leadSource}`,
+        description: `${employeeName} added candidate profile (${primaryProfile.profileName || 'Unnamed'}) via ${leadSource}.`,
         metadata: {
           leadSource,
-          profileCount: sourcedCount,
-          profileNames: profiles.map(p => p.profileName).filter(Boolean),
+          profileName: primaryProfile.profileName || '',
+          candidateEmail: primaryProfile.email || '',
         },
       });
 
@@ -756,15 +765,37 @@ router.put('/:id', protect, async (req, res) => {
     if (!existingRecord) return res.status(404).json({ success: false, message: 'Record not found' });
 
     const employeeName = req.body.employeeName?.trim() || existingRecord.employeeName || req.user.name;
-    const profiles = req.body.linkedInProfiles !== undefined
-      ? (Array.isArray(req.body.linkedInProfiles) ? req.body.linkedInProfiles : [])
-      : existingRecord.linkedInProfiles;
-    const profilesText = profiles?.length
-      ? profiles.map(p => p.profileName || p.url || p.email).filter(Boolean).join('\n')
-      : (req.body.linkedInProfileNames || existingRecord.linkedInProfileNames || '');
-    const accountsCount = req.body.linkedInAccountsCount !== undefined && req.body.linkedInAccountsCount !== ''
-      ? Number(req.body.linkedInAccountsCount)
-      : (profiles?.length || existingRecord.linkedInAccountsCount || 0);
+    let profiles;
+    if (req.body.linkedInProfiles !== undefined) {
+      if (Array.isArray(req.body.linkedInProfiles) && req.body.linkedInProfiles.length > 0) {
+        const existingProf = existingRecord.linkedInProfiles?.[0];
+        const rawExisting = existingProf ? (existingProf.toObject ? existingProf.toObject() : existingProf) : {};
+        profiles = [{
+          ...rawExisting,
+          ...req.body.linkedInProfiles[0],
+        }];
+      } else {
+        profiles = [];
+      }
+    } else if (req.body.profileName !== undefined || req.body.url !== undefined || req.body.email !== undefined || req.body.phone !== undefined) {
+      const existingProf = existingRecord.linkedInProfiles?.[0];
+      const rawExisting = existingProf ? (existingProf.toObject ? existingProf.toObject() : existingProf) : {};
+      profiles = [{
+        ...rawExisting,
+        profileName: req.body.profileName !== undefined ? req.body.profileName.trim() : (rawExisting.profileName || ''),
+        url: req.body.url !== undefined ? req.body.url.trim() : (rawExisting.url || ''),
+        email: req.body.email !== undefined ? req.body.email.trim() : (rawExisting.email || ''),
+        phone: req.body.phone !== undefined ? req.body.phone.trim() : (rawExisting.phone || ''),
+      }];
+    } else {
+      profiles = existingRecord.linkedInProfiles && existingRecord.linkedInProfiles.length > 0
+        ? [existingRecord.linkedInProfiles[0]]
+        : [];
+    }
+
+    const primaryProfile = profiles?.[0] || {};
+    const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || existingRecord.linkedInProfileNames || '';
+    const accountsCount = 1;
 
     const leadSource = req.body.leadSource !== undefined ? (req.body.leadSource?.trim() || 'LinkedIn') : existingRecord.leadSource;
     const assignedTo = req.body.assignedTo !== undefined ? (req.body.assignedTo ? req.body.assignedTo : null) : existingRecord.assignedTo;

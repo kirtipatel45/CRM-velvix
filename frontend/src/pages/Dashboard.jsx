@@ -17,7 +17,6 @@ import {
   ShieldAlert,
   Calendar,
   Layers,
-  FileCheck2,
 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -147,20 +146,6 @@ export default function Dashboard() {
     ].filter((item) => item.value > 0);
   }, [callingStats]);
 
-  // 3. Visa Breakdown Data
-  const visaData = useMemo(() => {
-    const breakdown = benchStats.visaBreakdown || {};
-    const entries = Object.entries(breakdown);
-    if (entries.length === 0) {
-      return [{ name: 'No Data', count: 0, fill: '#94a3b8' }];
-    }
-    const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899'];
-    return entries.map(([visa, count], idx) => ({
-      name: visa,
-      count,
-      fill: colors[idx % colors.length],
-    }));
-  }, [benchStats]);
 
   if (loading) {
     return (
@@ -371,39 +356,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Row 3: Candidate Bench & Visa Breakdown */}
-      <div className="card">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UserCheck size={18} className="text-brand-600" />
-            <h2 className="text-sm font-bold text-slate-900">Candidate Bench & Visa Status</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-              <FileCheck2 size={12} />
-              {benchStats.atsResumeReady || 0} ATS Resumes Ready
-            </span>
-          </div>
-        </div>
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={visaData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-              <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-              <Tooltip
-                cursor={{ fill: '#f8fafc' }}
-                contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-              />
-              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                {visaData.map((entry, index) => (
-                  <Cell key={`visa-cell-${index}`} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
       {/* Row 4: Admin Team Performance Leaderboard (Only shown for Admin) */}
       {isAdmin && (
@@ -412,8 +364,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <Award size={18} className="text-brand-600" />
               <div>
-                <h2 className="text-sm font-bold text-slate-900">Employee Performance Scorecard</h2>
-                <p className="text-xs text-slate-500">Live activity metrics breakdown across team members</p>
+                <h2 className="text-sm font-bold text-slate-900">Top 5 Employee Performance Scorecard</h2>
+                <p className="text-xs text-slate-500">Live activity metrics breakdown & top performers by actual working output</p>
               </div>
             </div>
             <Link
@@ -433,6 +385,7 @@ export default function Dashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider font-semibold border-y border-slate-100">
                   <tr>
+                    <th className="py-3 px-4 w-12 text-center">#</th>
                     <th className="py-3 px-4">Employee</th>
                     <th className="py-3 px-4">Designation</th>
                     <th className="py-3 px-4">Modules Access</th>
@@ -444,8 +397,23 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {leaderboard.map((emp) => (
+                  {leaderboard.map((emp, index) => (
                     <tr key={emp.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 px-4 text-center">
+                        <span
+                          className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                            emp.rank === 1
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs'
+                              : emp.rank === 2
+                              ? 'bg-slate-200 text-slate-700 border border-slate-300 shadow-2xs'
+                              : emp.rank === 3
+                              ? 'bg-amber-50 text-amber-900/80 border border-amber-200'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}
+                        >
+                          {emp.rank || (index + 1)}
+                        </span>
+                      </td>
                       <td className="py-3 px-4 font-semibold text-slate-800">
                         <div className="flex items-center gap-2">
                           <div className="h-7 w-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-[10px]">
@@ -465,7 +433,7 @@ export default function Dashboard() {
                               key={m}
                               className="font-medium text-indigo-700 capitalize"
                             >
-                              {m.replace('_', ' ')}{mIdx < emp.allowedModules.length - 1 ? ' ·' : ''}
+                              {m === 'leads' ? 'Sales Team' : m.replace('_', ' ')}{mIdx < emp.allowedModules.length - 1 ? ' ·' : ''}
                             </span>
                           ))}
                         </div>
@@ -477,7 +445,9 @@ export default function Dashboard() {
                       <td className="py-3 px-4">
                         <span
                           className={`text-xs font-semibold ${
-                            emp.targetStatus === 'On Track'
+                            emp.targetStatus === 'Top Performer'
+                              ? 'text-emerald-700 font-bold'
+                              : emp.targetStatus === 'On Track'
                               ? 'text-emerald-600'
                               : 'text-amber-600'
                           }`}
@@ -522,7 +492,7 @@ export default function Dashboard() {
                 <Briefcase size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800">Leads Outreach</p>
+                <p className="text-xs font-bold text-slate-800">Sales Team</p>
                 <p className="text-[11px] text-slate-500 font-medium">{callingStats.totalCalls || 0} Calls Made</p>
               </div>
             </Link>

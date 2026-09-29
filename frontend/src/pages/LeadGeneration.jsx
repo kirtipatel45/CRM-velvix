@@ -31,7 +31,6 @@ import { leadGenAPI } from "../services/api";
 import Modal from "../components/Modal";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
-import LinkedInLogo from "../assets/linkedin-logo.svg";
 
 const LEAD_SOURCES = [
   "LinkedIn",
@@ -45,19 +44,14 @@ const LEAD_SOURCES = [
   "Other",
 ];
 
-const emptyProfile = {
-  profileName: "",
-  url: "",
-  email: "",
-  phone: "",
-};
-
 const emptyForm = {
   employeeName: "",
   leadSource: "LinkedIn",
   assignedTo: "",
-  linkedInAccountsCount: 1,
-  linkedInProfiles: [{ ...emptyProfile }],
+  profileName: "",
+  url: "",
+  email: "",
+  phone: "",
   entryDate: new Date().toISOString().split("T")[0],
   notes: "",
 };
@@ -84,7 +78,6 @@ export default function LeadGeneration() {
   const [filterDate, setFilterDate] = useState("");
   const [searchName, setSearchName] = useState("");
   const [filterSource, setFilterSource] = useState("");
-  const [expandedProfiles, setExpandedProfiles] = useState({});
 
   // Lead Details Modal State
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -159,8 +152,12 @@ export default function LeadGeneration() {
       employeeName: user?.name || "",
       leadSource: "LinkedIn",
       assignedTo: "",
-      linkedInProfiles: [{ ...emptyProfile }],
-      linkedInAccountsCount: 1,
+      profileName: "",
+      url: "",
+      email: "",
+      phone: "",
+      entryDate: new Date().toISOString().split("T")[0],
+      notes: "",
     });
     setModalOpen(true);
   };
@@ -168,86 +165,45 @@ export default function LeadGeneration() {
   const openEdit = (record) => {
     setEditingId(record._id);
 
-    // Extract structured profiles or fallback
-    let parsedProfiles = [{ ...emptyProfile }];
-    if (record.linkedInProfiles && record.linkedInProfiles.length > 0) {
-      parsedProfiles = record.linkedInProfiles.map((p) => ({
-        profileName: p.profileName || "",
-        url: p.url || "",
-        email: p.email || "",
-        phone: p.phone || "",
-      }));
-    } else if (record.linkedInProfileNames) {
-      parsedProfiles = record.linkedInProfileNames
-        .split("\n")
-        .filter((line) => line.trim())
-        .map((line) => ({
-          profileName: line.trim(),
-          url: "",
-          email: "",
-          phone: "",
-        }));
-      if (parsedProfiles.length === 0) {
-        parsedProfiles = [{ ...emptyProfile }];
-      }
+    const profile = (record.linkedInProfiles && record.linkedInProfiles[0]) || {};
+    let profName = profile.profileName || "";
+    if (!profName && record.linkedInProfileNames) {
+      profName = record.linkedInProfileNames.split("\n")[0] || "";
     }
 
     setForm({
       employeeName: record.employeeName || user?.name || "",
       leadSource: record.leadSource || "LinkedIn",
       assignedTo: record.assignedTo?._id || record.assignedTo || "",
-      linkedInAccountsCount: record.linkedInAccountsCount || parsedProfiles.length,
-      linkedInProfiles: parsedProfiles,
+      profileName: profName,
+      url: profile.url || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
       entryDate: record.entryDate?.split("T")[0] || "",
       notes: record.notes || "",
     });
     setModalOpen(true);
   };
 
-  // Multiple Profile Handlers
-  const addProfileRow = () => {
-    setForm((prev) => {
-      const updated = [...prev.linkedInProfiles, { ...emptyProfile }];
-      return {
-        ...prev,
-        linkedInProfiles: updated,
-        linkedInAccountsCount: updated.length,
-      };
-    });
-  };
-
-  const removeProfileRow = (index) => {
-    setForm((prev) => {
-      const updated = prev.linkedInProfiles.filter((_, idx) => idx !== index);
-      const finalProfiles = updated.length > 0 ? updated : [{ ...emptyProfile }];
-      return {
-        ...prev,
-        linkedInProfiles: finalProfiles,
-        linkedInAccountsCount: finalProfiles.length,
-      };
-    });
-  };
-
-  const updateProfileRow = (index, field, value) => {
-    setForm((prev) => {
-      const updated = [...prev.linkedInProfiles];
-      updated[index] = { ...updated[index], [field]: value };
-      return {
-        ...prev,
-        linkedInProfiles: updated,
-      };
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const singleProfile = {
+        profileName: form.profileName.trim(),
+        url: form.url.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+      };
+
       const payload = {
-        ...form,
         employeeName: form.employeeName || user?.name || "Staff User",
         leadSource: form.leadSource || "LinkedIn",
         assignedTo: form.assignedTo || null,
-        linkedInAccountsCount: form.linkedInProfiles.length || form.linkedInAccountsCount || 1,
+        linkedInAccountsCount: 1,
+        linkedInProfiles: [singleProfile],
+        linkedInProfileNames: singleProfile.profileName,
+        entryDate: form.entryDate,
+        notes: form.notes,
       };
 
       if (editingId) {
@@ -261,7 +217,7 @@ export default function LeadGeneration() {
       setModalOpen(false);
       fetchRecords();
     } catch (err) {
-      alert(err.response?.data?.message || "Error saving record");
+      toast.error(err.response?.data?.message || "Error saving record");
     }
   };
 
@@ -299,11 +255,11 @@ export default function LeadGeneration() {
     }
   };
 
-  const openConvertModal = (record, specificProfile = null) => {
+  const openConvertModal = (record) => {
     setConvertingRecord(record);
     setConvertError("");
 
-    const targetProfile = specificProfile || record.linkedInProfiles?.[0];
+    const targetProfile = record.linkedInProfiles?.[0];
     let fName = "";
     let lName = "";
     let emailPrefill = "";
@@ -333,22 +289,6 @@ export default function LeadGeneration() {
       assignedTo: record.assignedTo?._id || record.assignedTo || "",
     });
     setConvertModalOpen(true);
-  };
-
-  const selectProfileForConversion = (profile) => {
-    let fName = "";
-    let lName = "";
-    if (profile.profileName) {
-      const parts = profile.profileName.trim().split(" ");
-      fName = parts[0] || "";
-      lName = parts.slice(1).join(" ") || "";
-    }
-    setConvertForm({
-      email: profile.email || "",
-      firstName: fName,
-      lastName: lName,
-      phone: profile.phone || "",
-    });
   };
 
   const handleConvertSubmit = async (e) => {
@@ -400,13 +340,6 @@ export default function LeadGeneration() {
     } finally {
       setResendingId(null);
     }
-  };
-
-  const toggleProfileExpand = (id) => {
-    setExpandedProfiles((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
   };
 
   const filteredRecords = records.filter((r) => {
@@ -502,7 +435,7 @@ export default function LeadGeneration() {
                   Assigned Sales Rep
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
-                  LinkedIn Profiles
+                  Candidate Profile
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
                   Candidate Status
@@ -518,10 +451,8 @@ export default function LeadGeneration() {
                 const isConverted = !!candidateObj;
                 const isCandidateActive = candidateObj?.accountStatus === 'active';
                 const isInviteExpired = candidateObj?.tempCredential?.expiresAt && new Date(candidateObj.tempCredential.expiresAt) < new Date();
-                const profilesList = r.linkedInProfiles && r.linkedInProfiles.length > 0
-                  ? r.linkedInProfiles
-                  : (r.linkedInProfileNames ? [{ profileName: r.linkedInProfileNames }] : []);
-                const primaryProfile = profilesList[0];
+                const primaryProfile = (r.linkedInProfiles && r.linkedInProfiles[0]) ||
+                  (r.linkedInProfileNames ? { profileName: r.linkedInProfileNames } : null);
                 const assignedPerson = r.assignedTo;
 
                 return (
@@ -558,13 +489,13 @@ export default function LeadGeneration() {
                       )}
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-blue-700">
-                          {profilesList.length} {profilesList.length === 1 ? "Profile" : "Profiles"}
-                        </span>
-                        {primaryProfile?.profileName && (
-                          <span className="text-xs text-slate-600 truncate max-w-[140px]">
-                            ({primaryProfile.profileName})
+                      <div className="min-w-0">
+                        <div className="font-semibold text-slate-800 text-xs truncate max-w-[170px]" title={primaryProfile?.profileName || "Unnamed Profile"}>
+                          {primaryProfile?.profileName || "Unnamed Profile"}
+                        </div>
+                        {primaryProfile?.email && (
+                          <span className="text-[11px] text-slate-400 block truncate max-w-[170px]" title={primaryProfile.email}>
+                            {primaryProfile.email}
                           </span>
                         )}
                       </div>
@@ -690,107 +621,76 @@ export default function LeadGeneration() {
               </div>
             </div>
 
-            {/* Person Profiles List */}
+            {/* Candidate Profile Details */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                  <Linkedin size={16} className="text-blue-600" />
-                  Person Profiles (
-                  {(selectedLead.linkedInProfiles && selectedLead.linkedInProfiles.length > 0)
-                    ? selectedLead.linkedInProfiles.length
-                    : 1}
-                  )
+                  <User size={16} className="text-indigo-600" />
+                  Candidate Profile Details
                 </h3>
               </div>
 
-              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                {(() => {
-                  const profiles = (selectedLead.linkedInProfiles && selectedLead.linkedInProfiles.length > 0)
-                    ? selectedLead.linkedInProfiles
-                    : (selectedLead.linkedInProfileNames
-                        ? selectedLead.linkedInProfileNames.split("\n").filter(Boolean).map(n => ({ profileName: n }))
-                        : [{ profileName: "Lead Person Profile" }]);
+              {(() => {
+                const profile = (selectedLead.linkedInProfiles && selectedLead.linkedInProfiles[0]) ||
+                  (selectedLead.linkedInProfileNames
+                    ? { profileName: selectedLead.linkedInProfileNames }
+                    : { profileName: "Candidate Profile" });
 
-                  return profiles.map((p, idx) => {
-                    const convertedObj =
-                      (p.convertedToCandidateId && typeof p.convertedToCandidateId === 'object' ? p.convertedToCandidateId : null) ||
-                      (selectedLead.convertedCandidateIds?.find((c) => c?.email && p.email && c.email.toLowerCase() === p.email.toLowerCase())) ||
-                      (selectedLead.convertedToCandidateId?.email && p.email && selectedLead.convertedToCandidateId.email.toLowerCase() === p.email.toLowerCase()
-                        ? selectedLead.convertedToCandidateId
-                        : null);
-
-                    const isProfileConverted = !!convertedObj;
-                    const candidateStatus = convertedObj?.accountStatus;
-                    const isInviteExpired =
-                      convertedObj?.tempCredential?.expiresAt &&
-                      new Date(convertedObj.tempCredential.expiresAt) < new Date();
-
-                    return (
-                      <div
-                        key={idx}
-                        className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs hover:border-indigo-200 transition-colors"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2.5 border-b border-slate-100">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
-                              {idx + 1}
-                            </div>
-                            <h4 className="font-bold text-slate-800 text-sm">
-                              {p.profileName || "Unnamed Person"}
-                            </h4>
-                          </div>
-
-
+                return (
+                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2.5 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
+                          {profile.profileName ? profile.profileName.charAt(0).toUpperCase() : "C"}
                         </div>
-
-                        <div className="mt-3 grid gap-2 sm:grid-cols-3 text-xs text-slate-600">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <Mail size={13} className="text-slate-400 flex-shrink-0" />
-                            <span className="text-slate-400 flex-shrink-0">Email:</span>
-                            {p.email ? (
-                              <a href={`mailto:${p.email}`} className="font-medium text-indigo-600 hover:underline truncate" title={p.email}>
-                                {p.email}
-                              </a>
-                            ) : (
-                              <span className="italic text-slate-400">Not provided</span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <Phone size={13} className="text-slate-400 flex-shrink-0" />
-                            <span className="text-slate-400 flex-shrink-0">Phone:</span>
-                            {p.phone ? (
-                              <a href={`tel:${p.phone}`} className="font-medium text-slate-800 hover:underline truncate" title={p.phone}>
-                                {p.phone}
-                              </a>
-                            ) : (
-                              <span className="italic text-slate-400">Not provided</span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            {p.url ? (
-                              <a 
-                                href={p.url.startsWith("http") ? p.url : `https://${p.url}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="hover:scale-[1.03] transition-transform cursor-pointer block" 
-                                title="View LinkedIn Profile"
-                              >
-                                <img src={LinkedInLogo} alt="LinkedIn" className="h-5 object-contain" />
-                              </a>
-                            ) : (
-                              <div className="flex items-center gap-1.5" title="LinkedIn profile not provided">
-                                <img src={LinkedInLogo} alt="LinkedIn" className="h-5 object-contain opacity-40 grayscale" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <h4 className="font-bold text-slate-800 text-sm">
+                          {profile.profileName || "Unnamed Candidate"}
+                        </h4>
                       </div>
-                    );
-                  });
-                })()}
-              </div>
+
+                      {!selectedLead.convertedToCandidateId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDetailsModalOpen(false);
+                            openConvertModal(selectedLead);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-700 transition shadow-2xs self-start sm:self-auto"
+                        >
+                          <UserPlus size={13} />
+                          <span>Convert to Candidate</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2 text-xs text-slate-600">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Mail size={13} className="text-slate-400 flex-shrink-0" />
+                        <span className="text-slate-400 flex-shrink-0">Email:</span>
+                        {profile.email ? (
+                          <a href={`mailto:${profile.email}`} className="font-medium text-indigo-600 hover:underline truncate" title={profile.email}>
+                            {profile.email}
+                          </a>
+                        ) : (
+                          <span className="italic text-slate-400">Not provided</span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Phone size={13} className="text-slate-400 flex-shrink-0" />
+                        <span className="text-slate-400 flex-shrink-0">Phone:</span>
+                        {profile.phone ? (
+                          <a href={`tel:${profile.phone}`} className="font-medium text-slate-800 hover:underline truncate" title={profile.phone}>
+                            {profile.phone}
+                          </a>
+                        ) : (
+                          <span className="italic text-slate-400">Not provided</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Notes Section */}
@@ -924,97 +824,75 @@ export default function LeadGeneration() {
             </div>
           </div>
 
-          {/* Multiple Person Profiles Section */}
+          {/* Candidate Profile Details Section */}
           <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-slate-200">
-              <div>
-                <span className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                  <Linkedin size={15} className="text-blue-600" />
-                  Person Profiles
-                </span>
-                <p className="text-[11px] text-slate-500">
-                  Add one or multiple persons' profiles for this lead.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={addProfileRow}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition shadow-sm self-start sm:self-auto"
-              >
-                <Plus size={14} />
-                <span>Add Profile</span>
-              </button>
+            <div className="pb-2 border-b border-slate-200">
+              <span className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <Linkedin size={15} className="text-blue-600" />
+                Candidate Profile Information
+              </span>
+              <p className="text-[11px] text-slate-500">
+                Single profile information associated with this lead.
+              </p>
             </div>
 
-            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-              {form.linkedInProfiles.map((p, idx) => (
-                <div
-                  key={idx}
-                  className="relative rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5 shadow-sm transition hover:border-indigo-300"
-                >
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-bold text-indigo-700">
-                        {idx + 1}
-                      </span>
-                      Profile Information
-                    </span>
-                    {form.linkedInProfiles.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeProfileRow(idx)}
-                        className="text-slate-400 hover:text-red-600 p-1 transition rounded hover:bg-red-50"
-                        title="Remove profile"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor="lg-profile-name" className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                  Profile Name *
+                </label>
+                <input
+                  id="lg-profile-name"
+                  type="text"
+                  required
+                  className="input-field py-1.5 text-xs"
+                  placeholder="e.g. John Doe"
+                  value={form.profileName}
+                  onChange={(e) => setForm({ ...form, profileName: e.target.value })}
+                />
+              </div>
 
-                  <div className="grid gap-2.5 sm:grid-cols-2">
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-600 mb-1 block">Profile Name</label>
-                      <input
-                        type="text"
-                        className="input-field py-1.5 text-xs"
-                        placeholder="e.g. John Doe"
-                        value={p.profileName}
-                        onChange={(e) => updateProfileRow(idx, "profileName", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-600 mb-1 block">LinkedIn Profile URL</label>
-                      <input
-                        type="text"
-                        className="input-field py-1.5 text-xs"
-                        placeholder="https://linkedin.com/in/username"
-                        value={p.url}
-                        onChange={(e) => updateProfileRow(idx, "url", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-600 mb-1 block">Email ID</label>
-                      <input
-                        type="email"
-                        className="input-field py-1.5 text-xs"
-                        placeholder="candidate@example.com"
-                        value={p.email}
-                        onChange={(e) => updateProfileRow(idx, "email", e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-600 mb-1 block">Phone No</label>
-                      <input
-                        type="tel"
-                        className="input-field py-1.5 text-xs"
-                        placeholder="+1 (555) 000-0000"
-                        value={p.phone}
-                        onChange={(e) => updateProfileRow(idx, "phone", e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <div>
+                <label htmlFor="lg-profile-url" className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                  LinkedIn Profile URL
+                </label>
+                <input
+                  id="lg-profile-url"
+                  type="text"
+                  className="input-field py-1.5 text-xs"
+                  placeholder="https://linkedin.com/in/username"
+                  value={form.url}
+                  onChange={(e) => setForm({ ...form, url: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="lg-profile-email" className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                  Email ID
+                </label>
+                <input
+                  id="lg-profile-email"
+                  type="email"
+                  className="input-field py-1.5 text-xs"
+                  placeholder="candidate@example.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="lg-profile-phone" className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                  Phone No
+                </label>
+                <input
+                  id="lg-profile-phone"
+                  type="tel"
+                  className="input-field py-1.5 text-xs"
+                  placeholder="+1 (555) 000-0000"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+              </div>
             </div>
           </div>
 
@@ -1056,30 +934,6 @@ export default function LeadGeneration() {
             Converting this lead will create a new <strong>Candidate</strong> record and dispatch a portal invite email with single-use temporary credentials expiring in 72 hours.
           </p>
 
-          {/* If lead has multiple profiles, show selectable chips */}
-          {convertingRecord?.linkedInProfiles && convertingRecord.linkedInProfiles.length > 1 && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-              <span className="text-xs font-semibold text-slate-700 block mb-1.5">
-                Select Profile to Pre-fill:
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {convertingRecord.linkedInProfiles.map((prof, pIdx) => (
-                  <button
-                    key={pIdx}
-                    type="button"
-                    onClick={() => selectProfileForConversion(prof)}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-medium border transition ${
-                      convertForm.email === prof.email && prof.email
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                        : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
-                    }`}
-                  >
-                    {prof.profileName || `Profile #${pIdx + 1}`} {prof.email ? `(${prof.email})` : ""}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {convertError && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">

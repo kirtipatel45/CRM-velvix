@@ -218,40 +218,112 @@ router.get('/stats', protect, async (req, res) => {
       }
     });
 
-    // 6. Employee Performance Leaderboard
-    const leaderboard = allUsers
-      .filter((u) => u.role !== 'admin')
-      .map((emp) => {
-        const empName = emp.name;
-        // Check lead gen stats
-        const empLeadGen = activeLeadGen.filter((lg) => lg.employeeName === empName || (lg.createdBy && lg.createdBy.toString() === emp._id.toString()));
-        const leadsSourced = empLeadGen.reduce((acc, doc) => acc + (doc.totalLeadsGenerated || (doc.linkedInProfiles?.length || 0)), 0);
+    // 6. Employee Performance Leaderboard (Top 5 by actual work output)
+    const allEmployees = allUsers.filter((u) => u.role !== 'admin');
 
-        // Check sales stats
-        const empSales = activeSales.filter((s) => s.salesExecutiveName === empName || (s.createdBy && s.createdBy.toString() === emp._id.toString()));
-        const callsMade = empSales.reduce((acc, s) => acc + (s.dailyCallCount || 0), 0);
-        const conversions = empSales.reduce((acc, s) => acc + (s.interestedCandidates || 0), 0);
+    const rawLeaderboard = allEmployees.map((emp) => {
+      const empIdStr = emp._id.toString();
+      const empNameLower = (emp.name || '').trim().toLowerCase();
 
-        // Check marketing stats
-        const empMarketing = activeMarketing.filter((m) => m.employeeName === empName || (m.createdBy && m.createdBy.toString() === emp._id.toString()));
-        const apps = empMarketing.reduce((acc, m) => acc + (m.totalApplications || 0), 0);
-        const interviews = empMarketing.reduce((acc, m) => acc + (m.totalInterviews || 0), 0);
-
-        return {
-          id: emp._id,
-          name: emp.name,
-          email: emp.email,
-          role: emp.role,
-          designation: emp.designation || 'Specialist',
-          allowedModules: emp.allowedModules || [],
-          leadsSourced,
-          callsMade,
-          conversions,
-          applications: apps,
-          interviews,
-          targetStatus: empLeadGen.some((l) => l.targetsNotMet) || empSales.some((s) => s.targetsNotMet) ? 'Attention Needed' : 'On Track',
-        };
+      // Sourced Leads (check both createdBy and employeeName)
+      const empLeadGen = activeLeadGen.filter((lg) => {
+        const matchCreated = lg.createdBy && lg.createdBy.toString() === empIdStr;
+        const matchName = lg.employeeName && lg.employeeName.trim().toLowerCase() === empNameLower;
+        return matchCreated || matchName;
       });
+
+      const leadsSourced = empLeadGen.reduce((acc, doc) => {
+        const count = Math.max(
+          doc.totalLeadsGenerated || 0,
+          Array.isArray(doc.linkedInProfiles) ? doc.linkedInProfiles.length : 0,
+          1 // Every lead entry represents at least 1 sourced lead
+        );
+        return acc + count;
+      }, 0);
+
+      // Calls Made (check LeadGeneration callLogs and Sales records)
+      let leadGenCalls = 0;
+      activeLeadGen.forEach((lg) => {
+        if (Array.isArray(lg.callLogs)) {
+          lg.callLogs.forEach((cl) => {
+            const matchCallerId = cl.callerId && cl.callerId.toString() === empIdStr;
+            const matchCallerName = cl.callerName && cl.callerName.trim().toLowerCase() === empNameLower;
+            if (matchCallerId || matchCallerName) {
+              leadGenCalls += 1;
+            }
+          });
+        }
+      });
+
+      const empSales = activeSales.filter((s) => {
+        const matchCreated = s.createdBy && s.createdBy.toString() === empIdStr;
+        const matchName = s.salesExecutiveName && s.salesExecutiveName.trim().toLowerCase() === empNameLower;
+        return matchCreated || matchName;
+      });
+      const salesCalls = empSales.reduce((acc, s) => acc + (s.dailyCallCount || 0), 0);
+      const callsMade = leadGenCalls + salesCalls;
+
+      // Conversions: converted candidates & converted leads
+      const candidateConversions = allCandidates.filter((c) => {
+        return c.convertedBy && c.convertedBy.toString() === empIdStr;
+      }).length;
+
+      const leadGenConversions = empLeadGen.filter((lg) => {
+        return lg.convertedToCandidateId || (Array.isArray(lg.convertedCandidateIds) && lg.convertedCandidateIds.length > 0);
+      }).length;
+
+      const salesConversions = empSales.reduce((acc, s) => acc + (s.interestedCandidates || 0), 0);
+      const conversions = Math.max(candidateConversions, leadGenConversions) + salesConversions;
+
+      // Applications: marketing application submissions
+      const empMarketing = activeMarketing.filter((m) => {
+        const matchCreated = m.createdBy && m.createdBy.toString() === empIdStr;
+        const matchName = m.employeeName && m.employeeName.trim().toLowerCase() === empNameLower;
+        return matchCreated || matchName;
+      });
+      const applications = empMarketing.reduce((acc, m) => acc + (m.totalApplications || 0), 0);
+      const interviews = empMarketing.reduce((acc, m) => acc + (m.totalInterviews || 0), 0);
+
+      const totalWork = leadsSourced + callsMade + conversions + applications;
+
+      return {
+        id: emp._id,
+        name: emp.name,
+        email: emp.email,
+        role: emp.role,
+        designation: emp.designation || 'Specialist',
+        allowedModules: emp.allowedModules || [],
+        leadsSourced,
+        callsMade,
+        conversions,
+        applications,
+        interviews,
+        totalWork,
+      };
+    });
+
+    // Sort descending by actual work performance
+    rawLeaderboard.sort((a, b) => {
+      if (b.totalWork !== a.totalWork) return b.totalWork - a.totalWork;
+      if (b.leadsSourced !== a.leadsSourced) return b.leadsSourced - a.leadsSourced;
+      if (b.callsMade !== a.callsMade) return b.callsMade - a.callsMade;
+      if (b.conversions !== a.conversions) return b.conversions - a.conversions;
+      return a.name.localeCompare(b.name);
+    });
+
+    // Pick top 5 and assign meaningful status
+    const leaderboard = rawLeaderboard.slice(0, 5).map((emp, index) => {
+      let targetStatus = 'Attention Needed';
+      if (emp.totalWork > 0) {
+        targetStatus = index === 0 ? 'Top Performer' : 'On Track';
+      }
+
+      return {
+        ...emp,
+        rank: index + 1,
+        targetStatus,
+      };
+    });
 
     // 7. System Health & Target Bottleneck Alerts
     const alerts = [];
