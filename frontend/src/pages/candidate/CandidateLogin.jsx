@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCandidateAuth } from "../../context/CandidateAuthContext";
 import { Briefcase, KeyRound } from "lucide-react";
 import toast from "react-hot-toast";
+import { isValidEmail, EMAIL_ERROR_MSG } from "../../utils/validation";
 
 export default function CandidateLogin() {
   const navigate = useNavigate();
@@ -16,6 +17,13 @@ export default function CandidateLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!isValidEmail(email)) {
+      setErrorMessage(EMAIL_ERROR_MSG);
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -48,7 +56,7 @@ export default function CandidateLogin() {
             <Briefcase size={14} className="text-brand-300" />
             <span>Candidate Career Portal</span>
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight">Velvix Talent Portal</h1>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight">BenchTrix Talent Portal</h1>
           <p className="text-lg leading-relaxed text-brand-100">
             Access your talent profile, track applications, review interview schedules, and communicate directly with your dedicated recruiters.
           </p>
@@ -63,7 +71,7 @@ export default function CandidateLogin() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                 <Briefcase size={18} />
               </div>
-              <span className="text-xl font-bold text-slate-900">Velvix Portal</span>
+              <span className="text-xl font-bold text-slate-900">BenchTrix Portal</span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Candidate Sign In</h2>
             <p className="mt-1.5 text-sm text-slate-500">

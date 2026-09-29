@@ -26,7 +26,7 @@ export default function CandidateLayout() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold tracking-tight text-slate-900 text-lg">Velvix</span>
+                <span className="font-bold tracking-tight text-slate-900 text-lg">BenchTrix</span>
                 <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 border border-brand-200">
                   Candidate Portal
                 </span>
@@ -73,9 +73,9 @@ export default function CandidateLayout() {
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 text-slate-600">
             <ShieldCheck size={14} className="text-brand-600" />
-            <span>Secure Talent Authentication &bull; Velvix IT Staffing</span>
+            <span>Secure Talent Authentication &bull; BenchTrix IT Staffing</span>
           </div>
-          <p>&copy; {new Date().getFullYear()} Velvix Staffing. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} BenchTrix Staffing. All rights reserved.</p>
         </div>
       </footer>
     </div>

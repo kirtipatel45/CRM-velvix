@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validation';
 import {
   UserPlus,
   Search,
@@ -293,6 +294,16 @@ export default function EmployeeManagement() {
       return;
     }
 
+    if (!isValidEmail(formData.email)) {
+      setFormError(EMAIL_ERROR_MSG);
+      return;
+    }
+
+    if (formData.mobileNumber && !isValidPhoneNumber(formData.mobileNumber)) {
+      setFormError(PHONE_ERROR_MSG);
+      return;
+    }
+
     if (formData.role !== 'admin' && (!formData.allowedModules || formData.allowedModules.length === 0)) {
       setFormError('Please select at least one module permission for this user');
       return;
@@ -342,6 +353,16 @@ export default function EmployeeManagement() {
     setFormError('');
 
     if (!selectedUser) return;
+
+    if (formData.email && !isValidEmail(formData.email)) {
+      setFormError(EMAIL_ERROR_MSG);
+      return;
+    }
+
+    if (formData.mobileNumber && !isValidPhoneNumber(formData.mobileNumber)) {
+      setFormError(PHONE_ERROR_MSG);
+      return;
+    }
 
     if (formData.role !== 'admin' && (!formData.allowedModules || formData.allowedModules.length === 0)) {
       setFormError('Please select at least one module permission for this user');

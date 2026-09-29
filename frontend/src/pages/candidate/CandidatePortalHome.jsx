@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Modal from "../../components/Modal";
+import { isValidPhoneNumber, PHONE_ERROR_MSG } from "../../utils/validation";
 
 const POPULAR_CITIES = [
   "Dallas, TX",
@@ -266,6 +267,11 @@ export default function CandidatePortalHome() {
       return;
     }
 
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      toast.error(PHONE_ERROR_MSG);
+      return;
+    }
+
     if (!formData.currentCity.trim()) {
       toast.error("Please enter the city you are currently living in");
       return;
@@ -423,7 +429,7 @@ export default function CandidatePortalHome() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {candidate?.isOnboarded
                 ? `Welcome back, ${candidateFullName}!`
-                : `Welcome to CRM Velvix, ${candidateFullName}!`}
+                : `Welcome to BenchTrix, ${candidateFullName}!`}
             </h1>
             <p className="mt-1 text-sm text-brand-100 max-w-2xl leading-relaxed">
               {candidate?.isOnboarded

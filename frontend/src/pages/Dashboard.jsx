@@ -13,6 +13,8 @@ import {
   Award,
   Clock,
   CheckCircle2,
+  XCircle,
+  PhoneCall,
   ArrowUpRight,
   ShieldAlert,
   Calendar,
@@ -114,6 +116,20 @@ export default function Dashboard() {
   const leaderboard = stats?.leaderboard || [];
   const alerts = stats?.alerts || [];
 
+  const [callOutcomeView, setCallOutcomeView] = useState('detailed'); // 'detailed' | 'overview'
+
+  const pickedUpBreakdown = callingStats?.pickedUpBreakdown || {};
+  const totalPickedUp = callingStats?.outcomes?.pickedUp || 0;
+  const pickedUpInterested = pickedUpBreakdown.interested ?? (callingStats?.interestLevels?.interested || 0);
+  const pickedUpNotInterested = pickedUpBreakdown.notInterested ?? (callingStats?.interestLevels?.notInterested || 0);
+  const pickedUpCallBackLater = pickedUpBreakdown.callBackLater ?? (callingStats?.interestLevels?.callBackLater || 0);
+  const pickedUpOther = Math.max(0, totalPickedUp - (pickedUpInterested + pickedUpNotInterested + pickedUpCallBackLater));
+
+  const interestedPercent = totalPickedUp > 0 ? Math.round((pickedUpInterested / totalPickedUp) * 100) : 0;
+  const notInterestedPercent = totalPickedUp > 0 ? Math.round((pickedUpNotInterested / totalPickedUp) * 100) : 0;
+  const callBackLaterPercent = totalPickedUp > 0 ? Math.round((pickedUpCallBackLater / totalPickedUp) * 100) : 0;
+  const otherPercent = totalPickedUp > 0 ? Math.max(0, 100 - interestedPercent - notInterestedPercent - callBackLaterPercent) : 0;
+
   // 1. Funnel Data
   const funnelData = useMemo(() => {
     return [
@@ -138,13 +154,44 @@ export default function Dashboard() {
   // 2. Call Outcomes Data
   const callOutcomesData = useMemo(() => {
     const outcomes = callingStats.outcomes || {};
+
+    if (callOutcomeView === 'detailed') {
+      const items = [];
+      if (pickedUpInterested > 0) {
+        items.push({ name: 'Picked Up: Interested', value: pickedUpInterested, color: '#10b981' });
+      }
+      if (pickedUpNotInterested > 0) {
+        items.push({ name: 'Picked Up: Not Interested', value: pickedUpNotInterested, color: '#ef4444' });
+      }
+      if (pickedUpCallBackLater > 0) {
+        items.push({ name: 'Picked Up: Call Back', value: pickedUpCallBackLater, color: '#6366f1' });
+      }
+      if (pickedUpOther > 0) {
+        items.push({ name: 'Picked Up: Other', value: pickedUpOther, color: '#14b8a6' });
+      }
+      if (items.length === 0 && (outcomes.pickedUp || 0) > 0) {
+        items.push({ name: 'Picked Up', value: outcomes.pickedUp, color: '#10b981' });
+      }
+
+      if (outcomes.voicemail > 0) {
+        items.push({ name: 'Voicemail', value: outcomes.voicemail, color: '#f59e0b' });
+      }
+      if (outcomes.notAnswered > 0) {
+        items.push({ name: 'Not Answered', value: outcomes.notAnswered, color: '#dc2626' });
+      }
+      if (outcomes.callCut > 0) {
+        items.push({ name: 'Call Cut', value: outcomes.callCut, color: '#64748b' });
+      }
+      return items;
+    }
+
     return [
       { name: 'Picked Up', value: outcomes.pickedUp || 0, color: '#10b981' },
       { name: 'Voicemail', value: outcomes.voicemail || 0, color: '#f59e0b' },
       { name: 'Not Answered', value: outcomes.notAnswered || 0, color: '#ef4444' },
       { name: 'Call Cut', value: outcomes.callCut || 0, color: '#64748b' },
     ].filter((item) => item.value > 0);
-  }, [callingStats]);
+  }, [callingStats, callOutcomeView, pickedUpInterested, pickedUpNotInterested, pickedUpCallBackLater, pickedUpOther]);
 
 
   if (loading) {
@@ -270,7 +317,7 @@ export default function Dashboard() {
           subtitle={`Total Speaking: ${talkTimeFormatted}`}
           icon={Phone}
           gradient="from-emerald-600 to-teal-600"
-          badge={`${callingStats.outcomes?.pickedUp || 0} Calls Picked Up`}
+          badge={`${callingStats.outcomes?.pickedUp || 0} Picked Up (${pickedUpInterested} Interested)`}
           badgeType="success"
         />
         <ExecutiveCard
@@ -295,9 +342,9 @@ export default function Dashboard() {
             </div>
             <span className="text-[11px] font-semibold text-slate-400">Sourced ➔ Converted</span>
           </div>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={funnelData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }}>
+          <div className="h-64 w-full" style={{ outline: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
+              <BarChart accessibilityLayer={false} data={funnelData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }} style={{ outline: 'none' }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
@@ -316,42 +363,168 @@ export default function Dashboard() {
         </div>
 
         {/* Call Outcomes & Reachability */}
-        <div className="card">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <PieChartIcon size={18} className="text-brand-600" />
-              <h2 className="text-sm font-bold text-slate-900">Call Outcomes Distribution</h2>
-            </div>
-            <span className="text-[11px] font-semibold text-slate-400">Total Dials: {callingStats.totalCalls || 0}</span>
-          </div>
-          <div className="h-64 w-full">
-            {callOutcomesData.length === 0 ? (
-              <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                No call logs recorded yet
+        <div className="card flex flex-col justify-between">
+          <div>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <PieChartIcon size={18} className="text-brand-600" />
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900">Call Outcomes Distribution</h2>
+                  <p className="text-[11px] text-slate-400">Total Dials: {callingStats.totalCalls || 0}</p>
+                </div>
               </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={callOutcomesData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
-                  >
-                    {callOutcomesData.map((entry, index) => (
-                      <Cell key={`outcome-cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
+              
+              {/* View Toggle */}
+              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[11px] font-semibold self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setCallOutcomeView('detailed')}
+                  className={`rounded-md px-2.5 py-1 transition ${
+                    callOutcomeView === 'detailed'
+                      ? 'bg-white text-brand-700 font-bold shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Sub-Breakdown
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCallOutcomeView('overview')}
+                  className={`rounded-md px-2.5 py-1 transition ${
+                    callOutcomeView === 'overview'
+                      ? 'bg-white text-slate-900 font-bold shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Overview
+                </button>
+              </div>
+            </div>
+
+            {/* Donut Chart */}
+            <div className="h-48 w-full">
+              {callOutcomesData.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                  No call logs recorded yet
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart accessibilityLayer={false}>
+                    <Pie
+                      data={callOutcomesData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={46}
+                      outerRadius={70}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {callOutcomesData.map((entry, index) => (
+                        <Cell key={`outcome-cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name) => [`${val} calls`, name]}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                    />
+                    <Legend verticalAlign="bottom" height={32} wrapperStyle={{ fontSize: '10px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+
+          {/* Sub-distribution Box for Call Picked Up */}
+          <div className="mt-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <PhoneCall size={13} className="text-emerald-600" />
+                Call Picked Up Sub-distribution
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                {totalPickedUp} Picked Up
+              </span>
+            </div>
+
+            {/* Proportional Split Bar */}
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 flex">
+              {totalPickedUp === 0 ? (
+                <div className="h-full w-full bg-slate-200" />
+              ) : (
+                <>
+                  {interestedPercent > 0 && (
+                    <div
+                      style={{ width: `${interestedPercent}%` }}
+                      className="h-full bg-emerald-500 transition-all"
+                      title={`Interested: ${pickedUpInterested} (${interestedPercent}%)`}
+                    />
+                  )}
+                  {notInterestedPercent > 0 && (
+                    <div
+                      style={{ width: `${notInterestedPercent}%` }}
+                      className="h-full bg-rose-500 transition-all"
+                      title={`Not Interested: ${pickedUpNotInterested} (${notInterestedPercent}%)`}
+                    />
+                  )}
+                  {callBackLaterPercent > 0 && (
+                    <div
+                      style={{ width: `${callBackLaterPercent}%` }}
+                      className="h-full bg-indigo-500 transition-all"
+                      title={`Call Back Later: ${pickedUpCallBackLater} (${callBackLaterPercent}%)`}
+                    />
+                  )}
+                  {otherPercent > 0 && (
+                    <div
+                      style={{ width: `${otherPercent}%` }}
+                      className="h-full bg-slate-400 transition-all"
+                      title={`Other: ${pickedUpOther} (${otherPercent}%)`}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Individual Sub-Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5 text-xs">
+              <div className="rounded-lg bg-white p-2 border border-emerald-200/80 flex items-center gap-2 shadow-2xs">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
+                  <CheckCircle2 size={14} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Interested</p>
+                  <p className="text-xs font-black text-emerald-700">
+                    {pickedUpInterested}{' '}
+                    <span className="text-[10px] font-medium text-emerald-600">({interestedPercent}%)</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-white p-2 border border-rose-200/80 flex items-center gap-2 shadow-2xs">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-rose-50 text-rose-600">
+                  <XCircle size={14} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Not Interested</p>
+                  <p className="text-xs font-black text-rose-700">
+                    {pickedUpNotInterested}{' '}
+                    <span className="text-[10px] font-medium text-rose-600">({notInterestedPercent}%)</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="col-span-2 sm:col-span-1 rounded-lg bg-white p-2 border border-indigo-200/80 flex items-center gap-2 shadow-2xs">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
+                  <Clock size={14} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Call Back Later</p>
+                  <p className="text-xs font-black text-indigo-700">
+                    {pickedUpCallBackLater}{' '}
+                    <span className="text-[10px] font-medium text-indigo-600">({callBackLaterPercent}%)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

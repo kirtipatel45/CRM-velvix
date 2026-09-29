@@ -199,7 +199,7 @@ router.post('/candidates/:id/resend-invite', protect, async (req, res) => {
       tempPassword,
       inviteToken,
       expiryHours,
-      recruiterEmail: req.user.email || 'recruiting@velvix.com',
+      recruiterEmail: req.user.email || 'recruiting@benchtrix.com',
     });
 
     res.json({

@@ -79,7 +79,7 @@ export default function CandidateSetPassword() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                 <Lock size={18} />
               </div>
-              <span className="text-xl font-bold text-slate-900">Velvix Portal</span>
+              <span className="text-xl font-bold text-slate-900">BenchTrix Portal</span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Configure Password</h2>
             <p className="mt-1.5 text-sm text-slate-500">

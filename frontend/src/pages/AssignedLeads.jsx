@@ -34,6 +34,7 @@ import Modal from "../components/Modal";
 import StartCallModal from "../components/StartCallModal";
 import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from "../utils/validation";
 
 const LEAD_SOURCES = [
   "LinkedIn",
@@ -248,6 +249,19 @@ export default function AssignedLeads() {
     e.preventDefault();
     if (!convertingRecord) return;
     setConvertError("");
+
+    if (!isValidEmail(convertForm.email)) {
+      setConvertError(EMAIL_ERROR_MSG);
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
+    if (convertForm.phone && !isValidPhoneNumber(convertForm.phone)) {
+      setConvertError(PHONE_ERROR_MSG);
+      toast.error(PHONE_ERROR_MSG);
+      return;
+    }
+
     setConvertLoading(true);
 
     try {

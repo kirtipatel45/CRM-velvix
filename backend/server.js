@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'CRM Velvix API is running', timestamp: new Date().toISOString() });
+  res.json({ success: true, message: 'BenchTrix API is running', timestamp: new Date().toISOString() });
 });
 
 app.use('/api/auth', authRoutes);
