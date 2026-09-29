@@ -50,6 +50,11 @@
   }
 
   /* BenchTrix Typography System */
+  .font-logo {
+    font-family: "Abril Fatface", cursive, serif;
+    letter-spacing: 0.01em;
+  }
+
   .text-page-title {
     @apply font-sans text-[28px] font-bold leading-tight;
   }

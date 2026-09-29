@@ -56,7 +56,10 @@ export default function CandidateLogin() {
             <Briefcase size={14} className="text-brand-300" />
             <span>Candidate Career Portal</span>
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight">BenchTrix Talent Portal</h1>
+          <h1 className="mb-6 font-logo text-5xl tracking-normal text-white">
+            Bench<span className="bg-gradient-to-r from-blue-300 to-indigo-200 bg-clip-text text-transparent">Trix</span>{" "}
+            <span className="font-sans text-3xl font-bold text-brand-200 block sm:inline">Talent Portal</span>
+          </h1>
           <p className="text-lg leading-relaxed text-brand-100">
             Access your talent profile, track applications, review interview schedules, and communicate directly with your dedicated recruiters.
           </p>
@@ -71,7 +74,9 @@ export default function CandidateLogin() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                 <Briefcase size={18} />
               </div>
-              <span className="text-xl font-bold text-slate-900">BenchTrix Portal</span>
+              <span className="font-logo text-xl tracking-normal text-slate-900">
+                Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span> Portal
+              </span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Candidate Sign In</h2>
             <p className="mt-1.5 text-sm text-slate-500">

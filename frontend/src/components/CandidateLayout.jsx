@@ -26,7 +26,9 @@ export default function CandidateLayout() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold tracking-tight text-slate-900 text-lg">BenchTrix</span>
+                <span className="font-logo text-lg tracking-normal text-slate-900">
+                  Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span>
+                </span>
                 <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 border border-brand-200">
                   Candidate Portal
                 </span>

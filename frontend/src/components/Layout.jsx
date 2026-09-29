@@ -77,17 +77,17 @@ export default function Layout() {
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-sky-500/10 blur-2xl" />
 
         {/* Top Brand Area */}
-        <div className="relative z-10 flex h-18 items-center justify-between px-5 border-b border-slate-100">
+        <div className="relative z-10 flex min-h-[82px] items-center justify-between px-6 py-5 border-b border-slate-100">
           <div>
-            <h1 className="text-lg font-black tracking-tight text-slate-900 leading-tight">
+            <h1 className="font-logo text-2xl tracking-normal text-slate-900 leading-tight">
               Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span>
             </h1>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="text-[10px] font-semibold font-sans text-slate-400 uppercase tracking-wider mt-1">
               Staffing & CRM Platform
             </p>
           </div>
           <button
-            className="lg:hidden text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
+            className="lg:hidden text-slate-400 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close navigation sidebar"
           >

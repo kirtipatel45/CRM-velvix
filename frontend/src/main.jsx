@@ -16,6 +16,9 @@ import "@fontsource/inter/700.css";
 import "@fontsource/inter-tight/700.css";
 import "@fontsource/inter-tight/800.css";
 
+// Abril Fatface — BenchTrix brand logo
+import "@fontsource/abril-fatface/400.css";
+
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

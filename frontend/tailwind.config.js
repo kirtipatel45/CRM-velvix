@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         tight: ["Inter Tight", "Inter", "system-ui", "sans-serif"],
+        logo: ["'Abril Fatface'", "cursive", "serif"],
       },
       colors: {
         brand: {
