@@ -67,9 +67,8 @@ export default function Layout() {
 
       {/* Floating Liquid Glass Sidebar - Light Mode */}
       <aside
-        className={`fixed inset-y-3 left-3 z-50 w-64 transform rounded-2xl bg-white/85 text-slate-800 backdrop-blur-2xl border border-white/80 ring-1 ring-slate-900/5 shadow-[0_15px_35px_rgba(15,23,42,0.07),0_2px_8px_rgba(15,23,42,0.04)] transition-all duration-300 lg:static lg:translate-x-0 lg:h-full lg:flex lg:flex-col lg:justify-between shrink-0 overflow-hidden relative ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed inset-y-3 left-3 z-50 w-64 transform rounded-2xl bg-white/85 text-slate-800 backdrop-blur-2xl border border-white/80 ring-1 ring-slate-900/5 shadow-[0_15px_35px_rgba(15,23,42,0.07),0_2px_8px_rgba(15,23,42,0.04)] transition-all duration-300 lg:static lg:translate-x-0 lg:h-full lg:flex lg:flex-col lg:justify-between shrink-0 overflow-hidden relative ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         {/* Ambient liquid glass lights */}
         <div className="pointer-events-none absolute -top-12 -left-12 h-36 w-36 rounded-full bg-brand-500/10 blur-2xl" />
@@ -117,10 +116,9 @@ export default function Layout() {
                 end={to === "/"}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-nav-item transition-all duration-200 ${
-                    isActive
-                      ? "bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 text-white shadow-md shadow-brand-500/25 border border-white/30 backdrop-blur-md font-semibold"
-                      : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent"
+                  `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-nav-item transition-all duration-200 ${isActive
+                    ? "bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 text-white shadow-md shadow-brand-500/25 border border-white/30 backdrop-blur-md font-semibold"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent"
                   }`
                 }
               >
@@ -128,9 +126,8 @@ export default function Layout() {
                   <>
                     <Icon
                       size={18}
-                      className={`shrink-0 transition-transform group-hover:scale-110 ${
-                        isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"
-                      }`}
+                      className={`shrink-0 transition-transform group-hover:scale-110 ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"
+                        }`}
                     />
                     <span className="truncate">{label}</span>
                     {isActive && (
