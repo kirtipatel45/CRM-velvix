@@ -41,6 +41,9 @@ import {
   ChevronDown,
   Layers,
   Target,
+  User,
+  Copy,
+  ExternalLink,
 } from 'lucide-react';
 
 const SYSTEM_MODULES = [
@@ -136,6 +139,8 @@ export default function EmployeeManagement() {
   const { addNotification } = useNotification();
 
   // Modal states
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileUser, setProfileUser] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
@@ -189,7 +194,12 @@ export default function EmployeeManagement() {
           search: searchTerm,
           status: statusFilter,
         });
-        setEmployees(res.data.data || []);
+        const usersList = res.data.data || [];
+        setEmployees(usersList);
+        if (profileUser) {
+          const updated = usersList.find((u) => u._id === profileUser._id);
+          if (updated) setProfileUser(updated);
+        }
       } else if (activeTab === 'audit-logs') {
         const res = await userAPI.getAuditLogs();
         setAuditLogs(res.data.data || []);
@@ -407,7 +417,9 @@ export default function EmployeeManagement() {
         message: `Employee "${userToDelete.name}" has been permanently removed`,
       });
       setShowDeleteModal(false);
+      setShowProfileModal(false);
       setUserToDelete(null);
+      setProfileUser(null);
       fetchData();
     } catch (err) {
       addNotification({
@@ -490,6 +502,11 @@ export default function EmployeeManagement() {
     if (user.role === 'sales') return ['leads'];
     if (user.role === 'marketing') return ['candidates', 'marketing'];
     return ['lead_generation', 'leads'];
+  };
+
+  const openProfileModal = (user) => {
+    setProfileUser(user);
+    setShowProfileModal(true);
   };
 
   const openEditModal = (user) => {
@@ -699,7 +716,11 @@ export default function EmployeeManagement() {
                       const modules = getUserModules(emp);
                       const isSelf = emp._id === currentUser?._id;
                       return (
-                        <tr key={emp._id} className="hover:bg-slate-50/80 transition-colors">
+                        <tr
+                          key={emp._id}
+                          onClick={() => openProfileModal(emp)}
+                          className="hover:bg-slate-50/80 cursor-pointer group transition-colors"
+                        >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">
@@ -707,7 +728,7 @@ export default function EmployeeManagement() {
                               </div>
                               <div className="min-w-0">
                                 <div className="text-body font-semibold text-slate-900 flex items-center gap-1.5">
-                                  <span>{emp.name}</span>
+                                  <span className="group-hover:text-brand-600 transition-colors">{emp.name}</span>
                                   {isSelf && (
                                     <span className="text-badge bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded border border-brand-200">
                                       You
@@ -758,67 +779,26 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <button
-                              type="button"
-                              onClick={() => !isSelf && toggleStatus(emp)}
-                              disabled={isSelf}
-                              title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
-                              className={`text-badge font-semibold transition ${
-                                isSelf ? 'cursor-default' : 'cursor-pointer hover:opacity-80'
-                              } ${
+                            <span
+                              className={`text-badge font-semibold ${
                                 emp.status === 'Inactive' || emp.isActive === false
                                   ? 'text-red-600'
                                   : 'text-emerald-600'
                               }`}
                             >
                               {emp.status === 'Inactive' || emp.isActive === false ? 'Inactive' : 'Active'}
-                            </button>
+                            </span>
                           </td>
                           <td className="px-6 py-4 text-meta">
                             {new Date(emp.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              {!isSelf && (emp.accountStatus === 'invited' || emp.mustResetPassword) && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleResendInvite(emp)}
-                                  disabled={resendingId === emp._id}
-                                  className={`p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition ${
-                                    resendingId === emp._id ? 'opacity-50 cursor-not-allowed' : ''
-                                  }`}
-                                  title="Resend Invitation Email & Temp Password"
-                                  aria-label={`Resend invite to ${emp.name}`}
-                                >
-                                  <Send size={16} className={resendingId === emp._id ? 'animate-pulse text-indigo-600' : ''} />
-                                </button>
-                              )}
-                              <button
-                                onClick={() => openEditModal(emp)}
-                                className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition"
-                                title="Edit Employee & Designation"
-                                aria-label={`Edit ${emp.name}`}
-                              >
-                                <Edit2 size={16} />
-                              </button>
-                              <button
-                                onClick={() => openResetModal(emp)}
-                                className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition"
-                                title="Reset Password"
-                                aria-label={`Reset password for ${emp.name}`}
-                              >
-                                <Key size={16} />
-                              </button>
-                              {!isSelf && (
-                                <button
-                                  onClick={() => openDeleteModal(emp)}
-                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                                  title="Delete Employee"
-                                  aria-label={`Delete ${emp.name}`}
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
+                          <td className="px-6 py-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center justify-end">
+                              <span className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-indigo-700 px-3 py-1.5 text-xs font-semibold shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-150">
+                                <User size={13} />
+                                <span>Profile</span>
+                                <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
+                              </span>
                             </div>
                           </td>
                         </tr>
@@ -2062,6 +2042,248 @@ export default function EmployeeManagement() {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* Employee Profile & Actions Modal */}
+      {showProfileModal && profileUser && (
+        <Modal
+          isOpen={showProfileModal}
+          title="Employee Profile"
+          onClose={() => {
+            setShowProfileModal(false);
+            setProfileUser(null);
+          }}
+          size="lg"
+        >
+          <div className="space-y-5">
+            {/* Header Profile Card */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-indigo-50/40 p-4 sm:p-5 shadow-2xs">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-xs shrink-0">
+                  {profileUser.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                      {profileUser.name}
+                    </h3>
+                    {profileUser._id === currentUser?._id && (
+                      <span className="text-[11px] font-semibold bg-brand-100 text-brand-800 px-2 py-0.5 rounded-md border border-brand-200">
+                        You
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-medium text-slate-600 mt-0.5">
+                    {profileUser.designation || 'Staff Employee'} •{' '}
+                    <span className={profileUser.role === 'admin' ? 'text-purple-700 font-bold' : 'text-slate-700'}>
+                      {profileUser.role === 'admin' ? 'Administrator' : 'Employee'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Badges */}
+              <div className="flex sm:flex-col items-start sm:items-end gap-1.5 shrink-0">
+                <span
+                  className={`text-badge px-2.5 py-1 rounded-full font-semibold border ${
+                    profileUser.status === 'Inactive' || profileUser.isActive === false
+                      ? 'bg-red-50 text-red-700 border-red-200'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}
+                >
+                  {profileUser.status === 'Inactive' || profileUser.isActive === false ? 'Inactive Account' : 'Active Account'}
+                </span>
+                <span className="text-[11px] text-slate-500 font-medium">
+                  {profileUser.accountStatus === 'invited' || profileUser.mustResetPassword
+                    ? 'Pending First Login'
+                    : 'Password Configured'}
+                </span>
+              </div>
+            </div>
+
+            {/* Employee Information Grid */}
+            <div className="grid gap-3 sm:grid-cols-2 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-slate-400 font-medium block">Email Address</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-slate-800 text-sm truncate" title={profileUser.email}>
+                    {profileUser.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(profileUser.email);
+                      addNotification({
+                        type: 'success',
+                        title: 'Copied',
+                        message: 'Email address copied to clipboard',
+                      });
+                    }}
+                    className="p-1 text-slate-400 hover:text-indigo-600 rounded transition"
+                    title="Copy Email"
+                  >
+                    <Copy size={13} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-slate-400 font-medium block">Mobile / Phone Number</span>
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                  <Phone size={14} className="text-slate-400" />
+                  <span>{profileUser.mobileNumber || 'Not provided'}</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-slate-400 font-medium block">Designation / Role Title</span>
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                  <Briefcase size={14} className="text-slate-400" />
+                  <span>{profileUser.designation || 'Staff Employee'}</span>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-slate-400 font-medium block">Joined Date</span>
+                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                  <Calendar size={14} className="text-slate-400" />
+                  <span>{new Date(profileUser.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Allowed Module Access Permissions */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2.5">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                Assigned Module Permissions
+              </span>
+              {profileUser.role === 'admin' ? (
+                <div className="rounded-lg border border-purple-200 bg-purple-50/60 p-3 text-xs text-purple-900 flex items-center gap-2">
+                  <Shield size={16} className="text-purple-600 shrink-0" />
+                  <span><strong>Full System Access</strong> — Administrator can view and manage all modules across the organization.</span>
+                </div>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {SYSTEM_MODULES.map((m) => {
+                    const hasAccess = getUserModules(profileUser).includes(m.id);
+                    const ModIcon = m.icon;
+                    return (
+                      <div
+                        key={m.id}
+                        className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs transition ${
+                          hasAccess
+                            ? 'border-indigo-200 bg-indigo-50/50 text-indigo-900 font-medium'
+                            : 'border-slate-100 bg-slate-50/60 text-slate-400 opacity-60'
+                        }`}
+                      >
+                        <ModIcon size={14} className={hasAccess ? 'text-indigo-600' : 'text-slate-400'} />
+                        <span>{m.label}</span>
+                        {hasAccess ? (
+                          <Check size={13} className="ml-auto text-indigo-600" />
+                        ) : (
+                          <span className="ml-auto text-[10px] text-slate-400">Disabled</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Administrative Actions Toolbar */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                Administrative Actions
+              </span>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {/* Edit Profile */}
+                <button
+                  type="button"
+                  onClick={() => openEditModal(profileUser)}
+                  className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-left"
+                >
+                  <Edit2 size={14} className="text-indigo-600 shrink-0" />
+                  <span>Edit Profile & Modules</span>
+                </button>
+
+                {/* Reset Password */}
+                <button
+                  type="button"
+                  onClick={() => openResetModal(profileUser)}
+                  className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-left"
+                >
+                  <Key size={14} className="text-amber-600 shrink-0" />
+                  <span>Reset Temporary Password</span>
+                </button>
+
+                {/* Resend Invite (if pending) */}
+                {profileUser._id !== currentUser?._id && (profileUser.accountStatus === 'invited' || profileUser.mustResetPassword) && (
+                  <button
+                    type="button"
+                    onClick={() => handleResendInvite(profileUser)}
+                    disabled={resendingId === profileUser._id}
+                    className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-left disabled:opacity-50"
+                  >
+                    <Send size={14} className={resendingId === profileUser._id ? 'animate-pulse text-indigo-600 shrink-0' : 'text-indigo-600 shrink-0'} />
+                    <span>{resendingId === profileUser._id ? 'Sending Invite...' : 'Resend Welcome Invite'}</span>
+                  </button>
+                )}
+
+                {/* Toggle Status */}
+                {profileUser._id !== currentUser?._id && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleStatus(profileUser);
+                      setProfileUser((prev) => ({
+                        ...prev,
+                        status: prev.status === 'Active' ? 'Inactive' : 'Active',
+                      }));
+                    }}
+                    className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold border rounded-lg shadow-2xs transition text-left ${
+                      profileUser.status === 'Inactive' || profileUser.isActive === false
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                        : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                    }`}
+                  >
+                    <RefreshCw size={14} className="shrink-0" />
+                    <span>
+                      {profileUser.status === 'Inactive' || profileUser.isActive === false
+                        ? 'Activate Account'
+                        : 'Deactivate Account'}
+                    </span>
+                  </button>
+                )}
+
+                {/* Delete Employee */}
+                {profileUser._id !== currentUser?._id && (
+                  <button
+                    type="button"
+                    onClick={() => openDeleteModal(profileUser)}
+                    className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg shadow-2xs transition text-left sm:col-span-2"
+                  >
+                    <Trash2 size={14} className="shrink-0 text-red-600" />
+                    <span>Permanently Delete Employee Account</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Close Footer */}
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileModal(false);
+                  setProfileUser(null);
+                }}
+                className="btn-secondary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
