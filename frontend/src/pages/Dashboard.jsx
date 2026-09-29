@@ -342,9 +342,9 @@ export default function Dashboard() {
             </div>
             <span className="text-[11px] font-semibold text-slate-400">Sourced ➔ Converted</span>
           </div>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={funnelData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }}>
+          <div className="h-64 w-full" style={{ outline: 'none' }}>
+            <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
+              <BarChart accessibilityLayer={false} data={funnelData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }} style={{ outline: 'none' }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
@@ -409,7 +409,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart accessibilityLayer={false}>
                     <Pie
                       data={callOutcomesData}
                       cx="50%"
