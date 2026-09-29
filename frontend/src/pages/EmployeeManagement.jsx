@@ -3,6 +3,7 @@ import { userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
+import Pagination from '../components/Pagination';
 import {
   UserPlus,
   Search,
@@ -112,6 +113,9 @@ export default function EmployeeManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [moduleFilter, setModuleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   
   // User Activity & Performance Tracking State
   const [activityPeriod, setActivityPeriod] = useState('all'); // 'all' | 'today' | 'week' | 'month' | 'custom'
@@ -515,6 +519,10 @@ export default function EmployeeManagement() {
     return mods.includes(moduleFilter);
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, moduleFilter, statusFilter]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -666,7 +674,7 @@ export default function EmployeeManagement() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredEmployees.map((emp) => {
+                    {filteredEmployees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((emp) => {
                       const modules = getUserModules(emp);
                       const isSelf = emp._id === currentUser?._id;
                       return (
@@ -798,6 +806,14 @@ export default function EmployeeManagement() {
                   </tbody>
                 </table>
               </div>
+            )}
+            {!loading && filteredEmployees.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalItems={filteredEmployees.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
             )}
           </div>
         </>

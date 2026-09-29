@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { marketingAPI } from "../services/api";
 import Modal from "../components/Modal";
+import Pagination from "../components/Pagination";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 
@@ -58,6 +59,9 @@ export default function Marketing() {
   const [searchName, setSearchName] = useState("");
   const [candidateSearch, setCandidateSearch] = useState("");
   const [copiedId, setCopiedId] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [hoveredCandidate, setHoveredCandidate] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [candDropdownOpen, setCandDropdownOpen] = useState(false);
@@ -91,6 +95,7 @@ export default function Marketing() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchRecords();
     fetchAssignedCandidates();
   }, [filterDate, searchName]);
@@ -470,7 +475,7 @@ export default function Marketing() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {records.map((r) => (
+                  {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
                     <tr key={r._id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
                         <p className="font-medium text-slate-900">{r.employeeName}</p>

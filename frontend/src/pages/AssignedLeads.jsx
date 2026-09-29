@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import Modal from "../components/Modal";
 import StartCallModal from "../components/StartCallModal";
+import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
 
 const LEAD_SOURCES = [
@@ -115,6 +116,9 @@ export default function AssignedLeads() {
   const [filterAssignedTo, setFilterAssignedTo] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [viewMode, setViewMode] = useState("kanban"); // 'kanban' | 'table'
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Details Modal State
   const [selectedLead, setSelectedLead] = useState(null);
@@ -403,6 +407,10 @@ export default function AssignedLeads() {
     );
     return generatorMatch || sourceMatch || assignedMatch || profileMatch;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterSource, filterAssignedTo, filterDate]);
 
   // Extract individual unconverted candidate profiles for the 3-column Kanban view
   const kanbanData = useMemo(() => {
@@ -992,7 +1000,7 @@ export default function AssignedLeads() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {filteredLeads.map((r) => {
+              {filteredLeads.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => {
                 const profilesList = getUnconvertedProfiles(r);
                 const primaryProfile = profilesList[0];
 
@@ -1071,6 +1079,14 @@ export default function AssignedLeads() {
               })}
             </tbody>
           </table>
+          {!loading && filteredLeads.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredLeads.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       )}
 

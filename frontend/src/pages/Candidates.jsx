@@ -28,6 +28,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Modal from "../components/Modal";
+import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
 
 export default function Candidates() {
@@ -44,6 +45,9 @@ export default function Candidates() {
   const [downloadingAtsId, setDownloadingAtsId] = useState(null);
   const [uploadingAtsId, setUploadingAtsId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchCandidates = async () => {
     setLoading(true);
@@ -243,6 +247,10 @@ export default function Candidates() {
     );
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterStatus, filterVisa]);
+
   const activeCount = candidates.filter((c) => c.accountStatus === "active").length;
   const onboardedCount = candidates.filter((c) => c.isOnboarded).length;
 
@@ -375,7 +383,7 @@ export default function Candidates() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {filteredCandidates.map((c) => {
+              {filteredCandidates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((c) => {
                 return (
                   <tr
                     key={c._id}
@@ -485,6 +493,14 @@ export default function Candidates() {
               })}
             </tbody>
           </table>
+        )}
+        {!loading && filteredCandidates.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredCandidates.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
 

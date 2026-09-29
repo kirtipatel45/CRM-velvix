@@ -26,9 +26,11 @@ import {
   ShieldCheck,
   AlertCircle,
   ArrowRight,
+  Users,
 } from "lucide-react";
 import { leadGenAPI } from "../services/api";
 import Modal from "../components/Modal";
+import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
@@ -48,10 +50,7 @@ const emptyForm = {
   employeeName: "",
   leadSource: "LinkedIn",
   assignedTo: "",
-  profileName: "",
-  url: "",
-  email: "",
-  phone: "",
+  profiles: [{ profileName: "", url: "", email: "", phone: "" }],
   entryDate: new Date().toISOString().split("T")[0],
   notes: "",
 };
@@ -78,6 +77,9 @@ export default function LeadGeneration() {
   const [filterDate, setFilterDate] = useState("");
   const [searchName, setSearchName] = useState("");
   const [filterSource, setFilterSource] = useState("");
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Lead Details Modal State
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -137,6 +139,7 @@ export default function LeadGeneration() {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchRecords();
   }, [filterDate, searchName]);
 
@@ -152,10 +155,7 @@ export default function LeadGeneration() {
       employeeName: user?.name || "",
       leadSource: "LinkedIn",
       assignedTo: "",
-      profileName: "",
-      url: "",
-      email: "",
-      phone: "",
+      profiles: [{ profileName: "", url: "", email: "", phone: "" }],
       entryDate: new Date().toISOString().split("T")[0],
       notes: "",
     });
@@ -165,20 +165,23 @@ export default function LeadGeneration() {
   const openEdit = (record) => {
     setEditingId(record._id);
 
-    const profile = (record.linkedInProfiles && record.linkedInProfiles[0]) || {};
-    let profName = profile.profileName || "";
-    if (!profName && record.linkedInProfileNames) {
-      profName = record.linkedInProfileNames.split("\n")[0] || "";
-    }
+    let initialProfiles = record.linkedInProfiles && record.linkedInProfiles.length > 0
+      ? record.linkedInProfiles
+      : [{
+          profileName: record.linkedInProfileNames ? record.linkedInProfileNames.split("\n")[0] || "" : "",
+          url: "", email: "", phone: ""
+        }];
 
     setForm({
       employeeName: record.employeeName || user?.name || "",
       leadSource: record.leadSource || "LinkedIn",
       assignedTo: record.assignedTo?._id || record.assignedTo || "",
-      profileName: profName,
-      url: profile.url || "",
-      email: profile.email || "",
-      phone: profile.phone || "",
+      profiles: initialProfiles.map(p => ({
+        profileName: p.profileName || "",
+        url: p.url || "",
+        email: p.email || "",
+        phone: p.phone || ""
+      })),
       entryDate: record.entryDate?.split("T")[0] || "",
       notes: record.notes || "",
     });
@@ -188,20 +191,20 @@ export default function LeadGeneration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const singleProfile = {
-        profileName: form.profileName.trim(),
-        url: form.url.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim(),
-      };
+      const profilesData = form.profiles.map(p => ({
+        profileName: p.profileName.trim(),
+        url: p.url.trim(),
+        email: p.email.trim(),
+        phone: p.phone.trim(),
+      }));
 
       const payload = {
         employeeName: form.employeeName || user?.name || "Staff User",
         leadSource: form.leadSource || "LinkedIn",
         assignedTo: form.assignedTo || null,
-        linkedInAccountsCount: 1,
-        linkedInProfiles: [singleProfile],
-        linkedInProfileNames: singleProfile.profileName,
+        linkedInAccountsCount: profilesData.length,
+        linkedInProfiles: profilesData,
+        linkedInProfileNames: profilesData.map(p => p.profileName).filter(Boolean).join(', '),
         entryDate: form.entryDate,
         notes: form.notes,
       };
@@ -446,13 +449,14 @@ export default function LeadGeneration() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredRecords.map((r) => {
+              {filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => {
                 const candidateObj = r.convertedToCandidateId;
                 const isConverted = !!candidateObj;
                 const isCandidateActive = candidateObj?.accountStatus === 'active';
                 const isInviteExpired = candidateObj?.tempCredential?.expiresAt && new Date(candidateObj.tempCredential.expiresAt) < new Date();
-                const primaryProfile = (r.linkedInProfiles && r.linkedInProfiles[0]) ||
-                  (r.linkedInProfileNames ? { profileName: r.linkedInProfileNames } : null);
+                const profiles = r.linkedInProfiles && r.linkedInProfiles.length > 0
+                  ? r.linkedInProfiles
+                  : (r.linkedInProfileNames ? [{ profileName: r.linkedInProfileNames }] : []);
                 const assignedPerson = r.assignedTo;
 
                 return (
@@ -489,16 +493,14 @@ export default function LeadGeneration() {
                       )}
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="min-w-0">
-                        <div className="font-semibold text-slate-800 text-xs truncate max-w-[170px]" title={primaryProfile?.profileName || "Unnamed Profile"}>
-                          {primaryProfile?.profileName || "Unnamed Profile"}
-                        </div>
-                        {primaryProfile?.email && (
-                          <span className="text-[11px] text-slate-400 block truncate max-w-[170px]" title={primaryProfile.email}>
-                            {primaryProfile.email}
-                          </span>
-                        )}
-                      </div>
+                      {profiles.length > 0 ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
+                          <Users size={12} />
+                          {profiles.length} {profiles.length === 1 ? 'Profile' : 'Profiles'}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">No Profile</span>
+                      )}
                     </td>
                     <td className="px-4 py-3.5">
                       {isConverted ? (
@@ -530,6 +532,14 @@ export default function LeadGeneration() {
               })}
             </tbody>
           </table>
+        )}
+        {!loading && filteredRecords.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredRecords.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
 
@@ -630,14 +640,11 @@ export default function LeadGeneration() {
                 </h3>
               </div>
 
-              {(() => {
-                const profile = (selectedLead.linkedInProfiles && selectedLead.linkedInProfiles[0]) ||
-                  (selectedLead.linkedInProfileNames
-                    ? { profileName: selectedLead.linkedInProfileNames }
-                    : { profileName: "Candidate Profile" });
-
-                return (
-                  <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+              {(selectedLead.linkedInProfiles && selectedLead.linkedInProfiles.length > 0 
+                ? selectedLead.linkedInProfiles 
+                : [{ profileName: selectedLead.linkedInProfileNames || "Candidate Profile" }]
+              ).map((profile, idx) => (
+                  <div key={idx} className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs mb-3 last:mb-0">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2.5 border-b border-slate-100">
                       <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-xs">
@@ -648,7 +655,7 @@ export default function LeadGeneration() {
                         </h4>
                       </div>
 
-                      {!selectedLead.convertedToCandidateId && (
+                      {!selectedLead.convertedToCandidateId && !profile.convertedToCandidateId && (
                         <button
                           type="button"
                           onClick={() => {
@@ -689,8 +696,7 @@ export default function LeadGeneration() {
                       </div>
                     </div>
                   </div>
-                );
-              })()}
+                ))}
             </div>
 
             {/* Notes Section */}
@@ -826,74 +832,111 @@ export default function LeadGeneration() {
 
           {/* Candidate Profile Details Section */}
           <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
-            <div className="pb-2 border-b border-slate-200">
-              <span className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <Linkedin size={15} className="text-blue-600" />
-                Candidate Profile Information
-              </span>
-              <p className="text-[11px] text-slate-500">
-                Single profile information associated with this lead.
-              </p>
+            <div className="pb-2 border-b border-slate-200 flex justify-between items-center">
+              <div>
+                <span className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                  <Linkedin size={15} className="text-blue-600" />
+                  Candidate Profile Information
+                </span>
+                <p className="text-[11px] text-slate-500">
+                  Profile information associated with this lead.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition"
+                onClick={() => setForm({
+                  ...form,
+                  profiles: [...(form.profiles || []), { profileName: "", url: "", email: "", phone: "" }]
+                })}
+              >
+                <Plus size={14} /> Add Profile
+              </button>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor="lg-profile-name" className="text-[11px] font-semibold text-slate-600 mb-1 block">
-                  Profile Name *
-                </label>
-                <input
-                  id="lg-profile-name"
-                  type="text"
-                  required
-                  className="input-field py-1.5 text-xs"
-                  placeholder="e.g. John Doe"
-                  value={form.profileName}
-                  onChange={(e) => setForm({ ...form, profileName: e.target.value })}
-                />
+            {(form.profiles || []).map((profile, index) => (
+              <div key={index} className="space-y-3 p-3 bg-white rounded-lg border border-slate-200 relative group">
+                {form.profiles.length > 1 && (
+                  <button
+                    type="button"
+                    className="absolute top-2 right-2 text-slate-400 hover:text-red-500 transition p-1"
+                    onClick={() => setForm({
+                      ...form,
+                      profiles: form.profiles.filter((_, i) => i !== index)
+                    })}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                      Profile Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      className="input-field py-1.5 text-xs"
+                      placeholder="e.g. John Doe"
+                      value={profile.profileName}
+                      onChange={(e) => {
+                        const newProfiles = [...form.profiles];
+                        newProfiles[index].profileName = e.target.value;
+                        setForm({ ...form, profiles: newProfiles });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                      LinkedIn Profile URL
+                    </label>
+                    <input
+                      type="text"
+                      className="input-field py-1.5 text-xs"
+                      placeholder="https://linkedin.com/in/username"
+                      value={profile.url}
+                      onChange={(e) => {
+                        const newProfiles = [...form.profiles];
+                        newProfiles[index].url = e.target.value;
+                        setForm({ ...form, profiles: newProfiles });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                      Email ID
+                    </label>
+                    <input
+                      type="email"
+                      className="input-field py-1.5 text-xs"
+                      placeholder="candidate@example.com"
+                      value={profile.email}
+                      onChange={(e) => {
+                        const newProfiles = [...form.profiles];
+                        newProfiles[index].email = e.target.value;
+                        setForm({ ...form, profiles: newProfiles });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-600 mb-1 block">
+                      Phone No
+                    </label>
+                    <input
+                      type="tel"
+                      className="input-field py-1.5 text-xs"
+                      placeholder="+1 (555) 000-0000"
+                      value={profile.phone}
+                      onChange={(e) => {
+                        const newProfiles = [...form.profiles];
+                        newProfiles[index].phone = e.target.value;
+                        setForm({ ...form, profiles: newProfiles });
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-
-              <div>
-                <label htmlFor="lg-profile-url" className="text-[11px] font-semibold text-slate-600 mb-1 block">
-                  LinkedIn Profile URL
-                </label>
-                <input
-                  id="lg-profile-url"
-                  type="text"
-                  className="input-field py-1.5 text-xs"
-                  placeholder="https://linkedin.com/in/username"
-                  value={form.url}
-                  onChange={(e) => setForm({ ...form, url: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lg-profile-email" className="text-[11px] font-semibold text-slate-600 mb-1 block">
-                  Email ID
-                </label>
-                <input
-                  id="lg-profile-email"
-                  type="email"
-                  className="input-field py-1.5 text-xs"
-                  placeholder="candidate@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lg-profile-phone" className="text-[11px] font-semibold text-slate-600 mb-1 block">
-                  Phone No
-                </label>
-                <input
-                  id="lg-profile-phone"
-                  type="tel"
-                  className="input-field py-1.5 text-xs"
-                  placeholder="+1 (555) 000-0000"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                />
-              </div>
-            </div>
+            ))}
           </div>
 
           <div>

@@ -7,6 +7,7 @@ import TargetNotMetModal from "../components/TargetNotMetModal";
 import { toast } from "react-hot-toast";
 import { useNotification } from "../context/NotificationContext";
 import { useAuth } from "../context/AuthContext";
+import Pagination from "../components/Pagination";
 
 const emptyForm = {
   salesExecutiveName: "",
@@ -40,6 +41,9 @@ export default function Sales() {
   const [targetMessage, setTargetMessage] = useState("");
   const { addNotification } = useNotification();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const fetchRecords = async () => {
     setLoading(true);
     try {
@@ -56,6 +60,7 @@ export default function Sales() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchRecords();
   }, [filterDate, searchName]);
 
@@ -228,7 +233,7 @@ export default function Sales() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {records.map((r) => (
+              {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
                 <tr
                   key={r._id}
                   className={
@@ -291,6 +296,14 @@ export default function Sales() {
               ))}
             </tbody>
           </table>
+        )}
+        {!loading && records.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={records.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
 
