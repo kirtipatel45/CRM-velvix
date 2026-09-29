@@ -549,8 +549,8 @@ export default function EmployeeManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Employee Management</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-page-title text-slate-900">Employee Management</h1>
+          <p className="text-page-subtitle">
             Create employee profiles, define designations, and configure granular module permissions.
           </p>
         </div>
@@ -561,7 +561,7 @@ export default function EmployeeManagement() {
               resetForm();
               setShowCreateModal(true);
             }}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary text-button flex items-center gap-2"
           >
             <UserPlus size={18} />
             <span>Create Employee</span>
@@ -573,10 +573,10 @@ export default function EmployeeManagement() {
       <div className="flex border-b border-slate-200">
         <button
           onClick={() => setActiveTab('employees')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'employees'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              ? 'border-brand-600 text-brand-600 font-semibold'
+              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
           }`}
         >
           <Users size={18} />
@@ -584,24 +584,24 @@ export default function EmployeeManagement() {
         </button>
         <button
           onClick={() => setActiveTab('user-activity')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'user-activity'
               ? 'border-brand-600 text-brand-600 font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
           }`}
         >
           <Activity size={18} className="text-amber-500" />
           <span>User Activity & Performance</span>
-          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
+          <span className="text-badge rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 border border-amber-200">
             Live Tracking
           </span>
         </button>
         <button
           onClick={() => setActiveTab('audit-logs')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'audit-logs'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-700'
+              ? 'border-brand-600 text-brand-600 font-semibold'
+              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
           }`}
         >
           <FileText size={18} />
@@ -614,7 +614,7 @@ export default function EmployeeManagement() {
           {/* Filters & Search */}
           <div className="card grid gap-4 md:grid-cols-4 items-end">
             <div className="md:col-span-2">
-              <label htmlFor="emp-search" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-search" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
                 <Search size={14} /> Search Employees
               </label>
               <div className="relative">
@@ -626,7 +626,7 @@ export default function EmployeeManagement() {
                   id="emp-search"
                   type="text"
                   placeholder="Search by name, designation, email, mobile..."
-                  className="input-field pl-9"
+                  className="input-field pl-9 text-body"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -634,12 +634,12 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label htmlFor="emp-module-filter" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-module-filter" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
                 <Filter size={14} /> Module Access
               </label>
               <select
                 id="emp-module-filter"
-                className="input-field"
+                className="input-field text-body"
                 value={moduleFilter}
                 onChange={(e) => setModuleFilter(e.target.value)}
               >
@@ -653,12 +653,12 @@ export default function EmployeeManagement() {
             </div>
 
             <div>
-              <label htmlFor="emp-status-filter" className="flex items-center gap-1.5 text-xs text-slate-500 mb-1 font-medium">
+              <label htmlFor="emp-status-filter" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
                 <Shield size={14} /> Account Status
               </label>
               <select
                 id="emp-status-filter"
-                className="input-field"
+                className="input-field text-body"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -678,20 +678,20 @@ export default function EmployeeManagement() {
             ) : filteredEmployees.length === 0 ? (
               <div className="p-12 text-center text-slate-500">
                 <Users size={40} className="mx-auto text-slate-300 mb-3" />
-                <p className="font-semibold text-slate-700 text-base">No employees found</p>
-                <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or create a new employee.</p>
+                <p className="text-empty-heading text-slate-700">No employees found</p>
+                <p className="text-empty-body mt-1">Try adjusting your filters or create a new employee.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-slate-600">
-                  <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                  <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th scope="col" className="px-6 py-3.5 font-semibold">Employee</th>
-                      <th scope="col" className="px-6 py-3.5 font-semibold">Designation & Role</th>
-                      <th scope="col" className="px-6 py-3.5 font-semibold">Allowed Modules</th>
-                      <th scope="col" className="px-6 py-3.5 font-semibold">Status</th>
-                      <th scope="col" className="px-6 py-3.5 font-semibold">Created Date</th>
-                      <th scope="col" className="px-6 py-3.5 text-right font-semibold">Actions</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5">Employee</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5">Designation & Role</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5">Allowed Modules</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5">Status</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5">Created Date</th>
+                      <th scope="col" className="text-table-header px-6 py-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -706,28 +706,28 @@ export default function EmployeeManagement() {
                                 {emp.name?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div className="min-w-0">
-                                <div className="font-medium text-slate-900 flex items-center gap-1.5">
+                                <div className="text-body font-semibold text-slate-900 flex items-center gap-1.5">
                                   <span>{emp.name}</span>
                                   {isSelf && (
-                                    <span className="text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded font-bold border border-brand-200">
+                                    <span className="text-badge bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded border border-brand-200">
                                       You
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-xs text-slate-500 truncate">{emp.email}</div>
+                                <div className="text-meta truncate">{emp.email}</div>
                                 {emp.mobileNumber && (
-                                  <div className="text-[11px] text-slate-400">{emp.mobileNumber}</div>
+                                  <div className="text-meta">{emp.mobileNumber}</div>
                                 )}
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="space-y-0.5">
-                              <span className="font-semibold text-slate-800 text-xs block">
+                              <span className="text-body font-semibold text-slate-800 block">
                                 {emp.designation || 'Staff Employee'}
                               </span>
                               <span
-                                className={`text-xs font-semibold ${
+                                className={`text-meta font-medium ${
                                   emp.role === 'admin'
                                     ? 'text-purple-700'
                                     : 'text-slate-600'
@@ -738,18 +738,18 @@ export default function EmployeeManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="flex flex-wrap items-center gap-1.5 max-w-xs text-xs">
+                            <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
                               {emp.role === 'admin' ? (
-                                <span className="font-semibold text-purple-700">
+                                <span className="text-badge font-semibold text-purple-700">
                                   Full System Access (All Modules)
                                 </span>
                               ) : modules.length === 0 ? (
-                                <span className="text-slate-400 italic">No modules assigned</span>
+                                <span className="text-meta text-slate-400 italic">No modules assigned</span>
                               ) : (
                                 modules.map((modId, mIdx) => {
                                   const modDef = SYSTEM_MODULES.find((m) => m.id === modId);
                                   return (
-                                    <span key={modId} className="font-medium text-indigo-700">
+                                    <span key={modId} className="text-badge font-medium text-indigo-700">
                                       {modDef?.shortLabel || modId}{mIdx < modules.length - 1 ? ' ·' : ''}
                                     </span>
                                   );
@@ -763,7 +763,7 @@ export default function EmployeeManagement() {
                               onClick={() => !isSelf && toggleStatus(emp)}
                               disabled={isSelf}
                               title={isSelf ? 'Cannot toggle your own status' : 'Click to toggle status'}
-                              className={`text-xs font-semibold transition ${
+                              className={`text-badge font-semibold transition ${
                                 isSelf ? 'cursor-default' : 'cursor-pointer hover:opacity-80'
                               } ${
                                 emp.status === 'Inactive' || emp.isActive === false
@@ -774,7 +774,7 @@ export default function EmployeeManagement() {
                               {emp.status === 'Inactive' || emp.isActive === false ? 'Inactive' : 'Active'}
                             </button>
                           </td>
-                          <td className="px-6 py-4 text-xs text-slate-500">
+                          <td className="px-6 py-4 text-meta">
                             {new Date(emp.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -1054,14 +1054,14 @@ export default function EmployeeManagement() {
           <div className="card overflow-hidden p-0 bg-white border border-slate-200 shadow-xs">
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h2 className="font-bold text-slate-800 text-sm">
+                <h2 className="text-section-heading text-slate-800">
                   Employee Performance & Activity Leaderboard
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-meta">
                   Detailed tracking of leads, calls, applications, and conversions for every user
                 </p>
               </div>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-meta font-medium">
                 {activitySummary.data?.length || 0} employees tracked
               </span>
             </div>
@@ -1073,21 +1073,21 @@ export default function EmployeeManagement() {
             ) : !activitySummary.data || activitySummary.data.length === 0 ? (
               <div className="p-12 text-center text-slate-500">
                 <Activity size={36} className="mx-auto text-slate-300 mb-2" />
-                <p className="font-semibold text-slate-700">No user activity recorded for this timeframe</p>
-                <p className="text-xs text-slate-400 mt-1">Try selecting "All Time" or adjusting your search filters.</p>
+                <p className="text-empty-heading text-slate-700">No user activity recorded for this timeframe</p>
+                <p className="text-empty-body mt-1">Try selecting "All Time" or adjusting your search filters.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-slate-600">
-                  <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                  <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th scope="col" className="px-5 py-3.5 font-semibold">Employee</th>
-                      <th scope="col" className="px-4 py-3.5 font-semibold">Leads Generated</th>
-                      <th scope="col" className="px-4 py-3.5 font-semibold">Sales Calls Made</th>
-                      <th scope="col" className="px-4 py-3.5 font-semibold">Applications (Long/Easy)</th>
-                      <th scope="col" className="px-4 py-3.5 font-semibold">Candidate Conversions</th>
-                      <th scope="col" className="px-4 py-3.5 font-semibold">Last Active</th>
-                      <th scope="col" className="px-4 py-3.5 text-right font-semibold">Action</th>
+                      <th scope="col" className="text-table-header px-5 py-3.5">Employee</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5">Leads Generated</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5">Sales Calls Made</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5">Applications (Long/Easy)</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5">Candidate Conversions</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5">Last Active</th>
+                      <th scope="col" className="text-table-header px-4 py-3.5 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1108,12 +1108,12 @@ export default function EmployeeManagement() {
                                 {u.name?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div className="min-w-0">
-                                <div className="font-bold text-slate-900 text-xs truncate">
+                                <div className="text-body font-bold text-slate-900 truncate">
                                   {u.name}
                                 </div>
-                                <div className="text-[11px] text-slate-500 truncate">{u.email}</div>
+                                <div className="text-meta truncate">{u.email}</div>
                                 <div className="mt-0.5">
-                                  <span className="text-[11px] font-semibold text-brand-700">
+                                  <span className="text-badge font-semibold text-brand-700">
                                     {u.designation || u.role}
                                   </span>
                                 </div>
@@ -1125,21 +1125,21 @@ export default function EmployeeManagement() {
                           <td className="px-4 py-3.5">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
-                                <span className={`font-extrabold text-sm ${hasLeads ? 'text-blue-700' : 'text-slate-400'}`}>
+                                <span className={`text-body font-extrabold ${hasLeads ? 'text-blue-700' : 'text-slate-400'}`}>
                                   {m.totalLeadsGenerated}
                                 </span>
-                                <span className="text-[11px] text-slate-400">leads</span>
+                                <span className="text-meta text-slate-400">leads</span>
                               </div>
 
                               {/* Lead Sources Text */}
                               {hasLeads && m.leadSourcesBreakdown && (
-                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 max-w-[200px] text-[11px]">
+                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 max-w-[200px]">
                                   {Object.entries(m.leadSourcesBreakdown)
                                     .filter(([_, count]) => count > 0)
                                     .map(([source, count]) => (
                                       <span
                                         key={source}
-                                        className="font-medium text-blue-700"
+                                        className="text-meta font-medium text-blue-700"
                                         title={`${count} sourced from ${source}`}
                                       >
                                         <span>{source}: </span>
@@ -1155,20 +1155,20 @@ export default function EmployeeManagement() {
                           <td className="px-4 py-3.5">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
-                                <span className={`font-extrabold text-sm ${hasCalls ? 'text-amber-700' : 'text-slate-400'}`}>
+                                <span className={`text-body font-extrabold ${hasCalls ? 'text-amber-700' : 'text-slate-400'}`}>
                                   {m.totalCallsMade}
                                 </span>
-                                <span className="text-[11px] text-slate-500 font-mono">
+                                <span className="text-meta text-slate-500 font-mono">
                                   ({m.callDurationFormatted})
                                 </span>
                               </div>
 
                               {hasCalls && (
-                                <div className="flex items-center gap-2 text-[11px]">
-                                  <span className="text-emerald-700 font-medium" title="Calls Picked Up">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-meta text-emerald-700 font-medium" title="Calls Picked Up">
                                     Picked: {m.callsPickedUp}
                                   </span>
-                                  <span className="text-amber-700 font-medium" title="Voicemail">
+                                  <span className="text-meta text-amber-700 font-medium" title="Voicemail">
                                     VM: {m.callsVoicemail}
                                   </span>
                                 </div>
@@ -1180,18 +1180,18 @@ export default function EmployeeManagement() {
                           <td className="px-4 py-3.5">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
-                                <span className={`font-extrabold text-sm ${hasApps ? 'text-indigo-700' : 'text-slate-400'}`}>
+                                <span className={`text-body font-extrabold ${hasApps ? 'text-indigo-700' : 'text-slate-400'}`}>
                                   {m.totalApplications}
                                 </span>
-                                <span className="text-[11px] text-slate-400">apps</span>
+                                <span className="text-meta text-slate-400">apps</span>
                               </div>
 
                               {hasApps && (
-                                <div className="flex items-center gap-2 text-[11px]">
-                                  <span className="text-blue-700 font-medium">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-meta text-blue-700 font-medium">
                                     Long: {m.totalLongApplications}
                                   </span>
-                                  <span className="text-indigo-700 font-medium">
+                                  <span className="text-meta text-indigo-700 font-medium">
                                     Easy: {m.totalEasyApplications}
                                   </span>
                                 </div>
@@ -1203,32 +1203,32 @@ export default function EmployeeManagement() {
                           <td className="px-4 py-3.5">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
-                                <span className={`font-extrabold text-sm ${hasConversions ? 'text-emerald-700' : 'text-slate-400'}`}>
+                                <span className={`text-body font-extrabold ${hasConversions ? 'text-emerald-700' : 'text-slate-400'}`}>
                                   {m.candidatesConverted}
                                 </span>
-                                <span className="text-xs font-bold text-emerald-700">
+                                <span className="text-meta font-bold text-emerald-700">
                                   ({m.conversionRate}%)
                                 </span>
                               </div>
-                              <span className="text-[10px] text-slate-400 block">
+                              <span className="text-meta text-slate-400 block">
                                 Sourced &gt; Onboarded
                               </span>
                             </div>
                           </td>
 
                           {/* Last Active */}
-                          <td className="px-4 py-3.5 text-xs text-slate-500 whitespace-nowrap">
+                          <td className="px-4 py-3.5 text-meta whitespace-nowrap">
                             {m.lastActive ? (
                               <div className="space-y-0.5">
                                 <span className="font-medium text-slate-700 block">
                                   {new Date(m.lastActive).toLocaleDateString()}
                                 </span>
-                                <span className="text-[11px] text-slate-400 font-mono">
+                                <span className="text-meta text-slate-400 font-mono">
                                   {new Date(m.lastActive).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                             ) : (
-                              <span className="text-slate-400 italic">No activity</span>
+                              <span className="text-meta text-slate-400 italic">No activity</span>
                             )}
                           </td>
 
@@ -1237,7 +1237,7 @@ export default function EmployeeManagement() {
                             <button
                               type="button"
                               onClick={() => fetchUserActivityDetails(u)}
-                              className="btn-secondary text-xs px-2.5 py-1.5 inline-flex items-center gap-1 font-semibold text-brand-700 hover:text-brand-900 hover:bg-brand-50 border-brand-200 shadow-2xs"
+                              className="btn-secondary text-button text-xs px-2.5 py-1.5 inline-flex items-center gap-1 text-brand-700 hover:text-brand-900 hover:bg-brand-50 border-brand-200 shadow-2xs"
                               title="View detailed activity logs"
                             >
                               <Eye size={13} />
@@ -1257,10 +1257,10 @@ export default function EmployeeManagement() {
         /* ================= AUDIT LOGS VIEW ================= */
         <div className="card overflow-hidden p-0">
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-800">Activity Audit Trail</h2>
+            <h2 className="text-section-heading text-slate-800">Activity Audit Trail</h2>
             <button
               onClick={fetchData}
-              className="text-xs text-brand-600 hover:text-brand-800 flex items-center gap-1 font-medium"
+              className="text-button text-xs text-brand-600 hover:text-brand-800 flex items-center gap-1 font-medium"
             >
               <RefreshCw size={14} /> Refresh Logs
             </button>
@@ -1270,39 +1270,39 @@ export default function EmployeeManagement() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
             </div>
           ) : auditLogs.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
+            <div className="text-empty-body p-8 text-center">
               No audit logs recorded yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th scope="col" className="px-6 py-3.5 font-semibold">Date & Time</th>
-                    <th scope="col" className="px-6 py-3.5 font-semibold">Admin</th>
-                    <th scope="col" className="px-6 py-3.5 font-semibold">Action</th>
-                    <th scope="col" className="px-6 py-3.5 font-semibold">Target Employee</th>
-                    <th scope="col" className="px-6 py-3.5 font-semibold">Details</th>
+                    <th scope="col" className="text-table-header px-6 py-3.5">Date & Time</th>
+                    <th scope="col" className="text-table-header px-6 py-3.5">Admin</th>
+                    <th scope="col" className="text-table-header px-6 py-3.5">Action</th>
+                    <th scope="col" className="text-table-header px-6 py-3.5">Target Employee</th>
+                    <th scope="col" className="text-table-header px-6 py-3.5">Details</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {auditLogs.map((log) => (
                     <tr key={log._id} className="hover:bg-slate-50/80">
-                      <td className="px-6 py-3.5 text-xs text-slate-500 whitespace-nowrap font-mono">
+                      <td className="px-6 py-3.5 text-meta whitespace-nowrap font-mono">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-3.5 font-medium text-slate-900 whitespace-nowrap">
+                      <td className="px-6 py-3.5 text-body font-medium text-slate-900 whitespace-nowrap">
                         {log.adminName}
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-xs font-semibold text-indigo-700">
+                        <span className="text-badge text-indigo-700">
                           {log.action}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 font-medium text-slate-800 whitespace-nowrap">
+                      <td className="px-6 py-3.5 text-body font-medium text-slate-800 whitespace-nowrap">
                         {log.targetEmployeeName || '—'}
                       </td>
-                      <td className="px-6 py-3.5 text-xs text-slate-600">
+                      <td className="px-6 py-3.5 text-body text-slate-600">
                         {log.details}
                       </td>
                     </tr>

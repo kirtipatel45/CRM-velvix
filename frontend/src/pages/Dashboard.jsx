@@ -49,9 +49,9 @@ const ExecutiveCard = memo(function ExecutiveCard({
     <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{title}</p>
-          <p className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">{value}</p>
-          {subtitle && <p className="mt-1.5 text-xs text-slate-500 font-medium">{subtitle}</p>}
+          <p className="text-kpi-label">{title}</p>
+          <p className="mt-2 text-kpi-value text-slate-900">{value}</p>
+          {subtitle && <p className="mt-1.5 text-meta">{subtitle}</p>}
         </div>
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr ${gradient} text-white shadow-md shadow-brand-500/15`}
@@ -62,7 +62,7 @@ const ExecutiveCard = memo(function ExecutiveCard({
       {badge && (
         <div className="mt-3 flex items-center gap-1.5 pt-3 border-t border-slate-100">
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+            className={`text-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
               badgeType === 'success'
                 ? 'bg-emerald-50 text-emerald-700'
                 : badgeType === 'warning'
@@ -215,10 +215,10 @@ export default function Dashboard() {
       {/* Header & Filter Controls */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-page-title text-slate-900">
             {isAdmin ? 'Executive Command Dashboard' : 'Performance Dashboard'}
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
+          <p className="text-page-subtitle mt-0.5">
             {isAdmin
               ? 'Real-time pipeline analytics, conversion metrics, and employee activity'
               : `Operational workspace for ${user?.name || 'your role'}`}
@@ -232,30 +232,30 @@ export default function Dashboard() {
                 setTimeframe('today');
                 setFilterDate(new Date().toISOString().split('T')[0]);
               }}
-              className={`rounded-lg px-3 py-1.5 transition ${
+              className={`text-button rounded-lg px-3 py-1.5 transition ${
                 timeframe === 'today'
                   ? 'bg-white text-brand-700 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
               }`}
             >
               Today
             </button>
             <button
               onClick={() => setTimeframe('all')}
-              className={`rounded-lg px-3 py-1.5 transition ${
+              className={`text-button rounded-lg px-3 py-1.5 transition ${
                 timeframe === 'all'
                   ? 'bg-white text-slate-900 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
               }`}
             >
               All Time
             </button>
             <button
               onClick={() => setTimeframe('date')}
-              className={`rounded-lg px-3 py-1.5 transition ${
+              className={`text-button rounded-lg px-3 py-1.5 transition ${
                 timeframe === 'date'
                   ? 'bg-white text-slate-900 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
               }`}
             >
               By Date
@@ -266,7 +266,7 @@ export default function Dashboard() {
             <input
               id="dashboard-date-filter"
               type="date"
-              className="rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs focus:border-brand-500 focus:outline-none"
+              className="text-body rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 font-semibold text-slate-700 shadow-xs focus:border-brand-500 focus:outline-none"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
               aria-label="Filter records by date"
@@ -291,9 +291,9 @@ export default function Dashboard() {
                 size={18}
                 className={alt.severity === 'warning' ? 'text-amber-600 shrink-0 mt-0.5' : 'text-brand-600 shrink-0 mt-0.5'}
               />
-              <div className="text-xs">
-                <p className="font-bold">{alt.title}</p>
-                <p className="mt-0.5 opacity-90">{alt.message}</p>
+              <div>
+                <p className="text-section-heading">{alt.title}</p>
+                <p className="text-body mt-0.5 opacity-90">{alt.message}</p>
               </div>
             </div>
           ))}
@@ -338,9 +338,9 @@ export default function Dashboard() {
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Layers size={18} className="text-brand-600" />
-              <h2 className="text-sm font-bold text-slate-900">End-to-End Pipeline Velocity</h2>
+              <h2 className="text-section-heading text-slate-900">End-to-End Pipeline Velocity</h2>
             </div>
-            <span className="text-[11px] font-semibold text-slate-400">Sourced ➔ Converted</span>
+            <span className="text-meta">Sourced ➔ Converted</span>
           </div>
           <div className="h-64 w-full" style={{ outline: 'none' }}>
             <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
@@ -369,20 +369,20 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <PieChartIcon size={18} className="text-brand-600" />
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900">Call Outcomes Distribution</h2>
-                  <p className="text-[11px] text-slate-400">Total Dials: {callingStats.totalCalls || 0}</p>
+                  <h2 className="text-section-heading text-slate-900">Call Outcomes Distribution</h2>
+                  <p className="text-meta">Total Dials: {callingStats.totalCalls || 0}</p>
                 </div>
               </div>
               
               {/* View Toggle */}
-              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[11px] font-semibold self-start sm:self-auto">
+              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-xs font-semibold self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => setCallOutcomeView('detailed')}
-                  className={`rounded-md px-2.5 py-1 transition ${
+                  className={`text-badge rounded-md px-2.5 py-1 transition ${
                     callOutcomeView === 'detailed'
                       ? 'bg-white text-brand-700 font-bold shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      : 'text-slate-600 hover:text-slate-900 font-medium'
                   }`}
                 >
                   Sub-Breakdown
@@ -390,10 +390,10 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setCallOutcomeView('overview')}
-                  className={`rounded-md px-2.5 py-1 transition ${
+                  className={`text-badge rounded-md px-2.5 py-1 transition ${
                     callOutcomeView === 'overview'
                       ? 'bg-white text-slate-900 font-bold shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      : 'text-slate-600 hover:text-slate-900 font-medium'
                   }`}
                 >
                   Overview
@@ -404,7 +404,7 @@ export default function Dashboard() {
             {/* Donut Chart */}
             <div className="h-48 w-full">
               {callOutcomesData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-xs text-slate-400">
+                <div className="text-empty-body flex h-full items-center justify-center">
                   No call logs recorded yet
                 </div>
               ) : (
@@ -437,11 +437,11 @@ export default function Dashboard() {
           {/* Sub-distribution Box for Call Picked Up */}
           <div className="mt-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span className="text-body font-semibold text-slate-800 flex items-center gap-1.5">
                 <PhoneCall size={13} className="text-emerald-600" />
                 Call Picked Up Sub-distribution
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+              <span className="text-badge inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-800">
                 {totalPickedUp} Picked Up
               </span>
             </div>
@@ -485,16 +485,16 @@ export default function Dashboard() {
             </div>
 
             {/* Individual Sub-Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
               <div className="rounded-lg bg-white p-2 border border-emerald-200/80 flex items-center gap-2 shadow-2xs">
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
                   <CheckCircle2 size={14} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Interested</p>
-                  <p className="text-xs font-black text-emerald-700">
+                  <p className="text-meta uppercase font-semibold">Interested</p>
+                  <p className="text-body font-bold text-emerald-700">
                     {pickedUpInterested}{' '}
-                    <span className="text-[10px] font-medium text-emerald-600">({interestedPercent}%)</span>
+                    <span className="text-meta text-emerald-600 font-medium">({interestedPercent}%)</span>
                   </p>
                 </div>
               </div>
@@ -504,10 +504,10 @@ export default function Dashboard() {
                   <XCircle size={14} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Not Interested</p>
-                  <p className="text-xs font-black text-rose-700">
+                  <p className="text-meta uppercase font-semibold">Not Interested</p>
+                  <p className="text-body font-bold text-rose-700">
                     {pickedUpNotInterested}{' '}
-                    <span className="text-[10px] font-medium text-rose-600">({notInterestedPercent}%)</span>
+                    <span className="text-meta text-rose-600 font-medium">({notInterestedPercent}%)</span>
                   </p>
                 </div>
               </div>
@@ -517,10 +517,10 @@ export default function Dashboard() {
                   <Clock size={14} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-500 uppercase">Call Back Later</p>
-                  <p className="text-xs font-black text-indigo-700">
+                  <p className="text-meta uppercase font-semibold">Call Back Later</p>
+                  <p className="text-body font-bold text-indigo-700">
                     {pickedUpCallBackLater}{' '}
-                    <span className="text-[10px] font-medium text-indigo-600">({callBackLaterPercent}%)</span>
+                    <span className="text-meta text-indigo-600 font-medium">({callBackLaterPercent}%)</span>
                   </p>
                 </div>
               </div>
@@ -537,13 +537,13 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <Award size={18} className="text-brand-600" />
               <div>
-                <h2 className="text-sm font-bold text-slate-900">Top 5 Employee Performance Scorecard</h2>
-                <p className="text-xs text-slate-500">Live activity metrics breakdown & top performers by actual working output</p>
+                <h2 className="text-section-heading text-slate-900">Top 5 Employee Performance Scorecard</h2>
+                <p className="text-meta">Live activity metrics breakdown & top performers by actual working output</p>
               </div>
             </div>
             <Link
               to="/employees"
-              className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+              className="text-button text-brand-600 hover:text-brand-700 flex items-center gap-1"
             >
               Manage Employees <ArrowUpRight size={14} />
             </Link>
@@ -551,22 +551,22 @@ export default function Dashboard() {
 
           <div className="overflow-x-auto">
             {leaderboard.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="text-empty-body py-8 text-center">
                 No employee records found. Create employees in the Employee Management portal.
               </div>
             ) : (
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-600 uppercase tracking-wider font-semibold border-y border-slate-100">
+                <thead className="bg-slate-50 uppercase border-y border-slate-100">
                   <tr>
-                    <th className="py-3 px-4 w-12 text-center">#</th>
-                    <th className="py-3 px-4">Employee</th>
-                    <th className="py-3 px-4">Designation</th>
-                    <th className="py-3 px-4">Modules Access</th>
-                    <th className="py-3 px-4">Sourced Leads</th>
-                    <th className="py-3 px-4">Calls Made</th>
-                    <th className="py-3 px-4">Conversions</th>
-                    <th className="py-3 px-4">Applications</th>
-                    <th className="py-3 px-4">Status</th>
+                    <th className="text-table-header py-3 px-4 w-12 text-center">#</th>
+                    <th className="text-table-header py-3 px-4">Employee</th>
+                    <th className="text-table-header py-3 px-4">Designation</th>
+                    <th className="text-table-header py-3 px-4">Modules Access</th>
+                    <th className="text-table-header py-3 px-4">Sourced Leads</th>
+                    <th className="text-table-header py-3 px-4">Calls Made</th>
+                    <th className="text-table-header py-3 px-4">Conversions</th>
+                    <th className="text-table-header py-3 px-4">Applications</th>
+                    <th className="text-table-header py-3 px-4">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -574,7 +574,7 @@ export default function Dashboard() {
                     <tr key={emp.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-3 px-4 text-center">
                         <span
-                          className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+                          className={`text-badge inline-flex h-6 w-6 items-center justify-center rounded-full ${
                             emp.rank === 1
                               ? 'bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs'
                               : emp.rank === 2
@@ -587,37 +587,37 @@ export default function Dashboard() {
                           {emp.rank || (index + 1)}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-semibold text-slate-800">
+                      <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           <div className="h-7 w-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-[10px]">
                             {emp.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-900">{emp.name}</p>
-                            <p className="text-[10px] text-slate-400">{emp.email}</p>
+                            <p className="text-body font-semibold text-slate-900">{emp.name}</p>
+                            <p className="text-meta">{emp.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-medium text-slate-600">{emp.designation}</td>
+                      <td className="text-body py-3 px-4 text-slate-600">{emp.designation}</td>
                       <td className="py-3 px-4">
-                        <div className="flex flex-wrap gap-1 text-[11px]">
+                        <div className="flex flex-wrap gap-1">
                           {emp.allowedModules.map((m, mIdx) => (
                             <span
                               key={m}
-                              className="font-medium text-indigo-700 capitalize"
+                              className="text-badge text-indigo-700 capitalize"
                             >
                               {m === 'leads' ? 'Sales Team' : m.replace('_', ' ')}{mIdx < emp.allowedModules.length - 1 ? ' ·' : ''}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-bold text-blue-600">{emp.leadsSourced}</td>
-                      <td className="py-3 px-4 font-bold text-emerald-600">{emp.callsMade}</td>
-                      <td className="py-3 px-4 font-bold text-purple-600">{emp.conversions}</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">{emp.applications}</td>
+                      <td className="text-body py-3 px-4 font-bold text-blue-600">{emp.leadsSourced}</td>
+                      <td className="text-body py-3 px-4 font-bold text-emerald-600">{emp.callsMade}</td>
+                      <td className="text-body py-3 px-4 font-bold text-purple-600">{emp.conversions}</td>
+                      <td className="text-body py-3 px-4 font-bold text-amber-600">{emp.applications}</td>
                       <td className="py-3 px-4">
                         <span
-                          className={`text-xs font-semibold ${
+                          className={`text-badge ${
                             emp.targetStatus === 'Top Performer'
                               ? 'text-emerald-700 font-bold'
                               : emp.targetStatus === 'On Track'
@@ -639,7 +639,7 @@ export default function Dashboard() {
 
       {/* Row 5: Quick Access Navigation */}
       <div className="card">
-        <h2 className="mb-4 text-sm font-bold text-slate-900">Direct Module Navigation</h2>
+        <h2 className="text-section-heading mb-4 text-slate-900">Direct Module Navigation</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {canLeadGen && (
             <Link
@@ -650,8 +650,8 @@ export default function Dashboard() {
                 <Users size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800">Lead Generation</p>
-                <p className="text-[11px] text-slate-500 font-medium">{stats?.totals?.leadGeneration || 0} Records</p>
+                <p className="text-body font-bold text-slate-800">Lead Generation</p>
+                <p className="text-meta">{stats?.totals?.leadGeneration || 0} Records</p>
               </div>
             </Link>
           )}
@@ -665,8 +665,8 @@ export default function Dashboard() {
                 <Briefcase size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800">Sales Team</p>
-                <p className="text-[11px] text-slate-500 font-medium">{callingStats.totalCalls || 0} Calls Made</p>
+                <p className="text-body font-bold text-slate-800">Sales Team</p>
+                <p className="text-meta">{callingStats.totalCalls || 0} Calls Made</p>
               </div>
             </Link>
           )}
@@ -680,8 +680,8 @@ export default function Dashboard() {
                 <UserCheck size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800">Candidate Bench</p>
-                <p className="text-[11px] text-slate-500 font-medium">{benchStats.total || 0} Profiles</p>
+                <p className="text-body font-bold text-slate-800">Candidate Bench</p>
+                <p className="text-meta">{benchStats.total || 0} Profiles</p>
               </div>
             </Link>
           )}
@@ -695,8 +695,8 @@ export default function Dashboard() {
                 <Megaphone size={18} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-800">Marketing Team</p>
-                <p className="text-[11px] text-slate-500 font-medium">{marketingStats.totalApplications || 0} Applications</p>
+                <p className="text-body font-bold text-slate-800">Marketing Team</p>
+                <p className="text-meta">{marketingStats.totalApplications || 0} Applications</p>
               </div>
             </Link>
           )}

@@ -380,13 +380,13 @@ export default function LeadGeneration() {
       {/* Header Banner */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Lead Generation Team</h1>
-          <p className="text-slate-500 text-sm">
+          <h1 className="text-page-title text-slate-800">Lead Generation Team</h1>
+          <p className="text-page-subtitle">
             Manage lead sources, candidate LinkedIn profiles, and sales assignments
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={openCreate} className="btn-primary">
+          <button onClick={openCreate} className="btn-primary text-button">
             <Plus size={16} className="mr-2" />
             Add Lead Entry
           </button>
@@ -403,7 +403,7 @@ export default function LeadGeneration() {
             />
             <input
               id="leadgen-search"
-              className="input-field pl-9"
+              className="input-field pl-9 text-body"
               placeholder="Search by creator name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
@@ -413,7 +413,7 @@ export default function LeadGeneration() {
 
           <div className="sm:w-48">
             <select
-              className="input-field"
+              className="input-field text-body"
               value={filterSource}
               onChange={(e) => setFilterSource(e.target.value)}
               aria-label="Filter by source"
@@ -430,7 +430,7 @@ export default function LeadGeneration() {
           <input
             id="leadgen-date-filter"
             type="date"
-            className="input-field sm:w-44"
+            className="input-field sm:w-44 text-body"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             aria-label="Filter by date"
@@ -445,30 +445,33 @@ export default function LeadGeneration() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
           </div>
         ) : filteredRecords.length === 0 ? (
-          <p className="py-12 text-center text-slate-500">No lead entries found</p>
+          <div className="py-12 text-center">
+            <p className="text-empty-heading text-slate-700 mb-1">No lead entries found</p>
+            <p className="text-empty-body">No leads match your current search and filter criteria.</p>
+          </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-body">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Lead Generator
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Lead Source
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Assigned Sales Rep
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Candidate Profile
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Candidate Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-right font-semibold text-slate-400 w-24">
+                <th scope="col" className="text-table-header px-4 py-3 text-right w-24">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
@@ -490,63 +493,63 @@ export default function LeadGeneration() {
                     onClick={() => openLeadDetails(r)}
                     className="group cursor-pointer hover:bg-indigo-50/50 transition-all duration-150"
                   >
-                    <td className="px-4 py-3.5 font-medium text-slate-800">
+                    <td className="px-4 py-3.5 text-body text-slate-800">
                       <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-150">
                           {r.employeeName ? r.employeeName.charAt(0).toUpperCase() : "U"}
                         </div>
-                        <span className="group-hover:text-indigo-600 font-semibold transition-colors duration-150">
+                        <span className="group-hover:text-indigo-600 font-medium text-body transition-colors duration-150">
                           {r.employeeName}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+                    <td className="px-4 py-3.5 text-body text-slate-600 whitespace-nowrap">
                       {new Date(r.entryDate).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs font-semibold text-slate-700">
+                      <span className="text-body text-slate-700">
                         {r.leadSource || "LinkedIn"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
                       {assignedPerson ? (
-                        <span className="text-xs font-semibold text-emerald-700">
+                        <span className="text-body text-emerald-700 font-medium">
                           {assignedPerson.name}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">Unassigned</span>
+                        <span className="text-meta italic">Unassigned</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       {profiles.length > 0 ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
+                        <span className="text-badge inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 text-blue-700 border border-blue-100">
                           <Users size={12} />
                           {profiles.length} {profiles.length === 1 ? 'Profile' : 'Profiles'}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">No Profile</span>
+                        <span className="text-meta italic">No Profile</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       {isConverted ? (
-                        <span className={`text-xs font-semibold ${
+                        <span className={`text-badge inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${
                           isCandidateActive
-                            ? "text-emerald-600"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : isInviteExpired
-                            ? "text-amber-600"
-                            : "text-indigo-600"
+                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                            : "bg-indigo-50 text-indigo-700 border border-indigo-200"
                         }`}>
                           {isCandidateActive ? "Active Candidate" : isInviteExpired ? "Invite Expired" : "Invite Sent"}
                         </span>
                       ) : (
-                        <span className="text-xs font-medium text-slate-500">
+                        <span className="text-badge text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
                           Lead Available
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3.5 text-right whitespace-nowrap">
                       <div className="inline-flex items-center justify-end">
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 bg-indigo-50/90 border border-indigo-200/80 px-2.5 py-1 rounded-lg shadow-xs">
+                        <span className="text-button inline-flex items-center gap-1 text-indigo-600 opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 bg-indigo-50/90 border border-indigo-200/80 px-2.5 py-1 rounded-lg shadow-xs">
                           <span>Open</span>
                           <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
                         </span>

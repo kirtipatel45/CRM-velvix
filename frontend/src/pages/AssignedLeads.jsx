@@ -496,18 +496,18 @@ export default function AssignedLeads() {
       {/* Header Banner */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2.5">
-            <Briefcase className="text-indigo-600" size={26} />
-            <span>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <Briefcase className="text-indigo-600 shrink-0" size={26} />
+            <h1 className="text-page-title text-slate-800">
               {user?.role === 'marketing'
                 ? 'Assigned Candidates'
                 : 'Sales Team'}
-            </span>
-            <span className="rounded-full bg-indigo-100 px-3 py-0.5 text-xs font-bold text-indigo-700 border border-indigo-200">
+            </h1>
+            <span className="text-badge rounded-full bg-indigo-100 px-3 py-0.5 text-indigo-700 border border-indigo-200">
               {filteredLeads.length} {user?.role === 'marketing' ? (filteredLeads.length === 1 ? "Candidate" : "Candidates") : (filteredLeads.length === 1 ? "Lead" : "Leads")}
             </span>
-          </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          </div>
+          <p className="text-page-subtitle mt-0.5">
             {user?.role === 'marketing'
               ? 'Converted candidates assigned to you for placement, marketing, and candidate follow-up'
               : 'Sales team workspace for lead outreach, calling, and candidate conversion pipeline'}
@@ -519,7 +519,7 @@ export default function AssignedLeads() {
           <button
             type="button"
             onClick={() => setViewMode("kanban")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-badge transition ${
               viewMode === "kanban"
                 ? "bg-white text-indigo-600 shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -531,7 +531,7 @@ export default function AssignedLeads() {
           <button
             type="button"
             onClick={() => setViewMode("table")}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-badge transition ${
               viewMode === "table"
                 ? "bg-white text-indigo-600 shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -552,7 +552,7 @@ export default function AssignedLeads() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             />
             <input
-              className="input-field pl-9 text-sm"
+              className="input-field pl-9 text-body"
               placeholder="Search by candidate name, email, phone, generator, or assigned sales rep..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -563,7 +563,7 @@ export default function AssignedLeads() {
           {(user?.role === 'admin' || user?.role === 'manager') && salesTeam.length > 0 && (
             <div className="sm:w-48">
               <select
-                className="input-field text-sm"
+                className="input-field text-body"
                 value={filterAssignedTo}
                 onChange={(e) => setFilterAssignedTo(e.target.value)}
                 aria-label="Filter by assigned representative"
@@ -580,7 +580,7 @@ export default function AssignedLeads() {
 
           <div className="sm:w-44">
             <select
-              className="input-field text-sm"
+              className="input-field text-body"
               value={filterSource}
               onChange={(e) => setFilterSource(e.target.value)}
               aria-label="Filter by source"
@@ -596,7 +596,7 @@ export default function AssignedLeads() {
 
           <input
             type="date"
-            className="input-field sm:w-44 text-sm"
+            className="input-field sm:w-44 text-body"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             aria-label="Filter by date"
@@ -612,8 +612,8 @@ export default function AssignedLeads() {
       ) : filteredLeads.length === 0 ? (
         <div className="card text-center py-16 border border-slate-200 shadow-sm">
           <Briefcase size={40} className="mx-auto text-slate-300 mb-2" />
-          <p className="text-base font-semibold text-slate-700">No leads found in Sales Team queue</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          <p className="text-empty-heading text-slate-700">No leads found in Sales Team queue</p>
+          <p className="text-empty-body mt-1 max-w-sm mx-auto">
             When the Lead Generation team assigns leads to the Sales Team, they will appear here automatically for outreach and calling.
           </p>
         </div>
@@ -625,20 +625,21 @@ export default function AssignedLeads() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                <h2 className="text-sm font-bold text-slate-800">Sales Queue</h2>
+                <h2 className="text-section-heading text-slate-800">Sales Queue</h2>
               </div>
-              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700">
+              <span className="text-badge rounded-full bg-blue-100 px-2.5 py-0.5 text-blue-700">
                 {kanbanData.queueLeads.length}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1 mb-3">
+            <p className="text-meta text-slate-500 mt-1 mb-3">
               Uncalled & pending leads waiting for sales outreach
             </p>
 
             <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 custom-scrollbar">
               {kanbanData.queueLeads.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-400 bg-white/60 rounded-xl border border-dashed border-slate-200">
-                  No pending leads in sales queue
+                <div className="py-12 px-4 text-center bg-white/60 rounded-xl border border-dashed border-slate-200">
+                  <p className="text-empty-heading text-slate-700 mb-0.5">No pending leads</p>
+                  <p className="text-empty-body">No pending leads in sales queue</p>
                 </div>
               ) : (
                 kanbanData.queueLeads.map((lead) => {
@@ -658,18 +659,18 @@ export default function AssignedLeads() {
                         onClick={() => openLeadDetails(lead)}
                         className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-indigo-300 hover:shadow-xs transition cursor-pointer"
                       >
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mb-2.5">
+                        <div className="flex items-center gap-1.5 text-meta mb-2.5">
                           <span className="font-semibold text-slate-700">{lead.leadSource || "LinkedIn"}</span>
                           <span>·</span>
                           <span>{new Date(lead.entryDate).toLocaleDateString()}</span>
                         </div>
 
                         <div className="mb-3.5">
-                          <p className="text-sm font-bold text-slate-900 leading-tight">
+                          <p className="text-body font-semibold text-slate-900 leading-tight">
                             {profilesList.length} profiles waiting for outreach
                           </p>
-                          <p className="text-xs text-slate-500 mt-1 truncate">
-                            Sourced by: <span className="font-semibold text-slate-700">{lead.employeeName}</span>
+                          <p className="text-meta mt-1 truncate">
+                            Sourced by: <span className="font-medium text-slate-700">{lead.employeeName}</span>
                           </p>
                         </div>
 
@@ -680,7 +681,7 @@ export default function AssignedLeads() {
                               e.stopPropagation();
                               openLeadDetails(lead);
                             }}
-                            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 shadow-2xs transition border border-indigo-200/60"
+                            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-button py-2 shadow-2xs transition border border-indigo-200/60"
                           >
                             <Users size={13} />
                             <span>View Profiles</span>
@@ -696,30 +697,30 @@ export default function AssignedLeads() {
                       className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-indigo-300 hover:shadow-xs transition"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                        <span className="text-badge inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-slate-700">
                           <Tag size={10} className="text-slate-500" />
                           {lead.leadSource || "LinkedIn"}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium">
+                        <span className="text-meta text-[11px]">
                           {new Date(lead.entryDate).toLocaleDateString()}
                         </span>
                       </div>
 
                       <div className="mb-3">
-                        <p className="text-sm font-bold text-slate-900 leading-tight">
+                        <p className="text-body font-semibold text-slate-900 leading-tight">
                           {primaryProfile?.profileName || lead.employeeName || "Lead Contact"}
                         </p>
-                        <p className="text-xs text-slate-500 mt-0.5 truncate">
-                          Sourced by: <span className="font-semibold text-slate-700">{lead.employeeName}</span>
+                        <p className="text-meta mt-0.5 truncate">
+                          Sourced by: <span className="font-medium text-slate-700">{lead.employeeName}</span>
                         </p>
                         {primaryProfile?.phone && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium mt-1">
+                          <div className="flex items-center gap-1.5 text-body text-slate-700 font-medium mt-1">
                             <Phone size={11} className="text-slate-400" />
                             <span>{primaryProfile.phone}</span>
                           </div>
                         )}
                         {primaryProfile?.email && (
-                          <div className="flex items-center gap-1.5 text-xs text-indigo-600 truncate mt-0.5">
+                          <div className="flex items-center gap-1.5 text-body text-indigo-600 truncate mt-0.5">
                             <Mail size={11} className="text-slate-400 shrink-0" />
                             <span className="truncate">{primaryProfile.email}</span>
                           </div>
@@ -730,7 +731,7 @@ export default function AssignedLeads() {
                         <button
                           type="button"
                           onClick={() => openConvertModal(lead, primaryProfile)}
-                          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-1.5 shadow-xs transition"
+                          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-button py-1.5 shadow-xs transition"
                         >
                           <UserPlus size={13} />
                           <span>Convert to Candidate</span>
@@ -739,7 +740,7 @@ export default function AssignedLeads() {
                           <button
                             type="button"
                             onClick={() => openStartCallModal(lead, primaryProfile)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 px-2.5 py-1 rounded-md transition"
+                            className="inline-flex items-center gap-1.5 text-button text-emerald-700 hover:bg-emerald-50 px-2.5 py-1 rounded-md transition"
                           >
                             <PhoneCall size={12} />
                             <span>Start Call</span>
@@ -747,7 +748,7 @@ export default function AssignedLeads() {
                           <button
                             type="button"
                             onClick={() => openLeadDetails(lead)}
-                            className="text-xs font-semibold text-slate-500 hover:text-indigo-600 px-2 py-1"
+                            className="text-button text-slate-500 hover:text-indigo-600 px-2 py-1"
                           >
                             Details
                           </button>
@@ -765,21 +766,21 @@ export default function AssignedLeads() {
             <div className="flex items-center justify-between pb-3 border-b border-emerald-200/70">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <h2 className="text-sm font-bold text-emerald-950">Interested Candidates</h2>
+                <h2 className="text-section-heading text-emerald-950">Interested Candidates</h2>
               </div>
-              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200">
+              <span className="text-badge rounded-full bg-emerald-100 px-2.5 py-0.5 text-emerald-800 border border-emerald-200">
                 {kanbanData.interestedProfiles.length}
               </span>
             </div>
-            <p className="text-[11px] text-emerald-700 font-medium mt-1 mb-3">
+            <p className="text-meta text-emerald-700 mt-1 mb-3">
               Prospects who picked up and expressed interest
             </p>
 
             <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 custom-scrollbar">
               {kanbanData.interestedProfiles.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-400 bg-white/60 rounded-xl border border-dashed border-emerald-200 p-4">
-                  No interested profiles yet.<br />
-                  Start a call and mark <strong className="text-emerald-700">Interested</strong> when picked up.
+                <div className="py-12 px-4 text-center bg-white/60 rounded-xl border border-dashed border-emerald-200">
+                  <p className="text-empty-heading text-slate-700 mb-0.5">No interested profiles yet</p>
+                  <p className="text-empty-body">Start a call and mark <strong className="text-emerald-700 font-semibold">Interested</strong> when picked up.</p>
                 </div>
               ) : (
                 kanbanData.interestedProfiles.map(({ lead, profile, latestLog }) => {
@@ -790,12 +791,12 @@ export default function AssignedLeads() {
                       className="rounded-xl border border-emerald-200 bg-white p-4 shadow-xs hover:shadow-md hover:border-emerald-300 transition"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 border border-emerald-200">
+                        <span className="text-badge inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 border border-emerald-200">
                           <CheckCircle2 size={11} className="text-emerald-600" />
                           Interested
                         </span>
                         {profile.lastCallDuration && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 font-medium">
+                          <span className="text-meta inline-flex items-center gap-1 text-[11px]">
                             <Clock size={10} />
                             {profile.lastCallDuration}
                           </span>
@@ -803,20 +804,20 @@ export default function AssignedLeads() {
                       </div>
 
                       <div className="mb-3">
-                        <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                        <h3 className="text-body font-semibold text-slate-900 leading-tight">
                           {profile.profileName || "Candidate Prospect"}
                         </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-meta mt-0.5">
                           Source: <span className="font-medium text-slate-700">{lead.leadSource || "LinkedIn"}</span>
                         </p>
                         {profile.phone && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-800 font-semibold mt-1.5">
+                          <div className="flex items-center gap-1.5 text-body text-slate-800 font-semibold mt-1.5">
                             <Phone size={12} className="text-emerald-600" />
                             <span>{profile.phone}</span>
                           </div>
                         )}
                         {profile.email && (
-                          <div className="flex items-center gap-1.5 text-xs text-indigo-600 truncate mt-0.5">
+                          <div className="flex items-center gap-1.5 text-body text-indigo-600 truncate mt-0.5">
                             <Mail size={12} className="text-slate-400 shrink-0" />
                             <span className="truncate">{profile.email}</span>
                           </div>
@@ -826,7 +827,7 @@ export default function AssignedLeads() {
                             href={profile.url.startsWith("http") ? profile.url : `https://${profile.url}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline mt-1"
+                            className="inline-flex items-center gap-1 text-meta text-blue-600 hover:underline mt-1"
                           >
                             <Linkedin size={11} />
                             <span>LinkedIn Profile</span>
@@ -836,14 +837,14 @@ export default function AssignedLeads() {
 
                       {/* Latest Notes */}
                       {latestLog?.notes && (
-                        <div className="mb-3 rounded-lg bg-slate-50 p-2 text-xs text-slate-600 italic border border-slate-100">
+                        <div className="mb-3 rounded-lg bg-slate-50 p-2 text-meta italic border border-slate-100">
                           "{latestLog.notes}"
                         </div>
                       )}
 
                       <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
                         {isConverted ? (
-                          <span className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 py-1.5 text-xs font-bold">
+                          <span className="text-badge inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 py-1.5">
                             <CheckCircle2 size={13} />
                             <span>Converted to Candidate</span>
                           </span>
@@ -851,7 +852,7 @@ export default function AssignedLeads() {
                           <button
                             type="button"
                             onClick={() => openConvertModal(lead, profile)}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-1.5 shadow-xs transition"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-button py-1.5 shadow-xs transition"
                           >
                             <UserPlus size={13} />
                             <span>Convert to Candidate</span>
@@ -861,7 +862,7 @@ export default function AssignedLeads() {
                           <button
                             type="button"
                             onClick={() => openStartCallModal(lead, profile)}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 px-2.5 py-1 rounded-md transition"
+                            className="inline-flex items-center gap-1 text-button text-emerald-700 hover:bg-emerald-50 px-2.5 py-1 rounded-md transition"
                           >
                             <PhoneCall size={12} />
                             <span>Call Again</span>
@@ -869,7 +870,7 @@ export default function AssignedLeads() {
                           <button
                             type="button"
                             onClick={() => openLeadDetails(lead)}
-                            className="text-xs font-semibold text-slate-500 hover:text-slate-800 px-2 py-1"
+                            className="text-button text-slate-500 hover:text-slate-800 px-2 py-1"
                           >
                             History
                           </button>
@@ -887,21 +888,21 @@ export default function AssignedLeads() {
             <div className="flex items-center justify-between pb-3 border-b border-rose-200">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-rose-500" />
-                <h2 className="text-sm font-bold text-rose-950">Not Interested</h2>
+                <h2 className="text-section-heading text-rose-950">Not Interested</h2>
               </div>
-              <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800 border border-rose-200">
+              <span className="text-badge rounded-full bg-rose-100 px-2.5 py-0.5 text-rose-800 border border-rose-200">
                 {kanbanData.notInterestedProfiles.length}
               </span>
             </div>
-            <p className="text-[11px] text-rose-700 font-medium mt-1 mb-3">
+            <p className="text-meta text-rose-700 mt-1 mb-3">
               Prospects who declined representation or not looking
             </p>
 
             <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1 custom-scrollbar">
               {kanbanData.notInterestedProfiles.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-400 bg-white/60 rounded-xl border border-dashed border-rose-200 p-4">
-                  No disqualified profiles.<br />
-                  Profiles marked <strong className="text-rose-700">Not Interested</strong> will appear here.
+                <div className="py-12 px-4 text-center bg-white/60 rounded-xl border border-dashed border-rose-200">
+                  <p className="text-empty-heading text-slate-700 mb-0.5">No disqualified profiles</p>
+                  <p className="text-empty-body">Profiles marked <strong className="text-rose-700 font-semibold">Not Interested</strong> will appear here.</p>
                 </div>
               ) : (
                 kanbanData.notInterestedProfiles.map(({ lead, profile, latestLog }) => (
@@ -910,12 +911,12 @@ export default function AssignedLeads() {
                     className="rounded-xl border border-rose-200 bg-white p-4 shadow-xs hover:shadow-md transition"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 border border-rose-200">
+                      <span className="text-badge inline-flex items-center gap-1 rounded-full bg-rose-100 text-rose-800 px-2 py-0.5 border border-rose-200">
                         <PhoneOff size={10} className="text-rose-600" />
                         Not Interested
                       </span>
                       {profile.lastCallDuration && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 font-medium">
+                        <span className="text-meta inline-flex items-center gap-1 text-[11px]">
                           <Clock size={10} />
                           {profile.lastCallDuration}
                         </span>
@@ -923,20 +924,20 @@ export default function AssignedLeads() {
                     </div>
 
                     <div className="mb-3">
-                      <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                      <h3 className="text-body font-semibold text-slate-900 leading-tight">
                         {profile.profileName || "Contact"}
                       </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="text-meta mt-0.5">
                         Source: <span className="font-medium text-slate-700">{lead.leadSource || "LinkedIn"}</span>
                       </p>
                       {profile.phone && (
-                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-medium mt-1.5">
+                        <div className="flex items-center gap-1.5 text-body text-slate-700 font-medium mt-1.5">
                           <Phone size={12} className="text-slate-400" />
                           <span>{profile.phone}</span>
                         </div>
                       )}
                       {profile.email && (
-                        <div className="flex items-center gap-1.5 text-xs text-slate-600 truncate mt-0.5">
+                        <div className="flex items-center gap-1.5 text-body text-slate-600 truncate mt-0.5">
                           <Mail size={12} className="text-slate-400 shrink-0" />
                           <span className="truncate">{profile.email}</span>
                         </div>
@@ -945,7 +946,7 @@ export default function AssignedLeads() {
 
                     {/* Rejection / Call Notes */}
                     {latestLog?.notes ? (
-                      <div className="mb-3 rounded-lg bg-rose-50/60 p-2 text-xs text-rose-800 italic border border-rose-100">
+                      <div className="mb-3 rounded-lg bg-rose-50/60 p-2 text-meta text-rose-800 italic border border-rose-100">
                         "{latestLog.notes}"
                       </div>
                     ) : null}
@@ -954,7 +955,7 @@ export default function AssignedLeads() {
                       <button
                         type="button"
                         onClick={() => openConvertModal(lead, profile)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-1.5 shadow-xs transition"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-button py-1.5 shadow-xs transition"
                       >
                         <UserPlus size={13} />
                         <span>Convert to Candidate</span>
@@ -963,7 +964,7 @@ export default function AssignedLeads() {
                         <button
                           type="button"
                           onClick={() => openStartCallModal(lead, profile)}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 px-2.5 py-1 rounded-md transition"
+                          className="inline-flex items-center gap-1 text-button text-rose-700 hover:bg-rose-50 px-2.5 py-1 rounded-md transition"
                           title="Re-call contact"
                         >
                           <RotateCcw size={12} />
@@ -972,7 +973,7 @@ export default function AssignedLeads() {
                         <button
                           type="button"
                           onClick={() => openLeadDetails(lead)}
-                          className="text-xs font-semibold text-slate-500 hover:text-slate-800 px-2 py-1"
+                          className="text-button text-slate-500 hover:text-slate-800 px-2 py-1"
                         >
                           Logs
                         </button>
@@ -987,28 +988,28 @@ export default function AssignedLeads() {
       ) : (
         /* Leads Table View */
         <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
-          <table className="w-full text-sm">
+          <table className="w-full text-body">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Sourced By
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Lead Source
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Person Profiles
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Call Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Lead Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-right font-semibold text-slate-400 w-44">
+                <th scope="col" className="text-table-header px-4 py-3 text-right w-44">
                   Actions
                 </th>
               </tr>
@@ -1024,31 +1025,31 @@ export default function AssignedLeads() {
                     onClick={() => openLeadDetails(r)}
                     className="group cursor-pointer hover:bg-indigo-50/50 transition-all duration-150"
                   >
-                    <td className="px-4 py-3.5 font-medium text-slate-800">
+                    <td className="px-4 py-3.5 text-body text-slate-800">
                       <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-150">
                           {r.employeeName ? r.employeeName.charAt(0).toUpperCase() : "U"}
                         </div>
-                        <span className="group-hover:text-indigo-600 font-semibold transition-colors duration-150">
+                        <span className="group-hover:text-indigo-600 font-medium text-body transition-colors duration-150">
                           {r.employeeName}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap text-xs">
+                    <td className="px-4 py-3.5 text-meta whitespace-nowrap">
                       {new Date(r.entryDate).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs font-semibold text-slate-700">
+                      <span className="text-body text-slate-700">
                         {r.leadSource || "LinkedIn"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-blue-700">
+                        <span className="text-badge text-blue-700 font-semibold">
                           {profilesList.length} {profilesList.length === 1 ? "Profile" : "Profiles"}
                         </span>
                         {primaryProfile?.profileName && (
-                          <span className="text-xs text-slate-600 truncate max-w-[140px]">
+                          <span className="text-meta truncate max-w-[140px]">
                             ({primaryProfile.profileName})
                           </span>
                         )}
@@ -1058,7 +1059,7 @@ export default function AssignedLeads() {
                       {renderCallBadge(primaryProfile || r)}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="text-xs font-medium text-slate-500">
+                      <span className="text-badge text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
                         Available for Outreach
                       </span>
                     </td>
@@ -1067,7 +1068,7 @@ export default function AssignedLeads() {
                         <button
                           type="button"
                           onClick={(e) => openStartCallModal(r, primaryProfile, e)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition"
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-button text-white shadow-xs hover:bg-emerald-700 transition"
                           title="Start a Call"
                         >
                           <PhoneCall size={12} />
@@ -1080,7 +1081,7 @@ export default function AssignedLeads() {
                             e.stopPropagation();
                             openConvertModal(r, primaryProfile);
                           }}
-                          className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 px-2.5 py-1 text-xs font-semibold hover:bg-indigo-100 transition shadow-xs"
+                          className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 px-2.5 py-1 text-button hover:bg-indigo-100 transition shadow-xs"
                           title="Convert to candidate"
                         >
                           <UserPlus size={12} />

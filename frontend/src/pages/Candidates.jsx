@@ -259,25 +259,25 @@ export default function Candidates() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2.5">
-            <UserCheck className="text-brand-600" size={26} />
-            <span>Assigned Candidates</span>
-            <span className="rounded-full bg-brand-50 px-3 py-0.5 text-xs font-bold text-brand-700 border border-brand-200">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <UserCheck className="text-brand-600 shrink-0" size={26} />
+            <h1 className="text-page-title text-slate-800">Assigned Candidates</h1>
+            <span className="text-badge rounded-full bg-brand-50 px-3 py-0.5 text-brand-700 border border-brand-200">
               {candidates.length} {candidates.length === 1 ? "Candidate" : "Candidates"}
             </span>
-          </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          </div>
+          <p className="text-page-subtitle mt-0.5">
             Candidates assigned to you for placement, marketing, job applications, and client outreach
           </p>
         </div>
 
         {/* Quick Stats Chips */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-xs">
+          <div className="text-badge flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-emerald-700 shadow-xs">
             <CheckCircle2 size={14} />
             <span>{onboardedCount} Onboarded</span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-xs">
+          <div className="text-badge flex items-center gap-1.5 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-blue-700 shadow-xs">
             <ShieldCheck size={14} />
             <span>{activeCount} Active Portals</span>
           </div>
@@ -294,7 +294,7 @@ export default function Candidates() {
             />
             <input
               id="candidate-search"
-              className="input-field pl-9 text-sm"
+              className="input-field pl-9 text-body"
               placeholder="Search by name, email, city living in, preferred cities, visa, skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -306,7 +306,7 @@ export default function Candidates() {
             <div className="w-40">
               <select
                 id="candidate-status-filter"
-                className="input-field text-sm py-2"
+                className="input-field text-body py-2"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 aria-label="Filter by status"
@@ -322,7 +322,7 @@ export default function Candidates() {
             <div className="w-52">
               <select
                 id="candidate-visa-filter"
-                className="input-field text-sm py-2"
+                className="input-field text-body py-2"
                 value={filterVisa}
                 onChange={(e) => setFilterVisa(e.target.value)}
                 aria-label="Filter by visa status"
@@ -356,28 +356,28 @@ export default function Candidates() {
         ) : filteredCandidates.length === 0 ? (
           <div className="py-16 text-center px-4">
             <Users size={44} className="mx-auto text-slate-300 mb-2" />
-            <h3 className="text-base font-semibold text-slate-700">No candidates found</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            <h3 className="text-empty-heading text-slate-700">No candidates found</h3>
+            <p className="text-empty-body mt-1 max-w-md mx-auto">
               When sales employees convert leads into candidates and assign them to you, they will appear here along with their onboarding profile, living city, job city preferences, visa, and resume.
             </p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-body">
             <thead className="border-b border-slate-200 bg-slate-50/80">
               <tr>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Candidate & Location
                 </th>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Visa Status
                 </th>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Job Experience & Titles
                 </th>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Job City Preferences
                 </th>
-                <th scope="col" className="px-5 py-3.5 text-left font-semibold text-slate-600 text-xs uppercase tracking-wider">
+                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Onboarding
                 </th>
               </tr>
@@ -398,15 +398,15 @@ export default function Candidates() {
                           {c.lastName?.[0] || ""}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-semibold text-slate-800 group-hover:text-brand-600 transition-colors">
+                          <p className="font-semibold text-body text-slate-800 group-hover:text-brand-600 transition-colors">
                             {c.firstName} {c.lastName}
                           </p>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                          <div className="flex items-center gap-1.5 text-meta mt-0.5">
                             <Mail size={12} className="text-slate-400 flex-shrink-0" />
                             <span className="truncate max-w-[160px]">{c.email}</span>
                           </div>
                           {c.currentCity && (
-                            <div className="flex items-center gap-1 text-[11px] text-brand-700 font-medium mt-0.5">
+                            <div className="flex items-center gap-1 text-meta text-brand-700 font-medium mt-0.5">
                               <MapPin size={11} className="text-brand-500" />
                               <span>Living in: {c.currentCity}</span>
                             </div>
@@ -418,11 +418,11 @@ export default function Candidates() {
                     {/* Visa Status */}
                     <td className="px-5 py-4">
                       {c.visaStatus ? (
-                        <span className="text-xs font-bold text-indigo-700">
+                        <span className="text-body font-semibold text-indigo-700">
                           {c.visaStatus}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">Visa not set</span>
+                        <span className="text-meta italic">Visa not set</span>
                       )}
                     </td>
 
@@ -431,7 +431,7 @@ export default function Candidates() {
                       {c.jobExperiences && c.jobExperiences.length > 0 ? (
                         <div className="space-y-0.5 max-w-[240px]">
                           {c.jobExperiences.slice(0, 2).map((exp, eIdx) => (
-                            <div key={eIdx} className="text-xs">
+                            <div key={eIdx} className="text-body">
                               <span className="font-semibold text-slate-800">{exp.jobTitle || "Role"}</span>
                               {exp.experience && (
                                 <span className="font-medium text-brand-700 ml-1">
@@ -441,49 +441,49 @@ export default function Candidates() {
                             </div>
                           ))}
                           {c.jobExperiences.length > 2 && (
-                            <span className="text-[11px] font-semibold text-brand-600 block">
+                            <span className="text-meta font-semibold text-brand-600 block">
                               +{c.jobExperiences.length - 2} more roles
                             </span>
                           )}
                         </div>
                       ) : c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
-                        <div className="text-xs font-medium text-indigo-800 max-w-[220px]">
+                        <div className="text-body font-medium text-indigo-800 max-w-[220px]">
                           {c.preferredJobTitles.slice(0, 2).join(', ')}
                           {c.preferredJobTitles.length > 2 && (
-                            <span className="text-[11px] font-semibold text-indigo-600 ml-1">
+                            <span className="text-meta font-semibold text-indigo-600 ml-1">
                               +{c.preferredJobTitles.length - 2} more
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">None specified</span>
+                        <span className="text-meta italic">None specified</span>
                       )}
                     </td>
 
                     {/* Job City Preferences */}
                     <td className="px-5 py-4">
                       {c.preferredJobCities && c.preferredJobCities.length > 0 ? (
-                        <div className="text-xs font-medium text-slate-700 max-w-[220px]">
+                        <div className="text-body font-medium text-slate-700 max-w-[220px]">
                           {c.preferredJobCities.slice(0, 2).join(', ')}
                           {c.preferredJobCities.length > 2 && (
-                            <span className="text-[11px] font-semibold text-brand-600 ml-1">
+                            <span className="text-meta font-semibold text-brand-600 ml-1">
                               +{c.preferredJobCities.length - 2} more
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">None selected</span>
+                        <span className="text-meta italic">None selected</span>
                       )}
                     </td>
 
                     {/* Onboarding Status */}
                     <td className="px-5 py-4">
                       {c.isOnboarded ? (
-                        <span className="text-xs font-semibold text-emerald-600">
+                        <span className="text-badge inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                           Onboarded
                         </span>
                       ) : (
-                        <span className="text-xs font-semibold text-amber-600">
+                        <span className="text-badge inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                           Pending
                         </span>
                       )}

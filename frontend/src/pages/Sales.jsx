@@ -148,13 +148,13 @@ export default function Sales() {
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Sales Team</h1>
-          <p className="text-slate-500">
+          <h1 className="text-page-title text-slate-800">Sales Team</h1>
+          <p className="text-page-subtitle">
             Track calls, talk time, dispositions & follow-ups
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={openCreate} className="btn-primary">
+          <button onClick={openCreate} className="btn-primary text-button">
             <Plus size={16} className="mr-2" />
             Add Entry
           </button>
@@ -170,7 +170,7 @@ export default function Sales() {
             />
             <input
               id="sales-search"
-              className="input-field pl-9"
+              className="input-field pl-9 text-body"
               placeholder="Search by executive name..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
@@ -180,54 +180,57 @@ export default function Sales() {
           <input
             id="sales-date-filter"
             type="date"
-            className="input-field sm:w-48"
+            className="input-field sm:w-48 text-body"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             aria-label="Filter by date"
           />
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-meta">
           Targets: Min 100 calls & 2h 30m talk time daily. Rows in red = target
           not met.
         </p>
       </div>
 
-      <div className="card overflow-x-auto p-0">
+      <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
           </div>
         ) : records.length === 0 ? (
-          <p className="py-12 text-center text-slate-500">No records found</p>
+          <div className="py-12 text-center">
+            <p className="text-empty-heading text-slate-700 mb-1">No records found</p>
+            <p className="text-empty-body">No sales entries match your filter criteria.</p>
+          </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-body">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Executive
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Leads
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Calls
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Duration
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Dispositions
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Interested
                 </th>
-                <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-left">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
+                <th scope="col" className="text-table-header px-4 py-3 text-right">
                   Actions
                 </th>
               </tr>
@@ -240,31 +243,31 @@ export default function Sales() {
                     r.targetsNotMet ? "alert-row" : "hover:bg-slate-50"
                   }
                 >
-                  <td className="px-4 py-3 font-medium">
+                  <td className="px-4 py-3 text-body font-medium text-slate-800">
                     {r.salesExecutiveName}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-meta">
                     {new Date(r.entryDate).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3">{r.totalAssignedLeads}</td>
+                  <td className="px-4 py-3 text-body">{r.totalAssignedLeads}</td>
                   <td
-                    className={`px-4 py-3 ${r.targetAlerts?.callCount ? "font-bold text-red-600" : ""}`}
+                    className={`px-4 py-3 text-body ${r.targetAlerts?.callCount ? "font-bold text-red-600" : ""}`}
                   >
                     {r.dailyCallCount}
                   </td>
                   <td
-                    className={`px-4 py-3 ${r.targetAlerts?.callDuration ? "font-bold text-red-600" : ""}`}
+                    className={`px-4 py-3 text-body ${r.targetAlerts?.callDuration ? "font-bold text-red-600" : ""}`}
                   >
                     {r.dailyCallDuration}
                   </td>
-                  <td className="px-4 py-3 text-xs">
+                  <td className="px-4 py-3 text-meta">
                     NA: {r.notAnsweredCalls} | NI: {r.notInterestedCalls} | VM:{" "}
                     {r.voiceMailCount}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-body">
                     {r.interestedCandidates}
                     {r.interestedStage && (
-                      <span className="ml-1 text-xs font-semibold text-emerald-700">
+                      <span className="ml-1 text-badge text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
                         ({r.interestedStage})
                       </span>
                     )}

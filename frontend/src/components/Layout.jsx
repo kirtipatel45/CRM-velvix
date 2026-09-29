@@ -117,7 +117,7 @@ export default function Layout() {
                 end={to === "/"}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-nav-item transition-all duration-200 ${
                     isActive
                       ? "bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 text-white shadow-md shadow-brand-500/25 border border-white/30 backdrop-blur-md font-semibold"
                       : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent"

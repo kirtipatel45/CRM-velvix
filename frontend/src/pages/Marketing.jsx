@@ -223,14 +223,14 @@ export default function Marketing() {
     <div>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Marketing Team</h1>
-          <p className="text-slate-500">
+          <h1 className="text-page-title text-slate-800">Marketing Team</h1>
+          <p className="text-page-subtitle">
             Track candidates, applications, screening, assessments & interviews
           </p>
         </div>
         <div className="flex items-center gap-3">
           {activeTab === "logs" && (
-            <button onClick={openCreate} className="btn-primary">
+            <button onClick={openCreate} className="btn-primary text-button">
               <Plus size={16} className="mr-2" />
               Add Entry
             </button>
@@ -242,7 +242,7 @@ export default function Marketing() {
       <div className="mb-6 flex border-b border-slate-200">
         <button
           onClick={() => setActiveTab("candidates")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-button transition ${
             activeTab === "candidates"
               ? "border-brand-600 text-brand-600"
               : "border-transparent text-slate-500 hover:text-slate-800"
@@ -250,13 +250,13 @@ export default function Marketing() {
         >
           <Users size={16} />
           <span>Assigned Candidates</span>
-          <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">
+          <span className="text-badge rounded-full bg-brand-50 px-2 py-0.5 text-brand-700">
             {assignedCandidates.length}
           </span>
         </button>
         <button
           onClick={() => setActiveTab("logs")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-button transition ${
             activeTab === "logs"
               ? "border-brand-600 text-brand-600"
               : "border-transparent text-slate-500 hover:text-slate-800"
@@ -264,7 +264,7 @@ export default function Marketing() {
         >
           <Calendar size={16} />
           <span>Daily Marketing Logs</span>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+          <span className="text-badge rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
             {records.length}
           </span>
         </button>
@@ -280,7 +280,7 @@ export default function Marketing() {
               />
               <input
                 id="cand-search"
-                className="input-field pl-9"
+                className="input-field pl-9 text-body"
                 placeholder="Search candidates by name, email, or phone..."
                 value={candidateSearch}
                 onChange={(e) => setCandidateSearch(e.target.value)}
@@ -289,7 +289,7 @@ export default function Marketing() {
             </div>
           </div>
 
-          <div className="card overflow-x-auto p-0">
+          <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
             {candidatesLoading ? (
               <div className="flex justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
@@ -297,31 +297,31 @@ export default function Marketing() {
             ) : filteredCandidates.length === 0 ? (
               <div className="py-12 text-center">
                 <Users size={40} className="mx-auto text-slate-300 mb-2" />
-                <p className="text-slate-500 font-medium">No assigned candidates found</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-empty-heading text-slate-700">No assigned candidates found</p>
+                <p className="text-empty-body mt-1">
                   Candidates converted from leads and assigned to marketing recruiters will appear here.
                 </p>
               </div>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-body">
                 <thead className="border-b border-slate-200 bg-slate-50">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Candidate
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Contact Details
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Assigned Marketing Recruiter
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Portal Status
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Converted Date
                     </th>
-                    <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-right">
                       Action
                     </th>
                   </tr>
@@ -335,10 +335,10 @@ export default function Marketing() {
                             {c.firstName?.[0] || 'C'}{c.lastName?.[0] || ''}
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-800">
+                            <p className="font-semibold text-body text-slate-800">
                               {c.firstName} {c.lastName}
                             </p>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-meta">
                               ID: {c._id.slice(-6)}
                             </p>
                           </div>
@@ -346,12 +346,12 @@ export default function Marketing() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                          <div className="flex items-center gap-1.5 text-meta text-slate-600">
                             <Mail size={13} className="text-slate-400" />
                             <span>{c.email}</span>
                           </div>
                           {c.phone && (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                            <div className="flex items-center gap-1.5 text-meta text-slate-500">
                               <Phone size={13} className="text-slate-400" />
                               <span>{c.phone}</span>
                             </div>
@@ -361,20 +361,20 @@ export default function Marketing() {
                       <td className="px-4 py-3">
                         {c.assignedTo ? (
                           <div>
-                            <p className="font-medium text-slate-700 text-xs">
+                            <p className="font-medium text-body text-slate-700">
                               {c.assignedTo.name}
                             </p>
-                            <p className="text-[11px] text-slate-400">
+                            <p className="text-meta">
                               {c.assignedTo.email}
                             </p>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Unassigned</span>
+                          <span className="text-meta italic">Unassigned</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`font-semibold text-xs capitalize ${
+                          className={`text-badge capitalize ${
                             c.accountStatus === 'active'
                               ? 'text-emerald-600'
                               : c.accountStatus === 'invited'
@@ -385,13 +385,13 @@ export default function Marketing() {
                           {c.accountStatus || 'invited'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500">
+                      <td className="px-4 py-3 text-meta text-slate-500">
                         {c.convertedAt ? new Date(c.convertedAt).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleCopyEmail(c.email, c._id)}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50"
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-button text-slate-600 shadow-sm hover:bg-slate-50"
                           title="Copy candidate email"
                         >
                           {copiedId === c._id ? (
@@ -425,7 +425,7 @@ export default function Marketing() {
                 />
                 <input
                   id="mktg-search"
-                  className="input-field pl-9"
+                  className="input-field pl-9 text-body"
                   placeholder="Search by recruiter name..."
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
@@ -435,7 +435,7 @@ export default function Marketing() {
               <input
                 id="mktg-date-filter"
                 type="date"
-                className="input-field sm:w-48"
+                className="input-field sm:w-48 text-body"
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
                 aria-label="Filter by date"
@@ -443,33 +443,36 @@ export default function Marketing() {
             </div>
           </div>
 
-          <div className="card overflow-x-auto p-0">
+          <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
             {loading ? (
               <div className="flex justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
               </div>
             ) : records.length === 0 ? (
-              <p className="py-12 text-center text-slate-500">No records found</p>
+              <div className="py-12 text-center">
+                <p className="text-empty-heading text-slate-700 mb-1">No records found</p>
+                <p className="text-empty-body">No daily marketing logs found matching your criteria.</p>
+              </div>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-body">
                 <thead className="border-b border-slate-200 bg-slate-50">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       TL / Recruiter
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Date
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Candidate(s)
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Applications (Long / Easy)
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-left">
                       Notes
                     </th>
-                    <th scope="col" className="px-4 py-3 text-right font-medium text-slate-600">
+                    <th scope="col" className="text-table-header px-4 py-3 text-right">
                       Actions
                     </th>
                   </tr>
@@ -478,39 +481,39 @@ export default function Marketing() {
                   {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
                     <tr key={r._id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-900">{r.employeeName}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="font-medium text-body text-slate-900">{r.employeeName}</p>
+                        <p className="text-meta">
                           TL: {r.teamLeaderName}
                         </p>
                       </td>
-                      <td className="px-4 py-3 text-slate-700">
+                      <td className="px-4 py-3 text-meta text-slate-700">
                         {new Date(r.entryDate).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
                         <div className="space-y-1">
                           {r.candidates && r.candidates.length > 0 ? (
                             r.candidates.map((c, ci) => (
-                              <div key={ci} className="text-xs">
+                              <div key={ci} className="text-body">
                                 <span className="font-semibold text-slate-800">{c.candidateName}</span>
-                                {c.jobTitle && <span className="text-slate-500"> • {c.jobTitle}</span>}
+                                {c.jobTitle && <span className="text-meta"> • {c.jobTitle}</span>}
                               </div>
                             ))
                           ) : (
-                            <span className="text-xs text-slate-400">No candidates</span>
+                            <span className="text-meta italic">No candidates</span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-brand-700 text-sm">
+                          <span className="font-semibold text-body text-brand-700">
                             {r.totalApplications || (r.longApplicationsSubmitted + r.easyApplicationsSubmitted)}
                           </span>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-meta text-slate-500">
                             (Long: {r.longApplicationsSubmitted || 0}, Easy: {r.easyApplicationsSubmitted || 0})
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-600 max-w-xs truncate">
+                      <td className="px-4 py-3 text-meta text-slate-600 max-w-xs truncate">
                         {r.notes || "—"}
                       </td>
                       <td className="px-4 py-3 text-right">
