@@ -711,7 +711,7 @@ router.post(
       const employeeName = req.body.employeeName?.trim() || req.user.name || 'Staff User';
       let profiles = [];
       if (Array.isArray(req.body.linkedInProfiles) && req.body.linkedInProfiles.length > 0) {
-        profiles = [req.body.linkedInProfiles[0]];
+        profiles = req.body.linkedInProfiles;
       } else if (req.body.profileName || req.body.url || req.body.email || req.body.phone) {
         profiles = [{
           profileName: req.body.profileName?.trim() || '',
@@ -731,8 +731,8 @@ router.post(
         return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
       }
 
-      const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || '';
-      const accountsCount = 1;
+      const profilesText = profiles.map(p => p.profileName).filter(Boolean).join(', ') || req.body.linkedInProfileNames || '';
+      const accountsCount = profiles.length > 0 ? profiles.length : 1;
 
       const leadSource = req.body.leadSource?.trim() || 'LinkedIn';
       const assignedTo = req.body.assignedTo ? req.body.assignedTo : null;
@@ -787,12 +787,14 @@ router.put('/:id', protect, async (req, res) => {
     let profiles;
     if (req.body.linkedInProfiles !== undefined) {
       if (Array.isArray(req.body.linkedInProfiles) && req.body.linkedInProfiles.length > 0) {
-        const existingProf = existingRecord.linkedInProfiles?.[0];
-        const rawExisting = existingProf ? (existingProf.toObject ? existingProf.toObject() : existingProf) : {};
-        profiles = [{
-          ...rawExisting,
-          ...req.body.linkedInProfiles[0],
-        }];
+        profiles = req.body.linkedInProfiles.map((p, index) => {
+          const existingProf = existingRecord.linkedInProfiles?.[index];
+          const rawExisting = existingProf ? (existingProf.toObject ? existingProf.toObject() : existingProf) : {};
+          return {
+            ...rawExisting,
+            ...p,
+          };
+        });
       } else {
         profiles = [];
       }
@@ -808,7 +810,7 @@ router.put('/:id', protect, async (req, res) => {
       }];
     } else {
       profiles = existingRecord.linkedInProfiles && existingRecord.linkedInProfiles.length > 0
-        ? [existingRecord.linkedInProfiles[0]]
+        ? existingRecord.linkedInProfiles
         : [];
     }
 
@@ -822,8 +824,8 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
     }
 
-    const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || existingRecord.linkedInProfileNames || '';
-    const accountsCount = 1;
+    const profilesText = profiles.map(p => p.profileName).filter(Boolean).join(', ') || req.body.linkedInProfileNames || existingRecord.linkedInProfileNames || '';
+    const accountsCount = profiles.length > 0 ? profiles.length : 1;
 
     const leadSource = req.body.leadSource !== undefined ? (req.body.leadSource?.trim() || 'LinkedIn') : existingRecord.leadSource;
     const assignedTo = req.body.assignedTo !== undefined ? (req.body.assignedTo ? req.body.assignedTo : null) : existingRecord.assignedTo;
