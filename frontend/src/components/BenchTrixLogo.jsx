@@ -28,7 +28,7 @@ export default function BenchTrixLogo({
           </span>
         ) : (
           <>
-            <span className="text-slate-900">Bench</span>
+            <span className="text-slate-950">Bench</span>
             <span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">
               Trix
             </span>
@@ -36,7 +36,7 @@ export default function BenchTrixLogo({
         )}
       </span>
       {subtitle && (
-        <span className="text-[10px] font-semibold font-sans text-slate-400 uppercase tracking-wider mt-1">
+        <span className="text-[10px] font-bold font-sans text-slate-700 uppercase tracking-wider mt-1">
           {subtitle}
         </span>
       )}
