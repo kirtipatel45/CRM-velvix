@@ -6,7 +6,7 @@ import LeadGeneration from '../models/LeadGeneration.js';
 import Candidate from '../models/Candidate.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
-import { protect } from '../middleware/auth.js';
+import { protect, authorize } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import {
   calculateLeadGenerationMetrics,
@@ -79,11 +79,15 @@ router.get('/sales-team', protect, async (req, res) => {
 router.get('/marketing-team', protect, async (req, res) => {
   try {
     const marketingTeam = await User.find({
-      $or: [{ role: 'marketing' }, { role: 'admin' }, { role: 'manager' }],
-      status: 'Active',
-      isActive: true,
+      $or: [
+        { allowedModules: { $in: ['marketing', 'candidates'] } },
+        { role: { $in: ['marketing', 'admin', 'manager'] } },
+      ],
+      status: { $ne: 'Inactive' },
+      isActive: { $ne: false },
+      accountStatus: { $ne: 'disabled' },
     })
-      .select('_id name email role mobileNumber')
+      .select('_id name email role allowedModules mobileNumber designation')
       .sort({ role: 1, name: 1 })
       .lean();
 
@@ -854,11 +858,11 @@ router.put('/:id', protect, async (req, res) => {
   }
 });
 
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
     const record = await LeadGeneration.findByIdAndDelete(req.params.id);
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });
-    res.json({ success: true, message: 'Record deleted' });
+    res.json({ success: true, message: 'Lead record deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

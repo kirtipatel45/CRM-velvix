@@ -26,6 +26,7 @@ import {
   AlertCircle,
   UploadCloud,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
@@ -77,6 +78,25 @@ export default function Candidates() {
     setCopiedId(id);
     toast.success("Copied to clipboard!");
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDeleteCandidate = async (candidateId, e = null) => {
+    if (e) e.stopPropagation();
+    const candidate = candidates.find((c) => c._id === candidateId) || selectedCandidate;
+    const name = candidate ? `${candidate.firstName} ${candidate.lastName}` : "this candidate";
+    if (!confirm(`Are you sure you want to permanently delete candidate ${name}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await marketingAPI.deleteCandidate(candidateId);
+      toast.success("Candidate permanently deleted successfully");
+      setDetailsModalOpen(false);
+      setSelectedCandidate(null);
+      fetchCandidates();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete candidate");
+    }
   };
 
   const handleResendInvite = async (candidate) => {
@@ -380,6 +400,9 @@ export default function Candidates() {
                 <th scope="col" className="text-table-header px-5 py-3.5 text-left">
                   Onboarding
                 </th>
+                <th scope="col" className="text-table-header px-5 py-3.5 text-right w-24">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
@@ -487,6 +510,27 @@ export default function Candidates() {
                           Pending
                         </span>
                       )}
+                    </td>
+
+                    {/* Row Actions */}
+                    <td className="px-5 py-4 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center justify-end gap-1.5">
+                        {user?.role === 'admin' && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteCandidate(c._id, e)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="Delete Candidate"
+                            aria-label={`Delete candidate ${c.firstName} ${c.lastName}`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                        <span className="text-button inline-flex items-center gap-1 text-indigo-600 opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 bg-indigo-50/90 border border-indigo-200/80 px-2.5 py-1 rounded-lg shadow-xs">
+                          <span>Open</span>
+                          <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -797,8 +841,20 @@ export default function Candidates() {
               </div>
             </div>
 
-            {/* Close Button */}
-            <div className="flex justify-end pt-2 border-t border-slate-100">
+            {/* Footer Buttons */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              {user?.role === 'admin' ? (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteCandidate(selectedCandidate._id)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 hover:border-red-300 transition"
+                >
+                  <Trash2 size={14} />
+                  <span>Delete Candidate</span>
+                </button>
+              ) : (
+                <div />
+              )}
               <button
                 type="button"
                 onClick={() => setDetailsModalOpen(false)}

@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Sales from '../models/Sales.js';
-import { protect } from '../middleware/auth.js';
+import { protect, authorize } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import {
   calculateSalesMetrics,
@@ -184,7 +184,7 @@ router.put('/:id', protect, async (req, res) => {
   }
 });
 
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
     const record = await Sales.findByIdAndDelete(req.params.id);
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });

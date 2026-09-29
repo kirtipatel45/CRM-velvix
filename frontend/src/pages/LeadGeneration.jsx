@@ -61,9 +61,9 @@ const emptyConvertForm = {
   firstName: "",
   lastName: "",
   phone: "",
-  jobTitle: "",
-  experience: "",
   assignedTo: "",
+  profileId: "",
+  profileName: "",
 };
 
 export default function LeadGeneration() {
@@ -236,7 +236,8 @@ export default function LeadGeneration() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e = null) => {
+    if (e) e.stopPropagation();
     if (!confirm("Delete this lead record? This action cannot be undone.")) return;
     try {
       await leadGenAPI.delete(id);
@@ -270,27 +271,21 @@ export default function LeadGeneration() {
     }
   };
 
-  const openConvertModal = (record) => {
+  const openConvertModal = (record, targetProfile = null) => {
     setConvertingRecord(record);
     setConvertError("");
 
-    const targetProfile = record.linkedInProfiles?.[0];
+    const target = targetProfile || (record.linkedInProfiles && record.linkedInProfiles[0]) || null;
     let fName = "";
     let lName = "";
-    let emailPrefill = "";
-    let phonePrefill = "";
+    let emailPrefill = target?.email || "";
+    let phonePrefill = target?.phone || "";
 
-    if (targetProfile) {
-      emailPrefill = targetProfile.email || "";
-      phonePrefill = targetProfile.phone || "";
-      if (targetProfile.profileName) {
-        const parts = targetProfile.profileName.trim().split(" ");
-        fName = parts[0] || "";
-        lName = parts.slice(1).join(" ") || "";
-      }
-    }
-
-    if (!fName && record.employeeName) {
+    if (target?.profileName) {
+      const parts = target.profileName.trim().split(" ");
+      fName = parts[0] || "";
+      lName = parts.slice(1).join(" ") || "";
+    } else if (record.employeeName) {
       const parts = record.employeeName.trim().split(" ");
       fName = parts[0] || "";
       lName = parts.slice(1).join(" ") || "";
@@ -302,6 +297,8 @@ export default function LeadGeneration() {
       lastName: lName,
       phone: phonePrefill,
       assignedTo: record.assignedTo?._id || record.assignedTo || "",
+      profileId: target?._id || "",
+      profileName: target?.profileName || "",
     });
     setConvertModalOpen(true);
   };
@@ -327,16 +324,13 @@ export default function LeadGeneration() {
 
     try {
       const payload = {
-        ...convertForm,
-        jobExperiences:
-          convertForm.jobTitle?.trim() || convertForm.experience?.trim()
-            ? [
-                {
-                  jobTitle: convertForm.jobTitle?.trim() || "",
-                  experience: convertForm.experience?.trim() || "",
-                },
-              ]
-            : [],
+        email: convertForm.email,
+        firstName: convertForm.firstName,
+        lastName: convertForm.lastName,
+        phone: convertForm.phone,
+        assignedTo: convertForm.assignedTo,
+        profileId: convertForm.profileId,
+        profileName: convertForm.profileName,
       };
       const res = await leadGenAPI.convertToCandidate(convertingRecord._id, payload);
       toast.success(res.data.message || `Candidate created! Invite sent to ${convertForm.email}`);
@@ -548,7 +542,18 @@ export default function LeadGeneration() {
                       )}
                     </td>
                     <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                      <div className="inline-flex items-center justify-end">
+                      <div className="inline-flex items-center justify-end gap-1.5">
+                        {user?.role === 'admin' && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDelete(r._id, e)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="Delete Lead"
+                            aria-label={`Delete lead for ${r.employeeName}`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
                         <span className="text-button inline-flex items-center gap-1 text-indigo-600 opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 bg-indigo-50/90 border border-indigo-200/80 px-2.5 py-1 rounded-lg shadow-xs">
                           <span>Open</span>
                           <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -688,7 +693,7 @@ export default function LeadGeneration() {
                           type="button"
                           onClick={() => {
                             setDetailsModalOpen(false);
-                            openConvertModal(selectedLead);
+                            openConvertModal(selectedLead, profile);
                           }}
                           className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-indigo-700 transition shadow-2xs self-start sm:self-auto"
                         >
@@ -745,29 +750,29 @@ export default function LeadGeneration() {
               <div className="flex items-center gap-2">
                 {/* Edit Button */}
                 {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (selectedLead.createdBy?._id || selectedLead.createdBy)) && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDetailsModalOpen(false);
-                        openEdit(selectedLead);
-                      }}
-                      className="btn-secondary inline-flex items-center gap-1.5"
-                    >
-                      <Pencil size={14} />
-                      <span>Edit</span>
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDetailsModalOpen(false);
+                      openEdit(selectedLead);
+                    }}
+                    className="btn-secondary inline-flex items-center gap-1.5"
+                  >
+                    <Pencil size={14} />
+                    <span>Edit</span>
+                  </button>
+                )}
 
-                    {/* Delete Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(selectedLead._id)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 hover:border-red-300 transition"
-                    >
-                      <Trash2 size={14} />
-                      <span>Delete</span>
-                    </button>
-                  </>
+                {/* Admin-only Delete Button */}
+                {user?.role === 'admin' && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(selectedLead._id)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 hover:border-red-300 transition"
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete Lead</span>
+                  </button>
                 )}
 
                 {/* Close Button */}
@@ -1059,29 +1064,6 @@ export default function LeadGeneration() {
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="convert-job-title" className="label">Job Title (Optional)</label>
-              <input
-                id="convert-job-title"
-                className="input-field"
-                placeholder="e.g. Senior React Developer"
-                value={convertForm.jobTitle}
-                onChange={(e) => setConvertForm({ ...convertForm, jobTitle: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor="convert-experience" className="label">Experience (Optional)</label>
-              <input
-                id="convert-experience"
-                className="input-field"
-                placeholder="e.g. 4 Years"
-                value={convertForm.experience}
-                onChange={(e) => setConvertForm({ ...convertForm, experience: e.target.value })}
-              />
-            </div>
-          </div>
-
           <div>
             <label htmlFor="convert-assigned-to" className="label">
               Assigned To (Marketing Recruiter)
@@ -1095,7 +1077,7 @@ export default function LeadGeneration() {
               <option value="">-- Select Marketing Employee --</option>
               {marketingTeam.map((emp) => (
                 <option key={emp._id} value={emp._id}>
-                  {emp.name} ({emp.role === 'marketing' ? 'Marketing' : emp.role}) - {emp.email}
+                  {emp.name} ({emp.designation || (emp.role === 'marketing' ? 'Marketing' : emp.role)}) - {emp.email}
                 </option>
               ))}
             </select>

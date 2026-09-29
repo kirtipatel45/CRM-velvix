@@ -39,9 +39,9 @@ const emptyConvertForm = {
   firstName: '',
   lastName: '',
   phone: '',
-  jobTitle: '',
-  experience: '',
   assignedTo: '',
+  profileId: '',
+  profileName: '',
 };
 
 export default function Profile() {
@@ -149,24 +149,10 @@ export default function Profile() {
       lastName: lName,
       phone: phonePrefill,
       assignedTo: record.assignedTo?._id || record.assignedTo || '',
+      profileId: profileToUse?._id || '',
+      profileName: profileToUse?.profileName || '',
     });
     setConvertModalOpen(true);
-  };
-
-  const selectProfileForConversion = (profile) => {
-    let fName = '';
-    let lName = '';
-    if (profile.profileName) {
-      const parts = profile.profileName.trim().split(' ');
-      fName = parts[0] || '';
-      lName = parts.slice(1).join(' ') || '';
-    }
-    setConvertForm({
-      email: profile.email || '',
-      firstName: fName,
-      lastName: lName,
-      phone: profile.phone || '',
-    });
   };
 
   const handleConvertSubmit = async (e) => {
@@ -190,16 +176,13 @@ export default function Profile() {
 
     try {
       const payload = {
-        ...convertForm,
-        jobExperiences:
-          convertForm.jobTitle?.trim() || convertForm.experience?.trim()
-            ? [
-                {
-                  jobTitle: convertForm.jobTitle?.trim() || '',
-                  experience: convertForm.experience?.trim() || '',
-                },
-              ]
-            : [],
+        email: convertForm.email,
+        firstName: convertForm.firstName,
+        lastName: convertForm.lastName,
+        phone: convertForm.phone,
+        assignedTo: convertForm.assignedTo,
+        profileId: convertForm.profileId,
+        profileName: convertForm.profileName,
       };
       const res = await leadGenAPI.convertToCandidate(convertingRecord._id, payload);
       toast.success(res.data.message || `Candidate created! Invite sent to ${convertForm.email}`);
@@ -1110,31 +1093,6 @@ export default function Profile() {
             Converting this lead will create a new <strong>Candidate</strong> record and dispatch a portal invite email with single-use temporary credentials expiring in 72 hours.
           </p>
 
-          {/* If lead has multiple profiles, show selectable chips */}
-          {convertingRecord?.linkedInProfiles && convertingRecord.linkedInProfiles.length > 1 && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-              <span className="text-xs font-semibold text-slate-700 block mb-1.5">
-                Select Profile to Pre-fill:
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {convertingRecord.linkedInProfiles.map((prof, pIdx) => (
-                  <button
-                    key={pIdx}
-                    type="button"
-                    onClick={() => selectProfileForConversion(prof)}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-medium border transition ${
-                      convertForm.email === prof.email && prof.email
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                        : 'bg-white text-slate-700 border-slate-300 hover:border-indigo-400'
-                    }`}
-                  >
-                    {prof.profileName || `Profile #${pIdx + 1}`} {prof.email ? `(${prof.email})` : ''}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {convertError && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
               <strong>Error:</strong> {convertError}
@@ -1198,33 +1156,6 @@ export default function Profile() {
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="convert-job-title" className="label">
-                Job Title (Optional)
-              </label>
-              <input
-                id="convert-job-title"
-                className="input-field"
-                placeholder="e.g. Senior React Developer"
-                value={convertForm.jobTitle}
-                onChange={(e) => setConvertForm({ ...convertForm, jobTitle: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor="convert-experience" className="label">
-                Experience (Optional)
-              </label>
-              <input
-                id="convert-experience"
-                className="input-field"
-                placeholder="e.g. 4 Years"
-                value={convertForm.experience}
-                onChange={(e) => setConvertForm({ ...convertForm, experience: e.target.value })}
-              />
-            </div>
-          </div>
-
           <div>
             <label htmlFor="convert-assigned-to" className="label">
               Assigned To (Marketing Recruiter)
@@ -1238,7 +1169,7 @@ export default function Profile() {
               <option value="">-- Select Marketing Employee --</option>
               {marketingTeam.map((emp) => (
                 <option key={emp._id} value={emp._id}>
-                  {emp.name} ({emp.role === 'marketing' ? 'Marketing' : emp.role}) - {emp.email}
+                  {emp.name} ({emp.designation || (emp.role === 'marketing' ? 'Marketing' : emp.role)}) - {emp.email}
                 </option>
               ))}
             </select>

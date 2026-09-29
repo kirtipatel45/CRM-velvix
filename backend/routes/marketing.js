@@ -6,7 +6,8 @@ import path from 'path';
 import { body, validationResult } from 'express-validator';
 import Marketing from '../models/Marketing.js';
 import Candidate from '../models/Candidate.js';
-import { protect } from '../middleware/auth.js';
+import LeadGeneration from '../models/LeadGeneration.js';
+import { protect, authorize } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import { INTERVIEW_STAGES } from '../utils/calculations.js';
 import { createExportWorksheet } from '../utils/exportHelper.js';
@@ -362,7 +363,74 @@ router.put('/:id', protect, async (req, res) => {
   }
 });
 
-router.delete('/:id', protect, async (req, res) => {
+// @route   DELETE /api/marketing/candidates/:id
+// @desc    Admin permanently delete a candidate
+// @access  Protected (Admin only)
+router.delete('/candidates/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    // Clean up references in LeadGeneration collection
+    await LeadGeneration.updateMany(
+      {
+        $or: [
+          { convertedToCandidateId: candidateId },
+          { convertedCandidateIds: candidateId },
+          { 'linkedInProfiles.convertedToCandidateId': candidateId },
+        ],
+      },
+      {
+        $pull: { convertedCandidateIds: candidateId },
+      }
+    );
+
+    const relatedLeads = await LeadGeneration.find({
+      $or: [
+        { convertedToCandidateId: candidateId },
+        { 'linkedInProfiles.convertedToCandidateId': candidateId },
+      ],
+    });
+
+    for (const lead of relatedLeads) {
+      if (lead.convertedToCandidateId && lead.convertedToCandidateId.toString() === candidateId.toString()) {
+        lead.convertedToCandidateId = undefined;
+      }
+      if (lead.linkedInProfiles && lead.linkedInProfiles.length > 0) {
+        lead.linkedInProfiles.forEach((p) => {
+          if (p.convertedToCandidateId && p.convertedToCandidateId.toString() === candidateId.toString()) {
+            p.convertedToCandidateId = undefined;
+            if (p.interestStatus === 'Converted') {
+              p.interestStatus = '';
+            }
+            p.isConverted = false;
+          }
+        });
+      }
+      await lead.save();
+    }
+
+    // Also remove any Marketing records associated with this candidate
+    await Marketing.updateMany(
+      { 'candidates.candidateId': candidateId },
+      { $pull: { candidates: { candidateId } } }
+    );
+
+    await Candidate.findByIdAndDelete(candidateId);
+
+    res.json({
+      success: true,
+      message: `Candidate "${candidate.firstName} ${candidate.lastName}" deleted successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
     const record = await Marketing.findByIdAndDelete(req.params.id);
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });

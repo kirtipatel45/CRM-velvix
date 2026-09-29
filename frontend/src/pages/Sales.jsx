@@ -276,24 +276,28 @@ export default function Sales() {
                     {r.targetsNotMet && <AlertBadge />}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (r.createdBy?._id || r.createdBy)) && (
-                      <>
+                    <div className="flex items-center justify-end gap-1">
+                      {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (r.createdBy?._id || r.createdBy)) && (
                         <button
                           onClick={() => openEdit(r)}
-                          className="mr-2 text-brand-600 hover:text-brand-800"
+                          className="p-1 text-brand-600 hover:text-brand-800 rounded transition"
                           aria-label={`Edit sales entry for ${r.salesExecutiveName}`}
+                          title="Edit Entry"
                         >
                           <Pencil size={16} />
                         </button>
+                      )}
+                      {user?.role === 'admin' && (
                         <button
                           onClick={() => handleDelete(r._id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="p-1 text-red-500 hover:text-red-700 rounded transition"
                           aria-label={`Delete sales entry for ${r.salesExecutiveName}`}
+                          title="Delete Entry"
                         >
                           <Trash2 size={16} />
                         </button>
-                      </>
-                    )}
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

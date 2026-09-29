@@ -167,6 +167,7 @@ export const marketingAPI = {
   create: (data) => api.post('/marketing', data),
   update: (id, data) => api.put(`/marketing/${id}`, data),
   delete: (id) => api.delete(`/marketing/${id}`),
+  deleteCandidate: (id) => api.delete(`/marketing/candidates/${id}`),
   getInterviewStages: () => api.get('/marketing/interview-stages'),
   getAssignedCandidates: () => api.get('/marketing/assigned-candidates'),
   resendCandidateInvite: (id) => api.post(`/marketing/candidates/${id}/resend-invite`),
