@@ -9,6 +9,7 @@ import Marketing from '../models/Marketing.js';
 import Sales from '../models/Sales.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { sendEmployeeInviteEmail } from '../utils/email.js';
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validators.js';
 
 const router = express.Router();
 
@@ -528,6 +529,14 @@ router.post(
     try {
       const { name, email, role, status, mobileNumber, designation, allowedModules } = req.body;
 
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
+
+      if (mobileNumber && !isValidPhoneNumber(mobileNumber)) {
+        return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+      }
+
       const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
         return res.status(400).json({ success: false, message: 'Email address is already in use' });
@@ -693,13 +702,28 @@ router.put(
       const { name, email, mobileNumber, designation, role, status, allowedModules } = req.body;
       const changes = [];
 
-      if (email && email.toLowerCase() !== user.email) {
-        const emailExists = await User.findOne({ email: email.toLowerCase(), _id: { $ne: user._id } });
-        if (emailExists) {
-          return res.status(400).json({ success: false, message: 'Email address is already in use by another user' });
+      if (email) {
+        if (!isValidEmail(email)) {
+          return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
         }
-        changes.push(`email from ${user.email} to ${email.toLowerCase()}`);
-        user.email = email.toLowerCase();
+        if (email.toLowerCase() !== user.email) {
+          const emailExists = await User.findOne({ email: email.toLowerCase(), _id: { $ne: user._id } });
+          if (emailExists) {
+            return res.status(400).json({ success: false, message: 'Email address is already in use by another user' });
+          }
+          changes.push(`email from ${user.email} to ${email.toLowerCase()}`);
+          user.email = email.toLowerCase();
+        }
+      }
+
+      if (mobileNumber !== undefined) {
+        if (mobileNumber && !isValidPhoneNumber(mobileNumber)) {
+          return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+        }
+        if (mobileNumber !== user.mobileNumber) {
+          changes.push(`mobile number`);
+          user.mobileNumber = mobileNumber.trim();
+        }
       }
 
       if (name && name !== user.name) {

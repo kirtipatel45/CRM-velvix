@@ -16,6 +16,7 @@ import {
 import { sendEmail, sendCandidateInviteEmail } from '../utils/email.js';
 import { createExportWorksheet } from '../utils/exportHelper.js';
 import { logUserActivity } from '../utils/activityLogger.js';
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validators.js';
 
 const router = express.Router();
 
@@ -255,6 +256,15 @@ router.post(
     try {
       const leadId = req.params.id;
       const { email, firstName, lastName, phone, assignedTo, profileId, profileName, jobExperiences } = req.body;
+
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
+
+      if (phone && !isValidPhoneNumber(phone)) {
+        return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+      }
+
       const normalizedEmail = email.toLowerCase().trim();
 
       // Step 1: Duplicate check against Candidate collection (case-insensitive)
@@ -712,6 +722,15 @@ router.post(
       }
 
       const primaryProfile = profiles[0] || {};
+
+      if (primaryProfile.email && !isValidEmail(primaryProfile.email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
+
+      if (primaryProfile.phone && !isValidPhoneNumber(primaryProfile.phone)) {
+        return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+      }
+
       const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || '';
       const accountsCount = 1;
 
@@ -794,6 +813,15 @@ router.put('/:id', protect, async (req, res) => {
     }
 
     const primaryProfile = profiles?.[0] || {};
+
+    if (primaryProfile.email && !isValidEmail(primaryProfile.email)) {
+      return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+    }
+
+    if (primaryProfile.phone && !isValidPhoneNumber(primaryProfile.phone)) {
+      return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+    }
+
     const profilesText = primaryProfile.profileName || primaryProfile.url || primaryProfile.email || req.body.linkedInProfileNames || existingRecord.linkedInProfileNames || '';
     const accountsCount = 1;
 

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Modal from "../../components/Modal";
+import { isValidPhoneNumber, PHONE_ERROR_MSG } from "../../utils/validation";
 
 const POPULAR_CITIES = [
   "Dallas, TX",
@@ -263,6 +264,11 @@ export default function CandidatePortalHome() {
 
     if (!formData.firstName.trim()) {
       toast.error("Please enter your first name");
+      return;
+    }
+
+    if (formData.phone && !isValidPhoneNumber(formData.phone)) {
+      toast.error(PHONE_ERROR_MSG);
       return;
     }
 

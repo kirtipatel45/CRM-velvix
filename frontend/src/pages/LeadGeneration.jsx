@@ -31,6 +31,7 @@ import { leadGenAPI } from "../services/api";
 import Modal from "../components/Modal";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from "../utils/validation";
 
 const LEAD_SOURCES = [
   "LinkedIn",
@@ -187,6 +188,17 @@ export default function LeadGeneration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (form.email && !isValidEmail(form.email)) {
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
+    if (form.phone && !isValidPhoneNumber(form.phone)) {
+      toast.error(PHONE_ERROR_MSG);
+      return;
+    }
+
     try {
       const singleProfile = {
         profileName: form.profileName.trim(),
@@ -295,6 +307,19 @@ export default function LeadGeneration() {
     e.preventDefault();
     if (!convertingRecord) return;
     setConvertError("");
+
+    if (!isValidEmail(convertForm.email)) {
+      setConvertError(EMAIL_ERROR_MSG);
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
+    if (convertForm.phone && !isValidPhoneNumber(convertForm.phone)) {
+      setConvertError(PHONE_ERROR_MSG);
+      toast.error(PHONE_ERROR_MSG);
+      return;
+    }
+
     setConvertLoading(true);
 
     try {

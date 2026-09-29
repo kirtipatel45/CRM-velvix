@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { isValidEmail, EMAIL_ERROR_MSG } from '../utils/validation';
 
 export default function Login() {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,12 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!isValidEmail(email)) {
+      setError(EMAIL_ERROR_MSG);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await login(email, password);

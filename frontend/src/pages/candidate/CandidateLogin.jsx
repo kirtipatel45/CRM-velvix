@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCandidateAuth } from "../../context/CandidateAuthContext";
 import { Briefcase, KeyRound } from "lucide-react";
 import toast from "react-hot-toast";
+import { isValidEmail, EMAIL_ERROR_MSG } from "../../utils/validation";
 
 export default function CandidateLogin() {
   const navigate = useNavigate();
@@ -16,6 +17,13 @@ export default function CandidateLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!isValidEmail(email)) {
+      setErrorMessage(EMAIL_ERROR_MSG);
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
     setLoading(true);
 
     try {

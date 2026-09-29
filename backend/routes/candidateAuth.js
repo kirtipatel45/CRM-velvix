@@ -13,6 +13,7 @@ import {
   generateCandidateResetToken,
   createRateLimiter,
 } from '../middleware/candidateAuth.js';
+import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validators.js';
 
 const router = express.Router();
 
@@ -69,6 +70,9 @@ router.post(
   async (req, res) => {
     try {
       const { email, tempPassword, token } = req.body;
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
       const normalizedEmail = email.toLowerCase().trim();
 
       const candidate = await Candidate.findOne({ email: normalizedEmail }).select(
@@ -196,6 +200,9 @@ router.post(
   async (req, res) => {
     try {
       const { email, password } = req.body;
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
       const normalizedEmail = email.toLowerCase().trim();
 
       const candidate = await Candidate.findOne({ email: normalizedEmail }).select('+passwordHash');
@@ -267,7 +274,12 @@ router.put('/onboarding', protectCandidate, uploadResume.single('resume'), async
 
     if (firstName) candidate.firstName = firstName.trim();
     if (lastName) candidate.lastName = lastName.trim();
-    if (phone !== undefined) candidate.phone = phone.trim();
+    if (phone !== undefined) {
+      if (phone.trim() && !isValidPhoneNumber(phone)) {
+        return res.status(400).json({ success: false, message: PHONE_ERROR_MSG });
+      }
+      candidate.phone = phone.trim();
+    }
     if (currentCity !== undefined) candidate.currentCity = currentCity.trim();
     if (visaStatus !== undefined) candidate.visaStatus = visaStatus.trim();
 

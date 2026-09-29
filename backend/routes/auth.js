@@ -6,6 +6,7 @@ import { generateToken, protect } from '../middleware/auth.js';
 import { sendEmail } from '../utils/email.js';
 import crypto from 'crypto';
 import { logUserActivity } from '../utils/activityLogger.js';
+import { isValidEmail, EMAIL_ERROR_MSG } from '../utils/validators.js';
 
 const router = express.Router();
 
@@ -61,6 +62,10 @@ router.post(
   async (req, res) => {
     try {
       const { email, password } = req.body;
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
+
       const user = await User.findOne({ email: email.toLowerCase().trim() }).select(
         '+password +tempCredential.tokenHash +tempCredential.expiresAt +tempCredential.used'
       );
@@ -244,7 +249,12 @@ router.post(
   validate,
   async (req, res) => {
     try {
-      const user = await User.findOne({ email: req.body.email });
+      const email = req.body.email?.trim();
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
+      }
+
+      const user = await User.findOne({ email });
       if (!user) {
         return res.status(404).json({ success: false, message: 'There is no user with that email address.' });
       }

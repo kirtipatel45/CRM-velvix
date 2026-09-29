@@ -4,6 +4,7 @@ import { candidateAuthAPI } from "../../services/api";
 import { useCandidateAuth } from "../../context/CandidateAuthContext";
 import { KeyRound, ShieldCheck, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { isValidEmail, EMAIL_ERROR_MSG } from "../../utils/validation";
 
 export default function CandidateFirstLogin() {
   const [searchParams] = useSearchParams();
@@ -28,6 +29,13 @@ export default function CandidateFirstLogin() {
     e.preventDefault();
     setErrorMessage("");
     setIsExpired(false);
+
+    if (!isValidEmail(email)) {
+      setErrorMessage(EMAIL_ERROR_MSG);
+      toast.error(EMAIL_ERROR_MSG);
+      return;
+    }
+
     setLoading(true);
 
     try {

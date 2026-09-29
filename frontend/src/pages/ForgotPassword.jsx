@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import { isValidEmail, EMAIL_ERROR_MSG } from '../utils/validation';
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -16,6 +17,10 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
     setMessage('');
+    if (!isValidEmail(email)) {
+      setError(EMAIL_ERROR_MSG);
+      return;
+    }
     setLoading(true);
     try {
       const res = await authAPI.forgotPassword({ email });
