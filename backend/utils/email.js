@@ -50,7 +50,7 @@ const getSenderEmail = () => {
     const match = process.env.SMTP_FROM.match(/<([^>]+)>/);
     return match ? match[1] : process.env.SMTP_FROM;
   }
-  return 'noreply@velvix.com';
+  return 'noreply@benchtrix.com';
 };
 
 export const sendEmail = async (options) => {
@@ -59,7 +59,7 @@ export const sendEmail = async (options) => {
     const senderEmail = getSenderEmail();
 
     const mailOptions = {
-      from: options.from || `"Velvix" <${senderEmail}>`,
+      from: options.from || `"BenchTrix" <${senderEmail}>`,
       to: options.email,
       subject: options.subject,
       text: options.message,
@@ -87,14 +87,14 @@ export const sendCandidateInviteEmail = async ({
   tempPassword,
   inviteToken,
   expiryHours = 72,
-  recruiterEmail = 'recruiting@velvix.com',
+  recruiterEmail = 'recruiting@benchtrix.com',
 }) => {
   const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const portalLink = `${baseUrl}/candidate/first-login?token=${encodeURIComponent(inviteToken)}&email=${encodeURIComponent(email)}`;
   const senderEmail = getSenderEmail();
 
   console.log('\n================== CANDIDATE INVITE EMAIL ==================');
-  console.log(`From:               Candidate Portal <${senderEmail}>`);
+  console.log(`From:               BenchTrix Candidate Portal <${senderEmail}>`);
   console.log(`Recipient:          ${email}`);
   console.log(`Candidate Name:     ${firstName || 'Candidate'}`);
   console.log(`Temporary Password: ${tempPassword}`);
@@ -105,25 +105,25 @@ export const sendCandidateInviteEmail = async ({
   const subject = 'Your candidate portal access';
 
   const textMessage = `Hello ${firstName || 'Candidate'},\n\n` +
-    `You have been invited to the Velvix Candidate Portal.\n\n` +
+    `You have been invited to the BenchTrix Candidate Portal.\n\n` +
     `Portal Link: ${portalLink}\n` +
     `Your Login Email: ${email}\n` +
     `Temporary Password: ${tempPassword}\n\n` +
     `Important: This temporary password and invite link will expire in ${expiryHours} hours.\n` +
     `Upon your first login, you will be prompted to set a permanent, secure password.\n\n` +
     `If you have questions or your invite expires, contact ${recruiterEmail}.\n\n` +
-    `Best regards,\nVelvix Staffing Team`;
+    `Best regards,\nBenchTrix Staffing Team`;
 
   const htmlMessage = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
       <div style="text-align: center; margin-bottom: 24px;">
-        <h1 style="color: #4f46e5; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Velvix Staffing Portal</h1>
+        <h1 style="color: #4f46e5; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">BenchTrix Staffing Portal</h1>
         <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Candidate Access Invitation</p>
       </div>
 
       <div style="background-color: #ffffff; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
         <p style="font-size: 16px; margin-top: 0;">Hello <strong>${firstName || 'Candidate'}</strong>,</p>
-        <p style="color: #475569; line-height: 1.6;">You have been invited to access the Velvix Candidate Portal. Use your temporary credentials below to complete your initial login and set your new password.</p>
+        <p style="color: #475569; line-height: 1.6;">You have been invited to access the BenchTrix Candidate Portal. Use your temporary credentials below to complete your initial login and set your new password.</p>
 
         <div style="background-color: #f1f5f9; border-left: 4px solid #4f46e5; padding: 16px; border-radius: 4px; margin: 20px 0;">
           <p style="margin: 0 0 8px 0; font-size: 14px; color: #64748b;">Login Email:</p>
@@ -167,14 +167,14 @@ export const sendEmployeeInviteEmail = async ({
   designation = '',
   role = 'employee',
   expiryHours = 72,
-  adminEmail = 'admin@velvix.com',
+  adminEmail = 'admin@benchtrix.com',
 }) => {
   const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const loginLink = `${baseUrl}/login?email=${encodeURIComponent(email)}`;
   const senderEmail = getSenderEmail();
 
   console.log('\n================== EMPLOYEE INVITE EMAIL ==================');
-  console.log(`From:               Employee Portal <${senderEmail}>`);
+  console.log(`From:               BenchTrix Employee Portal <${senderEmail}>`);
   console.log(`Recipient:          ${email}`);
   console.log(`Employee Name:      ${name || 'Employee'}`);
   console.log(`Designation:        ${designation || 'Staff Member'}`);
@@ -184,29 +184,29 @@ export const sendEmployeeInviteEmail = async ({
   console.log(`Expiry Window:      ${expiryHours} Hours`);
   console.log('===========================================================\n');
 
-  const subject = 'Welcome to Velvix CRM - Your Login Credentials';
+  const subject = 'Welcome to BenchTrix - Your Login Credentials';
 
   const textMessage = `Hello ${name || 'Employee'},\n\n` +
-    `An employee account has been created for you on the Velvix CRM Platform.\n\n` +
+    `An employee account has been created for you on the BenchTrix Platform.\n\n` +
     `Login URL: ${loginLink}\n` +
     `Your Login Email: ${email}\n` +
     `Temporary Password: ${tempPassword}\n\n` +
     `Important: This temporary password is valid for ${expiryHours} hours.\n` +
     `Upon your initial sign-in, you will be prompted to set your own secure permanent password.\n\n` +
     `If you have questions, please contact your administrator at ${adminEmail}.\n\n` +
-    `Best regards,\nVelvix Operations Team`;
+    `Best regards,\nBenchTrix Operations Team`;
 
   const htmlMessage = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
       <div style="text-align: center; margin-bottom: 24px;">
-        <h1 style="color: #4f46e5; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">Velvix CRM Platform</h1>
+        <h1 style="color: #4f46e5; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">BenchTrix Platform</h1>
         <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Employee Account Invitation</p>
       </div>
 
       <div style="background-color: #ffffff; padding: 24px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
         <p style="font-size: 16px; margin-top: 0;">Hello <strong>${name || 'Team Member'}</strong>,</p>
         <p style="color: #475569; line-height: 1.6;">
-          Your staff account has been set up on Velvix CRM${designation ? ` as <strong>${designation}</strong>` : ''}. Use the temporary credentials below to sign in and configure your permanent password.
+          Your staff account has been set up on BenchTrix${designation ? ` as <strong>${designation}</strong>` : ''}. Use the temporary credentials below to sign in and configure your permanent password.
         </p>
 
         <div style="background-color: #f1f5f9; border-left: 4px solid #4f46e5; padding: 16px; border-radius: 4px; margin: 20px 0;">
@@ -218,7 +218,7 @@ export const sendEmployeeInviteEmail = async ({
         </div>
 
         <div style="text-align: center; margin: 28px 0 20px 0;">
-          <a href="${loginLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; display: inline-block;">Log In to Velvix CRM</a>
+          <a href="${loginLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; display: inline-block;">Log In to BenchTrix</a>
         </div>
 
         <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 0;">Or navigate directly to:<br/><span style="word-break: break-all; color: #6366f1;">${loginLink}</span></p>

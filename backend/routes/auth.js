@@ -189,7 +189,7 @@ router.post(
 
       res.json({
         success: true,
-        message: 'Password set successfully! Welcome to Velvix CRM.',
+        message: 'Password set successfully! Welcome to BenchTrix.',
         data: {
           _id: user._id,
           name: user.name,

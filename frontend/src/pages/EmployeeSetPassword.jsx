@@ -70,7 +70,7 @@ export default function EmployeeSetPassword() {
           </div>
           <h1 className="mb-6 text-5xl font-bold tracking-tight">Configure Your Permanent Password</h1>
           <p className="text-lg leading-relaxed text-brand-100">
-            Welcome to the Velvix CRM Platform. Since this is your initial login with temporary credentials, please configure your new permanent password to secure your staff account.
+            Welcome to the BenchTrix CRM Platform. Since this is your initial login with temporary credentials, please configure your new permanent password to secure your staff account.
           </p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function EmployeeSetPassword() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                 <Lock size={18} />
               </div>
-              <span className="text-xl font-bold text-slate-900">CRM Velvix</span>
+              <span className="text-xl font-bold text-slate-900">BenchTrix</span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Set New Password</h2>
             <p className="mt-1.5 text-sm text-slate-500">

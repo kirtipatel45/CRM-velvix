@@ -423,7 +423,7 @@ export default function CandidatePortalHome() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {candidate?.isOnboarded
                 ? `Welcome back, ${candidateFullName}!`
-                : `Welcome to CRM Velvix, ${candidateFullName}!`}
+                : `Welcome to BenchTrix, ${candidateFullName}!`}
             </h1>
             <p className="mt-1 text-sm text-brand-100 max-w-2xl leading-relaxed">
               {candidate?.isOnboarded

@@ -140,29 +140,64 @@ router.get('/stats', protect, async (req, res) => {
     let callBackLater = 0;
     let notInterested = 0;
 
+    let pickedUpInterested = 0;
+    let pickedUpNotInterested = 0;
+    let pickedUpCallBackLater = 0;
+    let pickedUpOther = 0;
+
     // From Sales documents
     activeSales.forEach((s) => {
       voicemail += s.voiceMailCount || 0;
       notAnswered += s.notAnsweredCalls || 0;
       notInterested += s.notInterestedCalls || 0;
       interested += s.interestedCandidates || 0;
+      if (s.followUpsRequired) {
+        callBackLater += s.followUpsRequired;
+      }
       // Estimate picked up from remainder
       const answered = Math.max(0, (s.dailyCallCount || 0) - (s.notAnsweredCalls || 0) - (s.voiceMailCount || 0));
       pickedUp += answered;
+
+      const salesInterested = s.interestedCandidates || 0;
+      const salesNotInterested = s.notInterestedCalls || 0;
+      const salesFollowUps = s.followUpsRequired || 0;
+      pickedUpInterested += salesInterested;
+      pickedUpNotInterested += salesNotInterested;
+      pickedUpCallBackLater += salesFollowUps;
+      const rem = Math.max(0, answered - salesInterested - salesNotInterested - salesFollowUps);
+      pickedUpOther += rem;
     });
 
     // From live call logs in LeadGeneration
     activeLeadGen.forEach((lg) => {
       if (Array.isArray(lg.callLogs)) {
         lg.callLogs.forEach((cl) => {
-          if (cl.outcome === 'picked_up') pickedUp++;
-          else if (cl.outcome === 'call_cut') callCut++;
-          else if (cl.outcome === 'voicemail') voicemail++;
-          else if (cl.outcome === 'not_answered') notAnswered++;
+          const isDateMatch = !isFiltered || (targetDate && cl.callDate && new Date(cl.callDate) >= targetDate && new Date(cl.callDate) < new Date(targetDate.getTime() + 86400000));
+          if (isDateMatch) {
+            if (cl.outcome === 'picked_up') {
+              pickedUp++;
+              if (cl.interestStatus === 'Interested' || cl.isInterested === true) {
+                pickedUpInterested++;
+                interested++;
+              } else if (cl.interestStatus === 'Not Interested') {
+                pickedUpNotInterested++;
+                notInterested++;
+              } else if (cl.interestStatus === 'Call Back Later') {
+                pickedUpCallBackLater++;
+                callBackLater++;
+              } else {
+                pickedUpOther++;
+              }
+            } else {
+              if (cl.outcome === 'call_cut') callCut++;
+              else if (cl.outcome === 'voicemail') voicemail++;
+              else if (cl.outcome === 'not_answered') notAnswered++;
 
-          if (cl.interestStatus === 'Interested') interested++;
-          else if (cl.interestStatus === 'Call Back Later') callBackLater++;
-          else if (cl.interestStatus === 'Not Interested') notInterested++;
+              if (cl.interestStatus === 'Interested' || cl.isInterested === true) interested++;
+              else if (cl.interestStatus === 'Call Back Later') callBackLater++;
+              else if (cl.interestStatus === 'Not Interested') notInterested++;
+            }
+          }
         });
       }
     });
@@ -388,6 +423,13 @@ router.get('/stats', protect, async (req, res) => {
             notAnswered,
             voicemail,
             callCut,
+          },
+          pickedUpBreakdown: {
+            total: pickedUp,
+            interested: pickedUpInterested,
+            notInterested: pickedUpNotInterested,
+            callBackLater: pickedUpCallBackLater,
+            other: pickedUpOther,
           },
           interestLevels: {
             interested,

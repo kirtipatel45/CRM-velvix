@@ -1,7 +1,7 @@
 {
-  "name": "crm-velvix",
+  "name": "benchtrix",
   "version": "1.0.0",
-  "description": "CRM Velvix - MERN Stack Lead Generation, Sales & Marketing CRM",
+  "description": "BenchTrix - MERN Stack US IT Staffing & CRM Platform",
   "private": true,
   "scripts": {
     "dev": "concurrently -n \"backend,frontend\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",

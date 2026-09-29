@@ -376,7 +376,7 @@ router.post(
         tempPassword,
         inviteToken,
         expiryHours,
-        recruiterEmail: req.user.email || 'recruiting@velvix.com',
+        recruiterEmail: req.user.email || 'recruiting@benchtrix.com',
       });
 
       // Step 10: Update Lead and specific profile record
@@ -517,7 +517,7 @@ router.post('/:id/resend-candidate-invite', protect, async (req, res) => {
       tempPassword,
       inviteToken,
       expiryHours,
-      recruiterEmail: req.user.email || 'recruiting@velvix.com',
+      recruiterEmail: req.user.email || 'recruiting@benchtrix.com',
     });
 
     res.json({

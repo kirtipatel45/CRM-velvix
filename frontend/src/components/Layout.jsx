@@ -76,14 +76,14 @@ export default function Layout() {
         <div className="pointer-events-none absolute top-1/2 -right-12 h-36 w-36 rounded-full bg-indigo-500/10 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-sky-500/10 blur-2xl" />
 
-        {/* Top Brand Area (V icon removed) */}
+        {/* Top Brand Area */}
         <div className="relative z-10 flex h-18 items-center justify-between px-5 border-b border-slate-100">
           <div>
             <h1 className="text-lg font-black tracking-tight text-slate-900 leading-tight">
-              CRM <span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Velvix</span>
+              Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span>
             </h1>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-              Enterprise Portal
+              Staffing & CRM Platform
             </p>
           </div>
           <button

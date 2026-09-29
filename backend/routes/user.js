@@ -585,7 +585,7 @@ router.post(
           designation: newUser.designation,
           role: newUser.role,
           expiryHours: 72,
-          adminEmail: req.user.email || 'admin@velvix.com',
+          adminEmail: req.user.email || 'admin@benchtrix.com',
         });
       } catch (emailErr) {
         console.error('Failed to send employee invite email:', emailErr);
@@ -652,7 +652,7 @@ router.post('/:id/resend-invite', async (req, res) => {
         designation: user.designation,
         role: user.role,
         expiryHours: 72,
-        adminEmail: req.user?.email || 'admin@velvix.com',
+        adminEmail: req.user?.email || 'admin@benchtrix.com',
       });
     } catch (emailErr) {
       console.error('Failed to resend employee invite email:', emailErr);

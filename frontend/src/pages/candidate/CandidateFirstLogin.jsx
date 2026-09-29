@@ -68,7 +68,7 @@ export default function CandidateFirstLogin() {
           </div>
           <h1 className="mb-6 text-5xl font-bold tracking-tight">Activate Your Talent Portal</h1>
           <p className="text-lg leading-relaxed text-brand-100">
-            Welcome to Velvix. Verify your account with the temporary credentials sent to your email to configure your permanent password.
+            Welcome to BenchTrix. Verify your account with the temporary credentials sent to your email to configure your permanent password.
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function CandidateFirstLogin() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
                 <KeyRound size={18} />
               </div>
-              <span className="text-xl font-bold text-slate-900">Velvix Portal</span>
+              <span className="text-xl font-bold text-slate-900">BenchTrix Portal</span>
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Account Activation</h2>
             <p className="mt-1.5 text-sm text-slate-500">

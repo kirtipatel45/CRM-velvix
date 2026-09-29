@@ -51,7 +51,7 @@ export default function ForgotPassword() {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/70 to-brand-900/40"></div>
         <div className="relative z-10 mx-auto max-w-lg">
-          <h1 className="mb-6 text-5xl font-bold tracking-tight">CRM Velvix</h1>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight">BenchTrix</h1>
           <p className="text-lg leading-relaxed text-brand-100">
             A comprehensive, professional solution for Lead Generation, Sales, and Marketing.
             Empower your teams to close more deals faster.
@@ -63,7 +63,7 @@ export default function ForgotPassword() {
       <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <div className="mb-10">
-            <h2 className="text-3xl font-bold text-slate-900 lg:hidden mb-2">CRM Velvix</h2>
+            <h2 className="text-3xl font-bold text-slate-900 lg:hidden mb-2">BenchTrix</h2>
             <h3 className="text-2xl font-semibold text-slate-800">
               {step === 1 ? 'Forgot Password' : 'Reset Password'}
             </h3>
