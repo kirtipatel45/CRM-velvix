@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { SkeletonDashboard } from '../components/skeleton';
 import {
   BarChart,
   Bar,
@@ -193,16 +194,8 @@ export default function Dashboard() {
     ].filter((item) => item.value > 0);
   }, [callingStats, callOutcomeView, pickedUpInterested, pickedUpNotInterested, pickedUpCallBackLater, pickedUpOther]);
 
-
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-24">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-9 w-9 animate-spin rounded-full border-3 border-brand-600 border-t-transparent" />
-          <p className="text-xs font-semibold text-slate-500">Loading live analytics...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   // Format talk time

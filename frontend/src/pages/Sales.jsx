@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { useNotification } from "../context/NotificationContext";
 import { useAuth } from "../context/AuthContext";
 import Pagination from "../components/Pagination";
+import { SkeletonTable } from "../components/skeleton";
 
 const emptyForm = {
   salesExecutiveName: "",
@@ -194,9 +195,19 @@ export default function Sales() {
 
       <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-          </div>
+          <SkeletonTable
+            rows={7}
+            cardWrapper={false}
+            columns={[
+              { width: '20%', type: 'avatar-text' },
+              { width: '12%', type: 'text' },
+              { width: '12%', type: 'text' },
+              { width: '12%', type: 'text' },
+              { width: '14%', type: 'badge' },
+              { width: '14%', type: 'badge' },
+              { width: '16%', type: 'actions' },
+            ]}
+          />
         ) : records.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-empty-heading text-slate-700 mb-1">No records found</p>

@@ -25,6 +25,7 @@ import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
+import { SkeletonTable } from "../components/skeleton";
 
 const emptyCandidate = {
   candidateId: null,
@@ -291,9 +292,18 @@ export default function Marketing() {
 
           <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
             {candidatesLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              </div>
+              <SkeletonTable
+                rows={6}
+                cardWrapper={false}
+                columns={[
+                  { width: '22%', type: 'avatar-text' },
+                  { width: '22%', type: 'text', twoLines: true },
+                  { width: '16%', type: 'badge' },
+                  { width: '16%', type: 'text' },
+                  { width: '12%', type: 'badge' },
+                  { width: '12%', type: 'actions' },
+                ]}
+              />
             ) : filteredCandidates.length === 0 ? (
               <div className="py-12 text-center">
                 <Users size={40} className="mx-auto text-slate-300 mb-2" />
@@ -445,9 +455,18 @@ export default function Marketing() {
 
           <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
             {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              </div>
+              <SkeletonTable
+                rows={6}
+                cardWrapper={false}
+                columns={[
+                  { width: '20%', type: 'avatar-text' },
+                  { width: '15%', type: 'text' },
+                  { width: '25%', type: 'text', twoLines: true },
+                  { width: '20%', type: 'badge' },
+                  { width: '10%', type: 'badge' },
+                  { width: '10%', type: 'actions' },
+                ]}
+              />
             ) : records.length === 0 ? (
               <div className="py-12 text-center">
                 <p className="text-empty-heading text-slate-700 mb-1">No records found</p>

@@ -34,6 +34,7 @@ import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from "../utils/validation";
+import { SkeletonTable } from "../components/skeleton";
 
 const LEAD_SOURCES = [
   "LinkedIn",
@@ -435,9 +436,20 @@ export default function LeadGeneration() {
       {/* Leads Table */}
       <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-          </div>
+          <SkeletonTable
+            rows={7}
+            cardWrapper={false}
+            columns={[
+              { width: '15%', type: 'avatar-text' },
+              { width: '10%', type: 'text' },
+              { width: '12%', type: 'badge' },
+              { width: '15%', type: 'text' },
+              { width: '15%', type: 'text' },
+              { width: '13%', type: 'text' },
+              { width: '10%', type: 'badge' },
+              { width: '10%', type: 'actions' },
+            ]}
+          />
         ) : filteredRecords.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-empty-heading text-slate-700 mb-1">No lead entries found</p>

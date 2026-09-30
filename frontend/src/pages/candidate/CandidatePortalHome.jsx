@@ -30,6 +30,7 @@ import {
 import { toast } from "react-hot-toast";
 import Modal from "../../components/Modal";
 import { isValidPhoneNumber, PHONE_ERROR_MSG } from "../../utils/validation";
+import { SkeletonCandidatePortal } from "../../components/skeleton";
 
 const POPULAR_CITIES = [
   "Dallas, TX",
@@ -400,6 +401,10 @@ export default function CandidatePortalHome() {
 
   // If candidate is not yet onboarded, render the primary full-page onboarding form
   const showFullOnboardingForm = !candidate?.isOnboarded;
+
+  if (!candidate) {
+    return <SkeletonCandidatePortal />;
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">

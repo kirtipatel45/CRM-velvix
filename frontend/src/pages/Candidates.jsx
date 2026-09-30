@@ -31,6 +31,7 @@ import {
 import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
+import { SkeletonTable } from "../components/skeleton";
 
 export default function Candidates() {
   const { user } = useAuth();
@@ -370,9 +371,18 @@ export default function Candidates() {
       {/* Candidates List Table */}
       <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-          </div>
+          <SkeletonTable
+            rows={7}
+            cardWrapper={false}
+            columns={[
+              { width: '25%', type: 'avatar-text' },
+              { width: '15%', type: 'badge' },
+              { width: '22%', type: 'text', twoLines: true },
+              { width: '15%', type: 'text' },
+              { width: '12%', type: 'badge' },
+              { width: '11%', type: 'actions' },
+            ]}
+          />
         ) : filteredCandidates.length === 0 ? (
           <div className="py-16 text-center px-4">
             <Users size={44} className="mx-auto text-slate-300 mb-2" />

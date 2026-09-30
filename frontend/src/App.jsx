@@ -23,14 +23,69 @@ const CandidateSetPassword = lazy(() => import("./pages/candidate/CandidateSetPa
 const CandidatePortalHome = lazy(() => import("./pages/candidate/CandidatePortalHome"));
 const CandidateLayout = lazy(() => import("./components/CandidateLayout"));
 
+import { Skeleton, SkeletonAvatar } from "./components/skeleton";
+
+function PageLoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-6">
+      {/* Top Navbar Skeleton */}
+      <div className="flex items-center justify-between bg-white rounded-2xl p-4 shadow-xs border border-slate-200/80">
+        <div className="flex items-center gap-3">
+          <Skeleton variant="rounded" width={38} height={38} className="rounded-xl" />
+          <Skeleton variant="text" width={140} height={20} />
+        </div>
+        <div className="flex items-center gap-4">
+          <Skeleton variant="rounded" width={160} height={36} className="rounded-xl hidden sm:inline-block" />
+          <SkeletonAvatar size={38} />
+        </div>
+      </div>
+      {/* Content Area Skeleton */}
+      <div className="space-y-6 max-w-7xl mx-auto w-full">
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton variant="text" width={240} height={26} />
+            <Skeleton variant="text" width={380} height={14} />
+          </div>
+          <Skeleton variant="rounded" width={120} height={38} className="rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="card p-5 space-y-3">
+              <Skeleton variant="text" width="50%" height={12} />
+              <Skeleton variant="rounded" width="40%" height={32} />
+              <Skeleton variant="text" width="70%" height={11} />
+            </div>
+          ))}
+        </div>
+        <div className="card p-6 min-h-[360px] flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+            <Skeleton variant="text" width={200} height={18} />
+            <Skeleton variant="rounded" width={100} height={32} />
+          </div>
+          <div className="space-y-4 py-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <Skeleton variant="text" width="30%" height={14} />
+                <Skeleton variant="text" width="20%" height={14} />
+                <Skeleton variant="rounded" width={80} height={24} className="rounded-full" />
+                <Skeleton variant="text" width="15%" height={14} />
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-slate-100 pt-4 flex justify-between">
+            <Skeleton variant="text" width={120} height={14} />
+            <Skeleton variant="rounded" width={80} height={28} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PrivateRoute({ children, requiredModule, adminOnly }) {
   const { user, isAuthenticated, loading, hasModule } = useAuth();
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-      </div>
-    );
+    return <PageLoadingSkeleton />;
   }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -49,11 +104,7 @@ function PrivateRoute({ children, requiredModule, adminOnly }) {
 function CandidatePrivateRoute({ children }) {
   const { isCandidateAuthenticated, loading } = useCandidateAuth();
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-      </div>
-    );
+    return <PageLoadingSkeleton />;
   }
 
   if (!isCandidateAuthenticated) return <Navigate to="/candidate/login" replace />;
@@ -63,11 +114,8 @@ function CandidatePrivateRoute({ children }) {
 
 export default function App() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-      </div>
-    }>
+    <Suspense fallback={<PageLoadingSkeleton />}>
+
       <Routes>
         {/* Employee Auth Routes */}
         <Route path="/login" element={<Login />} />

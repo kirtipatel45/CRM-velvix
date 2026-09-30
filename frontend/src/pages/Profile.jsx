@@ -33,6 +33,7 @@ import Modal from '../components/Modal';
 import StartCallModal from '../components/StartCallModal';
 import { toast } from 'react-hot-toast';
 import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validation';
+import { SkeletonTable } from '../components/skeleton';
 
 const emptyConvertForm = {
   email: '',
@@ -548,9 +549,18 @@ export default function Profile() {
         </div>
 
         {leadsLoading ? (
-          <div className="flex justify-center py-10">
-            <div className="h-7 w-7 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
-          </div>
+          <SkeletonTable
+            rows={5}
+            cardWrapper={false}
+            columns={[
+              { width: '22%', type: 'avatar-text' },
+              { width: '22%', type: 'text', twoLines: true },
+              { width: '15%', type: 'badge' },
+              { width: '18%', type: 'text' },
+              { width: '11%', type: 'badge' },
+              { width: '12%', type: 'actions' },
+            ]}
+          />
         ) : filteredAssignedLeads.length === 0 ? (
           <div className="py-10 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200">
             <Briefcase size={32} className="mx-auto text-slate-300 mb-2" />

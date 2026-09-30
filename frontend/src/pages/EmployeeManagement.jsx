@@ -5,6 +5,7 @@ import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 import { isValidEmail, isValidPhoneNumber, EMAIL_ERROR_MSG, PHONE_ERROR_MSG } from '../utils/validation';
+import { SkeletonTable, SkeletonActivityFeed, Skeleton } from '../components/skeleton';
 import {
   UserPlus,
   Search,
@@ -689,9 +690,17 @@ export default function EmployeeManagement() {
           {/* Employee Table */}
           <div className="card overflow-hidden p-0">
             {loading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              </div>
+              <SkeletonTable
+                rows={8}
+                cardWrapper={false}
+                columns={[
+                  { width: '25%', type: 'avatar-text' },
+                  { width: '20%', type: 'text', twoLines: true },
+                  { width: '25%', type: 'multi-badge' },
+                  { width: '12%', type: 'badge' },
+                  { width: '18%', type: 'actions' },
+                ]}
+              />
             ) : filteredEmployees.length === 0 ? (
               <div className="p-12 text-center text-slate-500">
                 <Users size={40} className="mx-auto text-slate-300 mb-3" />
@@ -1047,9 +1056,19 @@ export default function EmployeeManagement() {
             </div>
 
             {activityLoading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              </div>
+              <SkeletonTable
+                rows={6}
+                cardWrapper={false}
+                columns={[
+                  { width: '22%', type: 'avatar-text' },
+                  { width: '13%', type: 'badge' },
+                  { width: '13%', type: 'badge' },
+                  { width: '16%', type: 'badge' },
+                  { width: '13%', type: 'badge' },
+                  { width: '13%', type: 'text' },
+                  { width: '10%', type: 'actions' },
+                ]}
+              />
             ) : !activitySummary.data || activitySummary.data.length === 0 ? (
               <div className="p-12 text-center text-slate-500">
                 <Activity size={36} className="mx-auto text-slate-300 mb-2" />
@@ -1246,9 +1265,17 @@ export default function EmployeeManagement() {
             </button>
           </div>
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-            </div>
+            <SkeletonTable
+              rows={6}
+              cardWrapper={false}
+              columns={[
+                { width: '20%', type: 'text' },
+                { width: '20%', type: 'avatar-text' },
+                { width: '15%', type: 'badge' },
+                { width: '20%', type: 'avatar-text' },
+                { width: '25%', type: 'text', twoLines: true },
+              ]}
+            />
           ) : auditLogs.length === 0 ? (
             <div className="text-empty-body p-8 text-center">
               No audit logs recorded yet.
@@ -1342,8 +1369,24 @@ export default function EmployeeManagement() {
 
             {/* Quick Metrics Summary inside Modal */}
             {userActivityDetailsLoading ? (
-              <div className="flex justify-center py-10">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
+              <div className="space-y-4 py-2">
+                <div className="grid gap-3 sm:grid-cols-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="p-3 rounded-xl border border-slate-200/80 bg-white space-y-2">
+                      <Skeleton variant="text" width="60%" height={12} />
+                      <Skeleton variant="rounded" width="40%" height={24} />
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2 pt-2">
+                  <Skeleton variant="text" width="30%" height={14} />
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="p-3 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between">
+                      <Skeleton variant="text" width="50%" height={14} />
+                      <Skeleton variant="badge" width={70} height={20} />
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : userActivityDetails ? (
               <div className="space-y-5">
@@ -1520,9 +1563,7 @@ export default function EmployeeManagement() {
             </div>
 
             {liveStreamLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
-              </div>
+              <SkeletonActivityFeed items={5} />
             ) : liveStream.length === 0 ? (
               <div className="p-12 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
                 No live activity logs recorded yet.
