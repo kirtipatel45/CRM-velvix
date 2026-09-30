@@ -1515,8 +1515,8 @@ export default function AssignedLeads() {
             </button>
             <button
               type="submit"
-              disabled={convertLoading}
-              className="btn-primary inline-flex items-center gap-2"
+              disabled={convertLoading || !convertForm.assignedTo}
+              className={`btn-primary inline-flex items-center gap-2 ${!convertForm.assignedTo ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {convertLoading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
