@@ -1,6 +1,6 @@
 import { memo, useEffect } from 'react';
 
-function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
+function Modal({ isOpen = true, onClose, title, children, size = 'md', zIndex = 50 }) {
   useEffect(() => {
     if (!isOpen) return;
 
@@ -26,7 +26,7 @@ function Modal({ isOpen = true, onClose, title, children, size = 'md' }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex }} role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <div
         className={`relative z-10 w-full ${sizes[size]} max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl`}

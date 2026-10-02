@@ -522,11 +522,13 @@ export default function EmployeeManagement() {
       status: user.status || 'Active',
     });
     setFormError('');
+    setShowProfileModal(false);
     setShowEditModal(true);
   };
 
   const openDeleteModal = (user) => {
     setUserToDelete(user);
+    setShowProfileModal(false);
     setShowDeleteModal(true);
   };
 
@@ -534,6 +536,7 @@ export default function EmployeeManagement() {
     setSelectedUser(user);
     setResetPasswordData({ newPassword: '', confirmPassword: '' });
     setFormError('');
+    setShowProfileModal(false);
     setShowResetModal(true);
   };
 
@@ -1800,7 +1803,7 @@ export default function EmployeeManagement() {
 
       {/* Edit Employee Modal */}
       {showEditModal && (
-        <Modal isOpen={showEditModal} title="Edit Employee & Permissions" onClose={() => setShowEditModal(false)} size="lg">
+        <Modal isOpen={showEditModal} title="Edit Employee & Permissions" onClose={() => setShowEditModal(false)} size="lg" zIndex={60}>
           {formError && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {formError}
@@ -1982,7 +1985,7 @@ export default function EmployeeManagement() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && userToDelete && (
-        <Modal isOpen={showDeleteModal} title="Confirm Employee Deletion" onClose={() => setShowDeleteModal(false)} size="md">
+        <Modal isOpen={showDeleteModal} title="Confirm Employee Deletion" onClose={() => setShowDeleteModal(false)} size="md" zIndex={60}>
           <div className="space-y-4">
             <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-red-800">
               <AlertTriangle size={20} className="text-red-600 shrink-0 mt-0.5" />
@@ -2026,7 +2029,7 @@ export default function EmployeeManagement() {
 
       {/* Reset Password Modal */}
       {showResetModal && selectedUser && (
-        <Modal isOpen={showResetModal} title={`Reset Password for ${selectedUser.name}`} onClose={() => setShowResetModal(false)}>
+        <Modal isOpen={showResetModal} title={`Reset Password for ${selectedUser.name}`} onClose={() => setShowResetModal(false)} zIndex={60}>
           {formError && (
             <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100" role="alert">
               {formError}

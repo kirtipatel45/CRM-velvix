@@ -50,15 +50,15 @@ export default function CandidateLogin() {
     <main className="flex min-h-screen relative overflow-hidden font-sans">
       {/* Full-screen Light Background Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/login-bg.jpg" 
-          alt="" 
+        <img
+          src="/login-bg.jpg"
+          alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
 
       <div className="relative z-10 flex w-full max-w-5xl mx-auto flex-col lg:flex-row min-h-screen items-center justify-between lg:gap-12">
-        
+
         {/* Left side - Marketing Copy */}
         <div className="flex-1 flex flex-col justify-center p-8 lg:py-16 lg:pr-8 h-full">
           <div className="mb-12 lg:mb-auto lg:mt-8">
@@ -67,7 +67,7 @@ export default function CandidateLogin() {
 
           <div className="mt-auto mb-16 lg:mb-32 max-w-xl">
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-800 leading-[1.1] mb-6">
-              Your gateway to <br/>
+              Your gateway to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">career opportunities.</span>
             </h2>
             <p className="text-slate-600 text-lg leading-relaxed font-medium">
@@ -81,7 +81,7 @@ export default function CandidateLogin() {
           <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/80 rounded-2xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] relative overflow-hidden">
             {/* Top glare edge */}
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white to-transparent"></div>
-            
+
             <div className="mb-8 text-center lg:text-left">
               <h2 className="text-2xl font-bold text-slate-900 mb-1.5">Candidate Sign In</h2>
               <p className="text-slate-500 font-medium text-sm">Sign in to manage your talent profile and applications.</p>
@@ -127,9 +127,9 @@ export default function CandidateLogin() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="mt-4 flex w-full items-center justify-center rounded-lg bg-brand-600 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/25 hover:bg-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/25 active:scale-[0.99] transition-all disabled:opacity-70 disabled:cursor-not-allowed" 
+              <button
+                type="submit"
+                className="mt-4 flex w-full items-center justify-center rounded-lg bg-brand-600 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/25 hover:bg-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/25 active:scale-[0.99] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? "Signing in..." : "Sign In"}
