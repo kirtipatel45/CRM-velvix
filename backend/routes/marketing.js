@@ -151,7 +151,11 @@ router.get('/assigned-candidates', protect, async (req, res) => {
     const candidates = await Candidate.find(query)
       .populate('assignedTo', 'name email role mobileNumber')
       .populate('convertedBy', 'name email role')
-      .populate('sourceLeadId', 'date employeeName leadSource submissionType status linkedInProfiles entryDate')
+      .populate({
+        path: 'sourceLeadId',
+        select: 'date employeeName leadSource submissionType status linkedInProfiles entryDate createdBy',
+        populate: { path: 'createdBy', select: 'name email role' },
+      })
       .sort({ createdAt: -1 })
       .lean();
 
