@@ -5,6 +5,7 @@ import { useCandidateAuth } from "../../context/CandidateAuthContext";
 import { KeyRound, ShieldCheck, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { isValidEmail, EMAIL_ERROR_MSG } from "../../utils/validation";
+import BenchTrixLogo from "../../components/BenchTrixLogo";
 
 export default function CandidateFirstLogin() {
   const [searchParams] = useSearchParams();
@@ -66,35 +67,31 @@ export default function CandidateFirstLogin() {
   return (
     <main className="flex min-h-screen bg-white">
       {/* Left side - Branding */}
-      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/95 via-brand-900/80 to-brand-900/50" />
+      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden bg-navy-950">
         <div className="relative z-10 mx-auto max-w-lg">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-brand-100 border border-white/15 mb-6 backdrop-blur-sm">
-            <KeyRound size={14} className="text-brand-300" />
+          <div className="mb-6">
+            <BenchTrixLogo variant="white" size="text-5xl" subtitle="Candidate Portal" />
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100 border border-white/15 mb-6">
+            <KeyRound size={14} className="text-blue-300" />
             <span>Portal Activation</span>
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight">Activate Your Talent Portal</h1>
-          <p className="text-lg leading-relaxed text-brand-100">
+          <h1 className="mb-6 text-4xl sm:text-5xl font-semibold tracking-tight text-white leading-tight">Activate Your Talent Portal</h1>
+          <p className="text-lg leading-relaxed text-slate-300 font-normal">
             Welcome to BenchTrix. Verify your account with the temporary credentials sent to your email to configure your permanent password.
           </p>
         </div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/2 bg-slate-50/50">
-        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2 bg-[#F7F8FA]">
+        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl border border-[#E5E7EB] shadow-xs">
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3 lg:hidden">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
-                <KeyRound size={18} />
-              </div>
-              <span className="font-logo text-xl tracking-normal text-slate-900">
-                Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span> Portal
-              </span>
+            <div className="lg:hidden mb-4">
+              <BenchTrixLogo variant="default" size="text-2xl" subtitle="Candidate Portal" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Account Activation</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <h2 className="text-2xl font-semibold text-[#111827]">Account Activation</h2>
+            <p className="mt-1.5 text-sm text-[#667085] font-normal">
               Enter the temporary password sent to your email.
             </p>
           </div>

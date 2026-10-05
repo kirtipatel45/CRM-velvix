@@ -20,35 +20,43 @@ function TargetNotMetModal({ isOpen, onClose, message }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Attention Required</h2>
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
+      <div className="relative z-10 w-full max-w-md rounded-xl bg-white border border-[#E5E7EB] p-6 shadow-lg">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FEF3F2] border border-[#FECDCA] text-[#F04438]">
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-[#111827]">Target Notice</h2>
+              <p className="text-xs text-[#667085]">Daily activity requirements</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            aria-label="Close attention required modal"
+            className="rounded-lg p-1 text-[#667085] hover:bg-[#F2F4F7] hover:text-[#111827] transition"
+            aria-label="Close modal"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
-        <div className="mx-auto mb-6 mt-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
-          <AlertTriangle className="h-10 w-10 text-red-500" strokeWidth={1.5} />
+
+        <div className="mt-4 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] p-3.5 text-xs text-[#344054] leading-relaxed">
+          {message || "Daily activity target quota has not been met for today. Please review and fulfill your assigned quotas."}
         </div>
-        <h2 className="mb-3 text-xl font-bold text-slate-900">Targets Not Met</h2>
-        <p className="mb-8 text-slate-500">
-          {message || "You have not fulfilled your daily targets for today."}
-        </p>
-        <button
-          onClick={onClose}
-          className="w-full rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700"
-        >
-          I understand
-        </button>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn-primary text-xs h-9 px-4 w-full sm:w-auto"
+          >
+            Acknowledge
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
 export default memo(TargetNotMetModal);
-

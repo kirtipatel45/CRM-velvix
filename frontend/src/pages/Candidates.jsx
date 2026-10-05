@@ -25,13 +25,14 @@ import {
   Briefcase,
   AlertCircle,
   UploadCloud,
-  Sparkles,
   Trash2,
 } from "lucide-react";
 import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
 import { toast } from "react-hot-toast";
 import { SkeletonTable } from "../components/skeleton";
+import Badge from "../components/ui/Badge";
+import EmptyState from "../components/ui/EmptyState";
 
 export default function Candidates() {
   const { user } = useAuth();
@@ -118,61 +119,51 @@ export default function Candidates() {
 
   const handleDownloadResume = async (candidate) => {
     if (!candidate?.resume?.filename && !candidate?.resume?.path) {
-      toast.error("No resume uploaded by this candidate yet.");
+      toast.error("Candidate has not uploaded a raw resume yet.");
       return;
     }
 
     setDownloadingId(candidate._id);
     try {
       const res = await marketingAPI.downloadCandidateResume(candidate._id);
-      const blob = new Blob([res.data], {
-        type: res.headers["content-type"] || "application/pdf",
-      });
+      const blob = new Blob([res.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute(
-        "download",
-        candidate.resume?.originalName || `${candidate.firstName}_Resume.pdf`
-      );
+      link.setAttribute("download", candidate.resume.originalName || `${candidate.firstName}_${candidate.lastName}_Resume.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Failed to download resume:", err);
-      toast.error(err.response?.data?.message || "Failed to download resume");
+      console.error("Failed to download candidate resume:", err);
+      toast.error("Failed to download resume document");
     } finally {
       setDownloadingId(null);
     }
   };
 
   const handleDownloadAtsResume = async (candidate) => {
-    if (!candidate?.atsResume?.filename && !candidate?.atsResume?.path) {
-      toast.error("No ATS-friendly resume uploaded for this candidate yet.");
+    if (!candidate?.atsResume?.filename) {
+      toast.error("Recruiter has not uploaded an ATS-friendly resume for this candidate yet.");
       return;
     }
 
     setDownloadingAtsId(candidate._id);
     try {
       const res = await marketingAPI.downloadCandidateAtsResume(candidate._id);
-      const blob = new Blob([res.data], {
-        type: res.headers["content-type"] || "application/pdf",
-      });
+      const blob = new Blob([res.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute(
-        "download",
-        candidate.atsResume?.originalName || `${candidate.firstName}_ATS_Resume.pdf`
-      );
+      link.setAttribute("download", candidate.atsResume.originalName || `${candidate.firstName}_${candidate.lastName}_ATS_Resume.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to download ATS resume:", err);
-      toast.error(err.response?.data?.message || "Failed to download ATS resume");
+      toast.error("Failed to download ATS resume document");
     } finally {
       setDownloadingAtsId(null);
     }
@@ -181,15 +172,10 @@ export default function Candidates() {
   const handleUploadAtsResume = async (candidateId, file) => {
     if (!file) return;
 
-    const allowedExtensions = [".pdf", ".doc", ".docx"];
+    const allowed = [".pdf", ".doc", ".docx"];
     const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
-    if (!allowedExtensions.includes(ext)) {
-      toast.error("Invalid file type. Please upload a PDF, DOC, or DOCX document.");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File is too large. Maximum size is 10 MB.");
+    if (!allowed.includes(ext)) {
+      toast.error("Only PDF, DOC, and DOCX files are permitted for ATS resumes.");
       return;
     }
 
@@ -199,7 +185,7 @@ export default function Candidates() {
       formData.append("atsResume", file);
 
       const res = await marketingAPI.uploadCandidateAtsResume(candidateId, formData);
-      toast.success(res.data.message || "ATS-friendly resume uploaded successfully!");
+      toast.success(res.data.message || "ATS resume uploaded successfully!");
 
       const updatedAtsResume = res.data.atsResume;
       setCandidates((prev) =>
@@ -276,15 +262,14 @@ export default function Candidates() {
   const onboardedCount = candidates.filter((c) => c.isOnboarded).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-5">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <UserCheck className="text-brand-600 shrink-0" size={26} />
-            <h1 className="text-page-title text-slate-800">Assigned Candidates</h1>
-            <span className="text-badge rounded-full bg-brand-50 px-3 py-0.5 text-brand-700 border border-brand-200">
-              {candidates.length} {candidates.length === 1 ? "Candidate" : "Candidates"}
+            <h1 className="text-page-title text-[#111827]">Candidates</h1>
+            <span className="text-xs font-semibold text-[#667085] bg-[#F9FAFB] border border-[#E5E7EB] px-2.5 py-0.5 rounded-full">
+              {candidates.length} total
             </span>
           </div>
           <p className="text-page-subtitle mt-0.5">
@@ -292,261 +277,243 @@ export default function Candidates() {
           </p>
         </div>
 
-        {/* Quick Stats Chips */}
+        {/* Operational Indicators */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="text-badge flex items-center gap-1.5 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-emerald-700 shadow-xs">
-            <CheckCircle2 size={14} />
-            <span>{onboardedCount} Onboarded</span>
-          </div>
-          <div className="text-badge flex items-center gap-1.5 rounded-lg bg-blue-50 border border-blue-200 px-3 py-1.5 text-blue-700 shadow-xs">
-            <ShieldCheck size={14} />
-            <span>{activeCount} Active Portals</span>
-          </div>
+          <Badge variant="success" size="md">
+            {onboardedCount} Onboarded
+          </Badge>
+          <Badge variant="info" size="md">
+            {activeCount} Active Portals
+          </Badge>
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="card shadow-sm border border-slate-200 p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              id="candidate-search"
-              className="input-field pl-9 text-body"
-              placeholder="Search by name, email, city living in, preferred cities, visa, skills..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search candidates"
-            />
-          </div>
+      {/* Toolbar / Filters */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]"
+          />
+          <input
+            id="candidate-search"
+            className="input-field pl-9 text-xs"
+            placeholder="Search by name, email, living city, preferred cities, visa, skills..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search candidates"
+          />
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="w-40">
-              <select
-                id="candidate-status-filter"
-                className="input-field text-body py-2"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                aria-label="Filter by status"
-              >
-                <option value="all">All Statuses</option>
-                <option value="onboarded">Onboarded</option>
-                <option value="pending_onboarding">Pending Onboarding</option>
-                <option value="active">Active Portal</option>
-                <option value="invited">Pending Invite</option>
-              </select>
-            </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            id="candidate-status-filter"
+            className="input-field text-xs h-9 w-40"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            aria-label="Filter by status"
+          >
+            <option value="all">All Statuses</option>
+            <option value="onboarded">Onboarded</option>
+            <option value="pending_onboarding">Pending Onboarding</option>
+            <option value="active">Active Portal</option>
+            <option value="invited">Pending Invite</option>
+          </select>
 
-            <div className="w-52">
-              <select
-                id="candidate-visa-filter"
-                className="input-field text-body py-2"
-                value={filterVisa}
-                onChange={(e) => setFilterVisa(e.target.value)}
-                aria-label="Filter by visa status"
-              >
-                <option value="all">All Visa Types</option>
-                <optgroup label="F-1 Student Visa">
-                  <option value="On-Campus Employment">On-Campus Employment</option>
-                  <option value="Curricular Practical Training (CPT)">CPT</option>
-                  <option value="Pre-Completion Optional Practical Training (OPT)">Pre-Completion OPT</option>
-                  <option value="Post-Completion Optional Practical Training (OPT)">Post-Completion OPT</option>
-                  <option value="STEM OPT Extension">STEM OPT Extension</option>
-                  <option value="Severe Economic Hardship Authorization">Severe Economic Hardship</option>
-                </optgroup>
-                <optgroup label="H-1B Professional Visa">
-                  <option value="Cap-Subject H-1B">Cap-Subject H-1B</option>
-                  <option value="Cap-Exempt H-1B">Cap-Exempt H-1B</option>
-                  <option value="H-4 EAD (Spousal Employment Authorization)">H-4 EAD</option>
-                </optgroup>
-              </select>
-            </div>
-          </div>
+          <select
+            id="candidate-visa-filter"
+            className="input-field text-xs h-9 w-48"
+            value={filterVisa}
+            onChange={(e) => setFilterVisa(e.target.value)}
+            aria-label="Filter by visa status"
+          >
+            <option value="all">All Visa Types</option>
+            <optgroup label="F-1 Student Visa">
+              <option value="On-Campus Employment">On-Campus Employment</option>
+              <option value="Curricular Practical Training (CPT)">CPT</option>
+              <option value="Pre-Completion Optional Practical Training (OPT)">Pre-Completion OPT</option>
+              <option value="Post-Completion Optional Practical Training (OPT)">Post-Completion OPT</option>
+              <option value="STEM OPT Extension">STEM OPT Extension</option>
+              <option value="Severe Economic Hardship Authorization">Severe Economic Hardship</option>
+            </optgroup>
+            <optgroup label="H-1B Professional Visa">
+              <option value="Cap-Subject H-1B">Cap-Subject H-1B</option>
+              <option value="Cap-Exempt H-1B">Cap-Exempt H-1B</option>
+              <option value="H-4 EAD (Spousal Employment Authorization)">H-4 EAD</option>
+            </optgroup>
+          </select>
         </div>
       </div>
 
       {/* Candidates List Table */}
-      <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
+      <div className="card p-0 overflow-hidden">
         {loading ? (
-          <SkeletonTable
-            rows={7}
-            cardWrapper={false}
-            columns={[
-              { width: '25%', type: 'avatar-text' },
-              { width: '15%', type: 'badge' },
-              { width: '22%', type: 'text', twoLines: true },
-              { width: '15%', type: 'text' },
-              { width: '12%', type: 'badge' },
-              { width: '11%', type: 'actions' },
-            ]}
-          />
+          <div className="p-6">
+            <SkeletonTable
+              rows={7}
+              cardWrapper={false}
+              columns={[
+                { width: '25%', type: 'avatar-text' },
+                { width: '15%', type: 'badge' },
+                { width: '22%', type: 'text', twoLines: true },
+                { width: '15%', type: 'text' },
+                { width: '12%', type: 'badge' },
+                { width: '11%', type: 'actions' },
+              ]}
+            />
+          </div>
         ) : filteredCandidates.length === 0 ? (
-          <div className="py-16 text-center px-4">
-            <Users size={44} className="mx-auto text-slate-300 mb-2" />
-            <h3 className="text-empty-heading text-slate-700">No candidates found</h3>
-            <p className="text-empty-body mt-1 max-w-md mx-auto">
-              When sales employees convert leads into candidates and assign them to you, they will appear here along with their onboarding profile, living city, job city preferences, visa, and resume.
-            </p>
+          <div className="p-8">
+            <EmptyState
+              icon={Users}
+              title="No candidates found"
+              description="When sales employees convert leads into candidates and assign them to you, they will appear here along with their profile, preferences, visa, and resume."
+            />
           </div>
         ) : (
-          <table className="w-full text-body">
-            <thead className="border-b border-slate-200 bg-slate-50/80">
-              <tr>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
-                  Candidate & Location
-                </th>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
-                  Visa Status
-                </th>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
-                  Job Experience & Titles
-                </th>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
-                  Job City Preferences
-                </th>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-left">
-                  Onboarding
-                </th>
-                <th scope="col" className="text-table-header px-5 py-3.5 text-right w-24">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {filteredCandidates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((c) => {
-                return (
-                  <tr
-                    key={c._id}
-                    onClick={() => openCandidateDetails(c)}
-                    className="group cursor-pointer hover:bg-brand-50/30 transition-all duration-150"
-                  >
-                    {/* Candidate Name & Current City */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold text-xs uppercase shadow-xs group-hover:bg-brand-600 group-hover:text-white transition-colors duration-150 flex-shrink-0">
-                          {c.firstName?.[0] || "C"}
-                          {c.lastName?.[0] || ""}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-body text-slate-800 group-hover:text-brand-600 transition-colors">
-                            {c.firstName} {c.lastName}
-                          </p>
-                          <div className="flex items-center gap-1.5 text-meta mt-0.5">
-                            <Mail size={12} className="text-slate-400 flex-shrink-0" />
-                            <span className="truncate max-w-[160px]">{c.email}</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                <tr>
+                  <th scope="col" className="text-table-header px-4 py-3">
+                    Candidate & Location
+                  </th>
+                  <th scope="col" className="text-table-header px-4 py-3">
+                    Visa Status
+                  </th>
+                  <th scope="col" className="text-table-header px-4 py-3">
+                    Job Experience & Roles
+                  </th>
+                  <th scope="col" className="text-table-header px-4 py-3">
+                    Target Cities
+                  </th>
+                  <th scope="col" className="text-table-header px-4 py-3">
+                    Onboarding
+                  </th>
+                  <th scope="col" className="text-table-header px-4 py-3 text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E5E7EB]">
+                {filteredCandidates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((c) => {
+                  return (
+                    <tr
+                      key={c._id}
+                      onClick={() => openCandidateDetails(c)}
+                      className="group cursor-pointer hover:bg-[#F9FAFB] transition-colors"
+                    >
+                      {/* Candidate Name & Current City */}
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFF6FF] border border-[#B2DDFF] text-[#175CD3] font-semibold text-xs shrink-0">
+                            {c.firstName?.[0] || "C"}
+                            {c.lastName?.[0] || ""}
                           </div>
-                          {c.currentCity && (
-                            <div className="flex items-center gap-1 text-meta text-brand-700 font-medium mt-0.5">
-                              <MapPin size={11} className="text-brand-500" />
-                              <span>Living in: {c.currentCity}</span>
-                            </div>
-                          )}
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[#111827] group-hover:text-[#2563EB] transition-colors">
+                              {c.firstName} {c.lastName}
+                            </p>
+                            <p className="text-[11px] text-[#667085] truncate max-w-[180px]">
+                              {c.email}
+                            </p>
+                            {c.currentCity && (
+                              <p className="text-[11px] text-[#667085] flex items-center gap-1 mt-0.5">
+                                <MapPin size={10} className="text-[#98A2B3]" />
+                                <span>{c.currentCity}</span>
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Visa Status */}
-                    <td className="px-5 py-4">
-                      {c.visaStatus ? (
-                        <span className="text-body font-semibold text-indigo-700">
-                          {c.visaStatus}
-                        </span>
-                      ) : (
-                        <span className="text-meta italic">Visa not set</span>
-                      )}
-                    </td>
+                      {/* Visa Status */}
+                      <td className="px-4 py-3.5 text-[#344054] font-medium">
+                        {c.visaStatus || <span className="text-[#98A2B3] italic">Not set</span>}
+                      </td>
 
-                    {/* Job Experience & Titles */}
-                    <td className="px-5 py-4">
-                      {c.jobExperiences && c.jobExperiences.length > 0 ? (
-                        <div className="space-y-0.5 max-w-[240px]">
-                          {c.jobExperiences.slice(0, 2).map((exp, eIdx) => (
-                            <div key={eIdx} className="text-body">
-                              <span className="font-semibold text-slate-800">{exp.jobTitle || "Role"}</span>
-                              {exp.experience && (
-                                <span className="font-medium text-brand-700 ml-1">
-                                  ({exp.experience})
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                          {c.jobExperiences.length > 2 && (
-                            <span className="text-meta font-semibold text-brand-600 block">
-                              +{c.jobExperiences.length - 2} more roles
-                            </span>
-                          )}
-                        </div>
-                      ) : c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
-                        <div className="text-body font-medium text-indigo-800 max-w-[220px]">
-                          {c.preferredJobTitles.slice(0, 2).join(', ')}
-                          {c.preferredJobTitles.length > 2 && (
-                            <span className="text-meta font-semibold text-indigo-600 ml-1">
-                              +{c.preferredJobTitles.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-meta italic">None specified</span>
-                      )}
-                    </td>
-
-                    {/* Job City Preferences */}
-                    <td className="px-5 py-4">
-                      {c.preferredJobCities && c.preferredJobCities.length > 0 ? (
-                        <div className="text-body font-medium text-slate-700 max-w-[220px]">
-                          {c.preferredJobCities.slice(0, 2).join(', ')}
-                          {c.preferredJobCities.length > 2 && (
-                            <span className="text-meta font-semibold text-brand-600 ml-1">
-                              +{c.preferredJobCities.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-meta italic">None selected</span>
-                      )}
-                    </td>
-
-                    {/* Onboarding Status */}
-                    <td className="px-5 py-4">
-                      {c.isOnboarded ? (
-                        <span className="text-badge inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Onboarded
-                        </span>
-                      ) : (
-                        <span className="text-badge inline-flex items-center px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                          Pending
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Row Actions */}
-                    <td className="px-5 py-4 text-right whitespace-nowrap">
-                      <div className="inline-flex items-center justify-end gap-1.5">
-                        {user?.role === 'admin' && (
-                          <button
-                            type="button"
-                            onClick={(e) => handleDeleteCandidate(c._id, e)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                            title="Delete Candidate"
-                            aria-label={`Delete candidate ${c.firstName} ${c.lastName}`}
-                          >
-                            <Trash2 size={15} />
-                          </button>
+                      {/* Job Experience & Titles */}
+                      <td className="px-4 py-3.5">
+                        {c.jobExperiences && c.jobExperiences.length > 0 ? (
+                          <div className="space-y-0.5 max-w-[220px]">
+                            {c.jobExperiences.slice(0, 2).map((exp, eIdx) => (
+                              <div key={eIdx} className="text-[#111827]">
+                                <span className="font-medium">{exp.jobTitle || "Role"}</span>
+                                {exp.experience && (
+                                  <span className="text-[#667085] text-[11px] ml-1">
+                                    ({exp.experience})
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                            {c.jobExperiences.length > 2 && (
+                              <span className="text-[11px] text-[#2563EB] font-medium block">
+                                +{c.jobExperiences.length - 2} more roles
+                              </span>
+                            )}
+                          </div>
+                        ) : c.preferredJobTitles && c.preferredJobTitles.length > 0 ? (
+                          <div className="text-[#344054] font-medium max-w-[220px]">
+                            {c.preferredJobTitles.slice(0, 2).join(', ')}
+                            {c.preferredJobTitles.length > 2 && (
+                              <span className="text-[#2563EB] text-[11px] ml-1 font-medium">
+                                +{c.preferredJobTitles.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[#98A2B3] italic">None specified</span>
                         )}
-                        <span className="text-button inline-flex items-center gap-1 text-indigo-600 opacity-0 -translate-x-2 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:translate-x-0 bg-indigo-50/90 border border-indigo-200/80 px-2.5 py-1 rounded-lg shadow-xs">
-                          <span>Open</span>
-                          <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+
+                      {/* Job City Preferences */}
+                      <td className="px-4 py-3.5 text-[#667085]">
+                        {c.preferredJobCities && c.preferredJobCities.length > 0 ? (
+                          <div className="max-w-[200px] truncate" title={c.preferredJobCities.join(', ')}>
+                            {c.preferredJobCities.slice(0, 2).join(', ')}
+                            {c.preferredJobCities.length > 2 && (
+                              <span className="text-[#2563EB] text-[11px] ml-1">
+                                +{c.preferredJobCities.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[#98A2B3] italic">None selected</span>
+                        )}
+                      </td>
+
+                      {/* Onboarding Status */}
+                      <td className="px-4 py-3.5">
+                        <Badge variant={c.isOnboarded ? "success" : "warning"} size="sm" dot>
+                          {c.isOnboarded ? "Onboarded" : "Pending"}
+                        </Badge>
+                      </td>
+
+                      {/* Row Actions */}
+                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center justify-end gap-2">
+                          {user?.role === 'admin' && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteCandidate(c._id, e)}
+                              className="p-1 text-[#98A2B3] hover:text-[#F04438] rounded transition"
+                              title="Delete Candidate"
+                              aria-label={`Delete candidate ${c.firstName} ${c.lastName}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
+                          <span className="text-xs font-medium text-[#2563EB] group-hover:underline inline-flex items-center gap-0.5">
+                            View <ArrowRight size={12} />
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
         {!loading && filteredCandidates.length > 0 && (
           <Pagination
@@ -562,248 +529,178 @@ export default function Candidates() {
       <Modal
         isOpen={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
-        title="Candidate Profile & Onboarding Details"
+        title="Candidate Profile"
+        subtitle="Complete candidate record, onboarding details, and resumes"
         size="lg"
       >
         {selectedCandidate && (
           <div className="space-y-6">
-            {/* Avatar & Main Info Header */}
-            <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 shadow-2xs">
-              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold text-base sm:text-lg uppercase border border-brand-200 shadow-2xs flex-shrink-0">
-                {selectedCandidate.firstName?.[0] || "C"}
-                {selectedCandidate.lastName?.[0] || ""}
+            {/* Header info */}
+            <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#EFF6FF] border border-[#B2DDFF] text-[#175CD3] font-semibold text-sm shrink-0">
+                  {selectedCandidate.firstName?.[0] || "C"}
+                  {selectedCandidate.lastName?.[0] || ""}
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#111827]">
+                    {selectedCandidate.firstName} {selectedCandidate.lastName}
+                  </h3>
+                  <p className="text-xs text-[#667085] flex items-center gap-2 mt-0.5">
+                    <span>{selectedCandidate.email}</span>
+                    {selectedCandidate.phone && <span>· {selectedCandidate.phone}</span>}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-800 truncate mb-0.5">
-                  {selectedCandidate.firstName} {selectedCandidate.lastName}
-                </h3>
-                <p className="text-xs text-slate-500 truncate flex items-center gap-2">
-                  <span>{selectedCandidate.email}</span>
-                  {selectedCandidate.phone && <span>• {selectedCandidate.phone}</span>}
+              <div className="flex items-center gap-2">
+                <Badge variant={selectedCandidate.isOnboarded ? "success" : "warning"} size="sm" dot>
+                  {selectedCandidate.isOnboarded ? "Onboarded" : "Pending"}
+                </Badge>
+                <Badge variant={selectedCandidate.accountStatus === "active" ? "info" : "neutral"} size="sm">
+                  {selectedCandidate.accountStatus === "active" ? "Portal Active" : "Invite Sent"}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Core Details Grid */}
+            <div className="grid gap-4 sm:grid-cols-2 text-xs">
+              <div className="p-3.5 rounded-lg border border-[#E5E7EB] bg-white space-y-1">
+                <span className="text-[#667085] font-medium block">Current Living City</span>
+                <p className="font-semibold text-[#111827] text-sm">
+                  {selectedCandidate.currentCity || "Not specified"}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                <span
-                  className={`text-xs font-bold ${
-                    selectedCandidate.isOnboarded
-                      ? "text-emerald-600"
-                      : "text-amber-600"
-                  }`}
-                >
-                  {selectedCandidate.isOnboarded ? "Onboarded" : "Pending Onboarding"}
-                </span>
-                <span className="text-[11px] font-medium text-slate-400">
-                  {selectedCandidate.accountStatus === "active" ? "Portal Active" : "Invite Sent"}
-                </span>
+
+              <div className="p-3.5 rounded-lg border border-[#E5E7EB] bg-white space-y-1">
+                <span className="text-[#667085] font-medium block">Visa Work Authorization</span>
+                <p className="font-semibold text-[#111827] text-sm">
+                  {selectedCandidate.visaStatus || "Not specified"}
+                </p>
               </div>
             </div>
 
-            {/* Candidate Onboarding & Preferences Section */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-2xs">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2.5">
-                <Award size={16} className="text-brand-600" />
-                <span>Candidate Onboarding & Preferences</span>
+            {/* Experiences */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold text-[#111827] uppercase tracking-wide">
+                Work Experiences
               </h4>
-
-              <div className="grid gap-4 sm:grid-cols-2 text-xs">
-                {/* Current Living City */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-slate-400 font-medium block">City Living In</span>
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
-                    <MapPin size={15} className="text-red-500 flex-shrink-0" />
-                    <span>{selectedCandidate.currentCity || "Not specified"}</span>
-                  </div>
-                </div>
-
-                {/* Visa Status */}
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-slate-400 font-medium block">Visa Work Authorization</span>
-                  <div className="flex items-center gap-1.5 font-bold text-indigo-700 text-sm">
-                    <Award size={15} className="text-indigo-500 flex-shrink-0" />
-                    <span>{selectedCandidate.visaStatus || "Not specified"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Work & Job Experiences List */}
-              <div className="space-y-2 pt-1">
-                <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Briefcase size={14} className="text-brand-600" />
-                  <span>Work & Job Experiences (Candidate Background):</span>
-                </span>
-                {selectedCandidate.jobExperiences && selectedCandidate.jobExperiences.length > 0 ? (
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {selectedCandidate.jobExperiences.map((exp, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/80 shadow-2xs"
-                      >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700 font-bold text-xs flex-shrink-0 mt-0.5">
-                          <Briefcase size={14} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-bold text-slate-900 text-xs truncate">
-                            {exp.jobTitle || "Role / Position"}
-                          </p>
-                          <div className="flex items-center gap-1 text-[11px] font-semibold text-brand-700 mt-0.5">
-                            <Clock size={11} className="text-brand-500" />
-                            <span>Experience: {exp.experience || "Not specified"}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400 italic">
-                    Candidate has not entered specific work experiences yet.
-                  </div>
-                )}
-              </div>
-
-              {/* Preferred Job Titles Pills */}
-              <div className="space-y-1.5 pt-1">
-                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                  <Award size={14} className="text-indigo-600" />
-                  <span>Target Job Title(s) / Preferred Roles:</span>
-                </span>
-                <div className="flex flex-wrap gap-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100 min-h-[44px]">
-                  {selectedCandidate.preferredJobTitles &&
-                  selectedCandidate.preferredJobTitles.length > 0 ? (
-                    selectedCandidate.preferredJobTitles.map((title) => (
-                      <span
-                        key={title}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-800 px-3 py-1 text-xs font-semibold shadow-2xs"
-                      >
-                        <Briefcase size={12} className="text-indigo-600" />
-                        <span>{title}</span>
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-400 italic">
-                      Candidate has not entered any target job titles yet.
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Preferred Job Cities Pills */}
-              <div className="space-y-1.5 pt-1">
-                <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                  <Compass size={14} className="text-brand-600" />
-                  <span>Preferred Job Locations / Cities (Target Markets):</span>
-                </span>
-                <div className="flex flex-wrap gap-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100 min-h-[44px]">
-                  {selectedCandidate.preferredJobCities &&
-                  selectedCandidate.preferredJobCities.length > 0 ? (
-                    selectedCandidate.preferredJobCities.map((city) => (
-                      <span
-                        key={city}
-                        className="inline-flex items-center gap-1 rounded-lg bg-brand-50 border border-brand-200 text-brand-800 px-3 py-1 text-xs font-semibold shadow-2xs"
-                      >
-                        <Compass size={12} className="text-brand-600" />
-                        <span>{city}</span>
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-400 italic">
-                      Candidate has not selected any job location preferences yet.
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Resume Section: Original & ATS-Friendly */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* Original Candidate Resume Card */}
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4 space-y-3 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 flex-shrink-0">
-                      <FileText size={20} />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-slate-800">Original Resume</h4>
-                      <p className="text-[11px] text-slate-500 truncate" title={selectedCandidate.resume?.originalName || ""}>
-                        {selectedCandidate.resume?.originalName ||
-                          (selectedCandidate.resume?.filename
-                            ? "Candidate document uploaded"
-                            : "No resume document on file")}
+              {selectedCandidate.jobExperiences && selectedCandidate.jobExperiences.length > 0 ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {selectedCandidate.jobExperiences.map((exp, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-lg border border-[#E5E7EB] bg-white text-xs"
+                    >
+                      <p className="font-semibold text-[#111827] truncate">
+                        {exp.jobTitle || "Role / Position"}
+                      </p>
+                      <p className="text-[11px] text-[#667085] mt-0.5">
+                        Experience: {exp.experience || "Not specified"}
                       </p>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-[#667085] italic">No prior experience listed.</p>
+              )}
+            </div>
+
+            {/* Target Titles & Cities */}
+            <div className="grid gap-4 sm:grid-cols-2 text-xs">
+              <div className="p-3.5 rounded-lg border border-[#E5E7EB] bg-white space-y-2">
+                <span className="text-[#667085] font-medium block">Target Job Titles</span>
+                <div className="flex flex-wrap gap-1">
+                  {selectedCandidate.preferredJobTitles && selectedCandidate.preferredJobTitles.length > 0 ? (
+                    selectedCandidate.preferredJobTitles.map((t) => (
+                      <span key={t} className="px-2 py-0.5 rounded bg-[#F9FAFB] border border-[#E5E7EB] text-[#344054]">
+                        {t}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[#667085] italic">None specified</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-lg border border-[#E5E7EB] bg-white space-y-2">
+                <span className="text-[#667085] font-medium block">Preferred Cities</span>
+                <div className="flex flex-wrap gap-1">
+                  {selectedCandidate.preferredJobCities && selectedCandidate.preferredJobCities.length > 0 ? (
+                    selectedCandidate.preferredJobCities.map((city) => (
+                      <span key={city} className="px-2 py-0.5 rounded bg-[#F9FAFB] border border-[#E5E7EB] text-[#344054]">
+                        {city}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[#667085] italic">None specified</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Resume Documents Grid */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Original Resume */}
+              <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 flex flex-col justify-between space-y-3">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <FileText size={18} className="text-[#667085]" />
+                    <h4 className="text-xs font-semibold text-[#111827]">Original Resume</h4>
                   </div>
-                  <span className="text-[11px] text-slate-500 block">
-                    Uploaded by candidate during onboarding
-                  </span>
+                  <p className="text-[11px] text-[#667085] truncate">
+                    {selectedCandidate.resume?.originalName ||
+                      (selectedCandidate.resume?.filename
+                        ? "Candidate document on file"
+                        : "No resume uploaded")}
+                  </p>
                 </div>
 
-                <div className="pt-2 border-t border-emerald-100 flex items-center justify-between">
+                <div className="pt-2 border-t border-[#E5E7EB]">
                   {(selectedCandidate.resume?.filename || selectedCandidate.resume?.path) ? (
                     <button
                       type="button"
                       onClick={() => handleDownloadResume(selectedCandidate)}
                       disabled={downloadingId === selectedCandidate._id}
-                      className="btn-primary py-1.5 px-3 text-xs inline-flex items-center gap-1.5 shadow-xs w-full justify-center"
+                      className="btn-secondary text-xs h-8 w-full"
                     >
                       <Download size={13} />
-                      <span>
-                        {downloadingId === selectedCandidate._id
-                          ? "Downloading..."
-                          : "Download Original"}
-                      </span>
+                      <span>{downloadingId === selectedCandidate._id ? "Downloading..." : "Download Original"}</span>
                     </button>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100 text-amber-800 px-2.5 py-1 text-xs font-semibold w-full justify-center">
-                      <AlertCircle size={13} />
-                      <span>Pending Upload</span>
-                    </span>
+                    <span className="text-xs text-[#98A2B3] italic block text-center">Pending Upload</span>
                   )}
                 </div>
               </div>
 
-              {/* ATS-Friendly Formatted Resume Card */}
-              <div className="rounded-2xl border border-purple-100 bg-purple-50/40 p-4 space-y-3 flex flex-col justify-between">
+              {/* ATS Resume */}
+              <div className="rounded-lg border border-[#E5E7EB] bg-white p-4 flex flex-col justify-between space-y-3">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-700 flex-shrink-0">
-                      <Sparkles size={20} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="text-xs font-bold text-slate-800">ATS-Friendly Resume</h4>
-                        <span className="rounded-full bg-purple-200/60 px-1.5 py-0.2 text-[10px] font-bold text-purple-800">
-                          Recruiter Formatted
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 truncate" title={selectedCandidate.atsResume?.originalName || ""}>
-                        {selectedCandidate.atsResume?.originalName || "Not prepared yet"}
-                      </p>
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <FileCheck size={18} className="text-[#2563EB]" />
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-semibold text-[#111827]">ATS-Formatted Resume</h4>
+                      <Badge variant="info" size="sm">Recruiter</Badge>
                     </div>
                   </div>
-                  <span className="text-[11px] text-slate-500 block">
-                    {selectedCandidate.atsResume?.uploadedAt
-                      ? `Uploaded: ${new Date(selectedCandidate.atsResume.uploadedAt).toLocaleDateString()}`
-                      : "Visible to candidate once uploaded"}
-                  </span>
+                  <p className="text-[11px] text-[#667085] truncate">
+                    {selectedCandidate.atsResume?.originalName || "Not prepared yet"}
+                  </p>
                 </div>
 
-                <div className="pt-2 border-t border-purple-100 flex items-center gap-2">
+                <div className="pt-2 border-t border-[#E5E7EB] flex items-center gap-2">
                   {selectedCandidate.atsResume?.filename && (
                     <button
                       type="button"
                       onClick={() => handleDownloadAtsResume(selectedCandidate)}
                       disabled={downloadingAtsId === selectedCandidate._id}
-                      className="btn-primary bg-purple-600 hover:bg-purple-700 border-purple-600 py-1.5 px-3 text-xs inline-flex items-center justify-center gap-1.5 shadow-xs flex-1"
+                      className="btn-secondary text-xs h-8 flex-1"
                     >
                       <Download size={13} />
-                      <span>
-                        {downloadingAtsId === selectedCandidate._id ? "..." : "Download"}
-                      </span>
+                      <span>Download</span>
                     </button>
                   )}
 
-                  {/* Upload / Replace ATS Resume File Input Button */}
-                  <label className="btn-secondary py-1.5 px-3 text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer shadow-xs flex-1">
+                  <label className="btn-primary text-xs h-8 flex-1 cursor-pointer">
                     <UploadCloud size={13} />
                     <span>
                       {uploadingAtsId === selectedCandidate._id
@@ -906,14 +803,14 @@ export default function Candidates() {
             </div>
 
             {/* Footer Buttons */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-2 border-t border-[#E5E7EB]">
               {user?.role === 'admin' ? (
                 <button
                   type="button"
                   onClick={() => handleDeleteCandidate(selectedCandidate._id)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 hover:border-red-300 transition"
+                  className="btn-danger text-xs h-8 px-3"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                   <span>Delete Candidate</span>
                 </button>
               ) : (
@@ -922,7 +819,7 @@ export default function Candidates() {
               <button
                 type="button"
                 onClick={() => setDetailsModalOpen(false)}
-                className="btn-secondary"
+                className="btn-secondary text-xs h-8 px-4"
               >
                 Close
               </button>

@@ -72,8 +72,8 @@ const SYSTEM_MODULES = [
     shortLabel: 'Candidates',
     description: 'Onboarded candidates, portal credentials & ATS resumes',
     icon: UserCheck,
-    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    dotColor: 'bg-indigo-500',
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+    dotColor: 'bg-blue-600',
   },
   {
     id: 'marketing',
@@ -82,7 +82,7 @@ const SYSTEM_MODULES = [
     description: 'Client job submissions, screening calls & interview pipeline',
     icon: Megaphone,
     badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotColor: 'bg-emerald-500',
+    dotColor: 'bg-emerald-600',
   },
 ];
 
@@ -566,12 +566,12 @@ export default function EmployeeManagement() {
   }, [searchTerm, moduleFilter, statusFilter]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#E5E7EB] pb-5">
         <div>
-          <h1 className="text-page-title text-slate-900">Employee Management</h1>
-          <p className="text-page-subtitle">
+          <h1 className="text-page-title text-[#111827]">Employee Management</h1>
+          <p className="text-page-subtitle text-[#667085]">
             Create employee profiles, define designations, and configure granular module permissions.
           </p>
         </div>
@@ -591,13 +591,13 @@ export default function EmployeeManagement() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-200">
+      <div className="flex border-b border-[#E5E7EB] gap-2">
         <button
           onClick={() => setActiveTab('employees')}
           className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'employees'
-              ? 'border-brand-600 text-brand-600 font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
+              ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+              : 'border-transparent text-[#667085] hover:text-[#111827] font-medium'
           }`}
         >
           <Users size={18} />
@@ -607,8 +607,8 @@ export default function EmployeeManagement() {
           onClick={() => setActiveTab('user-activity')}
           className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'user-activity'
-              ? 'border-brand-600 text-brand-600 font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
+              ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+              : 'border-transparent text-[#667085] hover:text-[#111827] font-medium'
           }`}
         >
           <Activity size={18} className="text-amber-500" />
@@ -621,8 +621,8 @@ export default function EmployeeManagement() {
           onClick={() => setActiveTab('audit-logs')}
           className={`flex items-center gap-2 px-4 py-2.5 text-button border-b-2 transition-colors ${
             activeTab === 'audit-logs'
-              ? 'border-brand-600 text-brand-600 font-semibold'
-              : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'
+              ? 'border-[#2563EB] text-[#2563EB] font-semibold'
+              : 'border-transparent text-[#667085] hover:text-[#111827] font-medium'
           }`}
         >
           <FileText size={18} />
@@ -632,66 +632,51 @@ export default function EmployeeManagement() {
 
       {activeTab === 'employees' ? (
         <>
-          {/* Filters & Search */}
-          <div className="card grid gap-4 md:grid-cols-4 items-end">
-            <div className="md:col-span-2">
-              <label htmlFor="emp-search" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
-                <Search size={14} /> Search Employees
-              </label>
-              <div className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                />
-                <input
-                  id="emp-search"
-                  type="text"
-                  placeholder="Search by name, designation, email, mobile..."
-                  className="input-field pl-9 text-body"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+          {/* Filters & Search Toolbar */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3] pointer-events-none"
+              />
+              <input
+                id="emp-search"
+                type="text"
+                placeholder="Search by name, designation, email, mobile..."
+                className="input-field pl-9 text-body bg-white border-[#E5E7EB]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
 
-            <div>
-              <label htmlFor="emp-module-filter" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
-                <Filter size={14} /> Module Access
-              </label>
-              <select
-                id="emp-module-filter"
-                className="input-field text-body"
-                value={moduleFilter}
-                onChange={(e) => setModuleFilter(e.target.value)}
-              >
-                <option value="all">All Modules</option>
-                <option value="lead_generation">Lead Generation</option>
-                <option value="leads">Sales Team</option>
-                <option value="candidates">Candidates</option>
-                <option value="marketing">Marketing</option>
-                <option value="admin">Administrator Role</option>
-              </select>
-            </div>
+            <select
+              id="emp-module-filter"
+              className="input-field sm:w-52 text-body bg-white border-[#E5E7EB]"
+              value={moduleFilter}
+              onChange={(e) => setModuleFilter(e.target.value)}
+            >
+              <option value="all">All Modules</option>
+              <option value="lead_generation">Lead Generation</option>
+              <option value="leads">Sales Team</option>
+              <option value="candidates">Candidates</option>
+              <option value="marketing">Marketing</option>
+              <option value="admin">Administrator Role</option>
+            </select>
 
-            <div>
-              <label htmlFor="emp-status-filter" className="flex items-center gap-1.5 text-meta mb-1 font-medium">
-                <Shield size={14} /> Account Status
-              </label>
-              <select
-                id="emp-status-filter"
-                className="input-field text-body"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Statuses</option>
-                <option value="Active">Active Only</option>
-                <option value="Inactive">Inactive Only</option>
-              </select>
-            </div>
+            <select
+              id="emp-status-filter"
+              className="input-field sm:w-44 text-body bg-white border-[#E5E7EB]"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Statuses</option>
+              <option value="Active">Active Only</option>
+              <option value="Inactive">Inactive Only</option>
+            </select>
           </div>
 
           {/* Employee Table */}
-          <div className="card overflow-hidden p-0">
+          <div className="card overflow-hidden p-0 border border-[#E5E7EB] bg-white">
             {loading ? (
               <SkeletonTable
                 rows={8}
@@ -705,25 +690,25 @@ export default function EmployeeManagement() {
                 ]}
               />
             ) : filteredEmployees.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                <Users size={40} className="mx-auto text-slate-300 mb-3" />
-                <p className="text-empty-heading text-slate-700">No employees found</p>
-                <p className="text-empty-body mt-1">Try adjusting your filters or create a new employee.</p>
+              <div className="p-12 text-center text-[#667085]">
+                <Users size={40} className="mx-auto text-[#D0D5DD] mb-3" />
+                <p className="text-empty-heading text-[#111827]">No employees found</p>
+                <p className="text-empty-body text-[#667085] mt-1">Try adjusting your filters or create a new employee.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-600">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                <table className="w-full text-left text-sm text-[#475467]">
+                  <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                     <tr>
-                      <th scope="col" className="text-table-header px-6 py-3.5">Employee</th>
-                      <th scope="col" className="text-table-header px-6 py-3.5">Designation & Role</th>
-                      <th scope="col" className="text-table-header px-6 py-3.5">Allowed Modules</th>
-                      <th scope="col" className="text-table-header px-6 py-3.5">Status</th>
-                      <th scope="col" className="text-table-header px-6 py-3.5">Created Date</th>
-                      <th scope="col" className="text-table-header px-6 py-3.5 text-right">Actions</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Employee</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Designation & Role</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Allowed Modules</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Status</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Created Date</th>
+                      <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-[#E5E7EB]">
                     {filteredEmployees.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((emp) => {
                       const modules = getUserModules(emp);
                       const isSelf = emp._id === currentUser?._id;
@@ -731,39 +716,39 @@ export default function EmployeeManagement() {
                         <tr
                           key={emp._id}
                           onClick={() => openProfileModal(emp)}
-                          className="hover:bg-slate-50/80 cursor-pointer group transition-colors"
+                          className="hover:bg-[#F9FAFB] cursor-pointer group transition-colors"
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">
+                              <div className="h-9 w-9 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-semibold text-sm flex-shrink-0">
                                 {emp.name?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div className="min-w-0">
-                                <div className="text-body font-semibold text-slate-900 flex items-center gap-1.5">
-                                  <span className="group-hover:text-brand-600 transition-colors">{emp.name}</span>
+                                <div className="text-body font-semibold text-[#111827] flex items-center gap-1.5">
+                                  <span className="group-hover:text-[#2563EB] transition-colors">{emp.name}</span>
                                   {isSelf && (
-                                    <span className="text-badge bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded border border-brand-200">
+                                    <span className="text-badge bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-200 font-medium">
                                       You
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-meta truncate">{emp.email}</div>
+                                <div className="text-meta text-[#667085] truncate">{emp.email}</div>
                                 {emp.mobileNumber && (
-                                  <div className="text-meta">{emp.mobileNumber}</div>
+                                  <div className="text-meta text-[#98A2B3]">{emp.mobileNumber}</div>
                                 )}
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="space-y-0.5">
-                              <span className="text-body font-semibold text-slate-800 block">
+                              <span className="text-body font-semibold text-[#111827] block">
                                 {emp.designation || 'Staff Employee'}
                               </span>
                               <span
                                 className={`text-meta font-medium ${
                                   emp.role === 'admin'
-                                    ? 'text-purple-700'
-                                    : 'text-slate-600'
+                                    ? 'text-[#2563EB] font-semibold'
+                                    : 'text-[#667085]'
                                 }`}
                               >
                                 {emp.role === 'admin' ? 'Administrator' : 'Employee'}
@@ -773,16 +758,16 @@ export default function EmployeeManagement() {
                           <td className="px-6 py-4">
                             <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
                               {emp.role === 'admin' ? (
-                                <span className="text-badge font-semibold text-purple-700">
+                                <span className="text-badge font-semibold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
                                   Full System Access (All Modules)
                                 </span>
                               ) : modules.length === 0 ? (
-                                <span className="text-meta text-slate-400 italic">No modules assigned</span>
+                                <span className="text-meta text-[#98A2B3] italic">No modules assigned</span>
                               ) : (
                                 modules.map((modId, mIdx) => {
                                   const modDef = SYSTEM_MODULES.find((m) => m.id === modId);
                                   return (
-                                    <span key={modId} className="text-badge font-medium text-indigo-700">
+                                    <span key={modId} className="text-badge font-medium text-[#2563EB]">
                                       {modDef?.shortLabel || modId}{mIdx < modules.length - 1 ? ' ·' : ''}
                                     </span>
                                   );
@@ -794,19 +779,19 @@ export default function EmployeeManagement() {
                             <span
                               className={`text-badge font-semibold ${
                                 emp.status === 'Inactive' || emp.isActive === false
-                                  ? 'text-red-600'
-                                  : 'text-emerald-600'
+                                  ? 'text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full'
+                                  : 'text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full'
                               }`}
                             >
                               {emp.status === 'Inactive' || emp.isActive === false ? 'Inactive' : 'Active'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-meta">
+                          <td className="px-6 py-4 text-meta text-[#667085]">
                             {new Date(emp.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-right whitespace-nowrap">
                             <div className="inline-flex items-center justify-end">
-                              <span className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-indigo-700 px-3 py-1.5 text-xs font-semibold shadow-2xs group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-150">
+                              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-[#E5E7EB] text-[#475467] px-3 py-1.5 text-xs font-medium group-hover:border-[#2563EB] group-hover:text-[#2563EB] transition-all duration-150">
                                 <User size={13} />
                                 <span>Profile</span>
                                 <ArrowRight size={13} className="transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -953,90 +938,70 @@ export default function EmployeeManagement() {
           {/* Org-Wide Aggregated KPI Cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* 1. Total Leads Generated */}
-            <div className="card border border-blue-200 bg-gradient-to-br from-blue-50/70 via-white to-blue-50/30 p-4 space-y-2 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-                  Leads Generated
-                </span>
-                <div className="h-8 w-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                  <Users size={16} />
-                </div>
-              </div>
-              <div className="text-2xl font-extrabold text-blue-950">
+            <div className="card p-5 space-y-1">
+              <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">
+                Leads Generated
+              </span>
+              <div className="text-3xl font-semibold text-txt-primary">
                 {activitySummary.totals?.totalLeads || 0}
               </div>
-              <p className="text-[11px] text-blue-700/80 font-medium">
-                Profiles sourced across LinkedIn, Dice, Monster, etc.
+              <p className="text-xs text-txt-secondary">
+                Profiles sourced across platforms
               </p>
             </div>
 
             {/* 2. Sales Calls Made */}
-            <div className="card border border-amber-200 bg-gradient-to-br from-amber-50/70 via-white to-amber-50/30 p-4 space-y-2 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                  Outreach Calls Made
-                </span>
-                <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                  <PhoneCall size={16} />
-                </div>
-              </div>
+            <div className="card p-5 space-y-1">
+              <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">
+                Outreach Calls Made
+              </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-amber-950">
+                <span className="text-3xl font-semibold text-txt-primary">
                   {activitySummary.totals?.totalCalls || 0}
                 </span>
-                <span className="text-xs text-amber-700 font-semibold font-mono">
+                <span className="text-xs text-txt-muted font-mono">
                   ({Math.floor((activitySummary.totals?.totalCallMinutes || 0) / 60)}h {(activitySummary.totals?.totalCallMinutes || 0) % 60}m)
                 </span>
               </div>
-              <p className="text-[11px] text-amber-700/80 font-medium">
-                Live dials, phone conversations & follow-ups
+              <p className="text-xs text-txt-secondary">
+                Live dials, conversations & follow-ups
               </p>
             </div>
 
             {/* 3. Applications Submitted */}
-            <div className="card border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-indigo-50/30 p-4 space-y-2 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">
-                  Client Applications
-                </span>
-                <div className="h-8 w-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                  <Send size={16} />
-                </div>
-              </div>
+            <div className="card p-5 space-y-1">
+              <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">
+                Client Applications
+              </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-indigo-950">
+                <span className="text-3xl font-semibold text-txt-primary">
                   {activitySummary.totals?.totalApps || 0}
                 </span>
-                <span className="text-[11px] text-indigo-700 font-semibold">
-                  (Long: {activitySummary.totals?.totalLongApps || 0} • Easy: {activitySummary.totals?.totalEasyApps || 0})
+                <span className="text-xs text-txt-muted">
+                  ({activitySummary.totals?.totalLongApps || 0} long · {activitySummary.totals?.totalEasyApps || 0} easy)
                 </span>
               </div>
-              <p className="text-[11px] text-indigo-700/80 font-medium">
-                Enterprise & fast-track job portal submissions
+              <p className="text-xs text-txt-secondary">
+                Enterprise & job portal submissions
               </p>
             </div>
 
             {/* 4. Candidates Converted */}
-            <div className="card border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-emerald-50/30 p-4 space-y-2 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                  Candidates Converted
-                </span>
-                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <UserCheck size={16} />
-                </div>
-              </div>
+            <div className="card p-5 space-y-1">
+              <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">
+                Candidates Converted
+              </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold text-emerald-950">
+                <span className="text-3xl font-semibold text-txt-primary">
                   {activitySummary.totals?.totalConversions || 0}
                 </span>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                  {activitySummary.totals?.totalLeads > 0
-                    ? `${(((activitySummary.totals?.totalConversions || 0) / activitySummary.totals.totalLeads) * 100).toFixed(1)}% conv.`
-                    : '0% conv.'}
-                </span>
+                {activitySummary.totals?.totalLeads > 0 && (
+                  <span className="text-xs font-semibold text-emerald-700">
+                    ↑ {(((activitySummary.totals?.totalConversions || 0) / activitySummary.totals.totalLeads) * 100).toFixed(1)}%
+                  </span>
+                )}
               </div>
-              <p className="text-[11px] text-emerald-700/80 font-medium">
+              <p className="text-xs text-txt-secondary">
                 Prospective leads successfully onboarded
               </p>
             </div>
@@ -1106,7 +1071,7 @@ export default function EmployeeManagement() {
                           {/* Employee Info */}
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3">
-                              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">
+                              <div className="h-9 w-9 rounded-lg bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-semibold text-sm flex-shrink-0">
                                 {u.name?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div className="min-w-0">
@@ -1257,12 +1222,12 @@ export default function EmployeeManagement() {
         </div>
       ) : (
         /* ================= AUDIT LOGS VIEW ================= */
-        <div className="card overflow-hidden p-0">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <h2 className="text-section-heading text-slate-800">Activity Audit Trail</h2>
+        <div className="card overflow-hidden p-0 border border-[#E5E7EB] bg-white">
+          <div className="p-4 bg-[#F9FAFB] border-b border-[#E5E7EB] flex items-center justify-between">
+            <h2 className="text-section-heading text-[#111827]">Activity Audit Trail</h2>
             <button
               onClick={fetchData}
-              className="text-button text-xs text-brand-600 hover:text-brand-800 flex items-center gap-1 font-medium"
+              className="text-button text-xs text-[#2563EB] hover:text-blue-800 flex items-center gap-1 font-medium"
             >
               <RefreshCw size={14} /> Refresh Logs
             </button>
@@ -1280,39 +1245,39 @@ export default function EmployeeManagement() {
               ]}
             />
           ) : auditLogs.length === 0 ? (
-            <div className="text-empty-body p-8 text-center">
+            <div className="text-empty-body p-8 text-center text-[#667085]">
               No audit logs recorded yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 border-b border-slate-200">
+              <table className="w-full text-left text-sm text-[#475467]">
+                <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                   <tr>
-                    <th scope="col" className="text-table-header px-6 py-3.5">Date & Time</th>
-                    <th scope="col" className="text-table-header px-6 py-3.5">Admin</th>
-                    <th scope="col" className="text-table-header px-6 py-3.5">Action</th>
-                    <th scope="col" className="text-table-header px-6 py-3.5">Target Employee</th>
-                    <th scope="col" className="text-table-header px-6 py-3.5">Details</th>
+                    <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Date & Time</th>
+                    <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Admin</th>
+                    <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Action</th>
+                    <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Target Employee</th>
+                    <th scope="col" className="text-table-header text-[#475467] font-semibold px-6 py-3.5">Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#E5E7EB]">
                   {auditLogs.map((log) => (
-                    <tr key={log._id} className="hover:bg-slate-50/80">
-                      <td className="px-6 py-3.5 text-meta whitespace-nowrap font-mono">
+                    <tr key={log._id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <td className="px-6 py-3.5 text-meta text-[#667085] whitespace-nowrap font-mono">
                         {new Date(log.createdAt).toLocaleString()}
                       </td>
-                      <td className="px-6 py-3.5 text-body font-medium text-slate-900 whitespace-nowrap">
+                      <td className="px-6 py-3.5 text-body font-medium text-[#111827] whitespace-nowrap">
                         {log.adminName}
                       </td>
                       <td className="px-6 py-3.5">
-                        <span className="text-badge text-indigo-700">
+                        <span className="text-badge text-[#2563EB] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded font-medium">
                           {log.action}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-body font-medium text-slate-800 whitespace-nowrap">
+                      <td className="px-6 py-3.5 text-body font-medium text-[#111827] whitespace-nowrap">
                         {log.targetEmployeeName || '—'}
                       </td>
-                      <td className="px-6 py-3.5 text-body text-slate-600">
+                      <td className="px-6 py-3.5 text-body text-[#475467]">
                         {log.details}
                       </td>
                     </tr>
@@ -1339,7 +1304,7 @@ export default function EmployeeManagement() {
             {/* User Profile Header in Modal */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50/60">
               <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-xs flex-shrink-0">
+                <div className="h-11 w-11 rounded-lg bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-semibold text-base flex-shrink-0">
                   {selectedUserForActivity.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div>
@@ -1395,30 +1360,30 @@ export default function EmployeeManagement() {
               <div className="space-y-5">
                 {/* 4 Summary Stat Chips */}
                 <div className="grid gap-3 sm:grid-cols-4 text-xs">
-                  <div className="p-3 rounded-xl border border-blue-100 bg-blue-50/40 space-y-1">
-                    <span className="text-slate-500 font-medium block">Leads Sourced</span>
-                    <span className="font-extrabold text-blue-900 text-lg">
+                  <div className="p-3 rounded-lg border border-border bg-surface space-y-1">
+                    <span className="text-txt-secondary font-medium block">Leads Sourced</span>
+                    <span className="font-semibold text-txt-primary text-xl">
                       {userActivityDetails.counts?.leads || 0}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-amber-100 bg-amber-50/40 space-y-1">
-                    <span className="text-slate-500 font-medium block">Activity Logs</span>
-                    <span className="font-extrabold text-amber-900 text-lg">
+                  <div className="p-3 rounded-lg border border-border bg-surface space-y-1">
+                    <span className="text-txt-secondary font-medium block">Activity Logs</span>
+                    <span className="font-semibold text-txt-primary text-xl">
                       {userActivityDetails.counts?.logs || 0}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-indigo-100 bg-indigo-50/40 space-y-1">
-                    <span className="text-slate-500 font-medium block">Marketing Logs</span>
-                    <span className="font-extrabold text-indigo-900 text-lg">
+                  <div className="p-3 rounded-lg border border-border bg-surface space-y-1">
+                    <span className="text-txt-secondary font-medium block">Marketing Logs</span>
+                    <span className="font-semibold text-txt-primary text-xl">
                       {userActivityDetails.counts?.marketingEntries || 0}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-emerald-100 bg-emerald-50/40 space-y-1">
-                    <span className="text-slate-500 font-medium block">Candidates Converted</span>
-                    <span className="font-extrabold text-emerald-900 text-lg">
+                  <div className="p-3 rounded-lg border border-border bg-surface space-y-1">
+                    <span className="text-txt-secondary font-medium block">Candidates Converted</span>
+                    <span className="font-semibold text-txt-primary text-xl">
                       {userActivityDetails.counts?.candidatesConverted || 0}
                     </span>
                   </div>
@@ -1426,12 +1391,12 @@ export default function EmployeeManagement() {
 
                 {/* Chronological Event Feed */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                      <Clock size={14} className="text-slate-400" />
+                  <div className="flex items-center justify-between border-b border-border pb-2">
+                    <h4 className="font-semibold text-txt-primary text-xs uppercase tracking-wider flex items-center gap-1.5">
+                      <Clock size={14} className="text-txt-secondary" />
                       <span>Activity Timeline Log</span>
                     </h4>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-txt-muted">
                       {userActivityDetails.activityLogs?.length || 0} event records
                     </span>
                   </div>
@@ -1447,19 +1412,19 @@ export default function EmployeeManagement() {
                         return (
                           <div
                             key={log._id}
-                            className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 text-xs transition"
+                            className="flex items-start gap-3 p-3 rounded-xl border border-border bg-surface hover:bg-surface-secondary text-xs transition"
                           >
                             <div
                               className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
                                 isCall
-                                  ? 'bg-amber-100 text-amber-700'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
                                   : isLead
-                                  ? 'bg-blue-100 text-blue-700'
+                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
                                   : isCand
-                                  ? 'bg-emerald-100 text-emerald-700'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : isMktg
-                                  ? 'bg-indigo-100 text-indigo-700'
-                                  : 'bg-slate-100 text-slate-700'
+                                  ? 'bg-brand-50 text-brand-700 border border-brand-200'
+                                  : 'bg-surface-secondary text-txt-secondary border border-border'
                               }`}
                             >
                               {isCall ? (
@@ -1697,13 +1662,13 @@ export default function EmployeeManagement() {
             </div>
 
             {/* Temporary Credentials Notice */}
-            <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-3.5 flex items-start gap-3">
-              <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-700 mt-0.5 shrink-0">
+            <div className="rounded-xl border border-brand-200 bg-brand-50/60 p-3.5 flex items-start gap-3">
+              <div className="p-1.5 bg-brand-100 rounded-lg text-brand-700 mt-0.5 shrink-0">
                 <Send size={15} />
               </div>
-              <div className="text-xs text-indigo-950 space-y-0.5">
-                <p className="font-semibold text-indigo-900">Automated Invitation & Temporary Password</p>
-                <p className="text-indigo-700/90 leading-relaxed">
+              <div className="text-xs text-brand-950 space-y-0.5">
+                <p className="font-semibold text-brand-900">Automated Invitation & Temporary Password</p>
+                <p className="text-brand-700/90 leading-relaxed">
                   The employee will receive an automated invitation email with a secure temporary password (valid for 72 hours). Upon their first sign-in, they will be prompted to set their permanent password.
                 </p>
               </div>
@@ -1711,12 +1676,12 @@ export default function EmployeeManagement() {
 
             {/* Dynamic Module Permissions Section */}
             {formData.role === 'admin' ? (
-              <div className="rounded-xl border border-purple-200 bg-purple-50/60 p-4">
-                <div className="flex items-center gap-2 text-purple-900 font-semibold text-sm">
-                  <Shield size={18} className="text-purple-600" />
+              <div className="rounded-xl border border-navy-200 bg-navy-50/50 p-4">
+                <div className="flex items-center gap-2 text-navy-900 font-semibold text-sm">
+                  <Shield size={18} className="text-brand-600" />
                   <span>Full Administrator Access</span>
                 </div>
-                <p className="text-xs text-purple-700 mt-1">
+                <p className="text-xs text-navy-700 mt-1">
                   Administrators automatically have complete access across all 4 system modules plus employee management.
                 </p>
               </div>
@@ -1893,12 +1858,12 @@ export default function EmployeeManagement() {
 
             {/* Dynamic Module Permissions Section in Edit */}
             {formData.role === 'admin' ? (
-              <div className="rounded-xl border border-purple-200 bg-purple-50/60 p-4">
-                <div className="flex items-center gap-2 text-purple-900 font-semibold text-sm">
-                  <Shield size={18} className="text-purple-600" />
+              <div className="rounded-xl border border-navy-200 bg-navy-50/50 p-4">
+                <div className="flex items-center gap-2 text-navy-900 font-semibold text-sm">
+                  <Shield size={18} className="text-brand-600" />
                   <span>Full Administrator Access</span>
                 </div>
-                <p className="text-xs text-purple-700 mt-1">
+                <p className="text-xs text-navy-700 mt-1">
                   Administrators automatically have complete access across all 4 system modules plus employee management.
                 </p>
               </div>
@@ -2102,25 +2067,25 @@ export default function EmployeeManagement() {
         >
           <div className="space-y-5">
             {/* Header Profile Card */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-indigo-50/40 p-4 sm:p-5 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-border bg-surface-secondary p-4 sm:p-5">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-xs shrink-0">
+                <div className="h-12 w-12 rounded-xl bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center font-bold text-lg shrink-0">
                   {profileUser.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                    <h3 className="text-base sm:text-lg font-semibold text-slate-900 truncate">
                       {profileUser.name}
                     </h3>
                     {profileUser._id === currentUser?._id && (
-                      <span className="text-[11px] font-semibold bg-brand-100 text-brand-800 px-2 py-0.5 rounded-md border border-brand-200">
+                      <span className="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded border border-brand-200">
                         You
                       </span>
                     )}
                   </div>
                   <p className="text-xs font-medium text-slate-600 mt-0.5">
                     {profileUser.designation || 'Staff Employee'} •{' '}
-                    <span className={profileUser.role === 'admin' ? 'text-purple-700 font-bold' : 'text-slate-700'}>
+                    <span className={profileUser.role === 'admin' ? 'text-navy-900 font-semibold' : 'text-slate-700'}>
                       {profileUser.role === 'admin' ? 'Administrator' : 'Employee'}
                     </span>
                   </p>
@@ -2164,7 +2129,7 @@ export default function EmployeeManagement() {
                         message: 'Email address copied to clipboard',
                       });
                     }}
-                    className="p-1 text-slate-400 hover:text-indigo-600 rounded transition"
+                    className="p-1 text-slate-400 hover:text-brand-600 rounded transition"
                     title="Copy Email"
                   >
                     <Copy size={13} />
@@ -2203,8 +2168,8 @@ export default function EmployeeManagement() {
                 Assigned Module Permissions
               </span>
               {profileUser.role === 'admin' ? (
-                <div className="rounded-lg border border-purple-200 bg-purple-50/60 p-3 text-xs text-purple-900 flex items-center gap-2">
-                  <Shield size={16} className="text-purple-600 shrink-0" />
+                <div className="rounded-lg border border-navy-200 bg-navy-50/50 p-3 text-xs text-navy-900 flex items-center gap-2">
+                  <Shield size={16} className="text-brand-600 shrink-0" />
                   <span><strong>Full System Access</strong> — Administrator can view and manage all modules across the organization.</span>
                 </div>
               ) : (
@@ -2217,14 +2182,14 @@ export default function EmployeeManagement() {
                         key={m.id}
                         className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs transition ${
                           hasAccess
-                            ? 'border-indigo-200 bg-indigo-50/50 text-indigo-900 font-medium'
+                            ? 'border-brand-200 bg-brand-50/50 text-brand-900 font-medium'
                             : 'border-slate-100 bg-slate-50/60 text-slate-400 opacity-60'
                         }`}
                       >
-                        <ModIcon size={14} className={hasAccess ? 'text-indigo-600' : 'text-slate-400'} />
+                        <ModIcon size={14} className={hasAccess ? 'text-brand-600' : 'text-slate-400'} />
                         <span>{m.label}</span>
                         {hasAccess ? (
-                          <Check size={13} className="ml-auto text-indigo-600" />
+                          <Check size={13} className="ml-auto text-brand-600" />
                         ) : (
                           <span className="ml-auto text-[10px] text-slate-400">Disabled</span>
                         )}
@@ -2247,7 +2212,7 @@ export default function EmployeeManagement() {
                   onClick={() => openEditModal(profileUser)}
                   className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-left"
                 >
-                  <Edit2 size={14} className="text-indigo-600 shrink-0" />
+                  <Edit2 size={14} className="text-brand-600 shrink-0" />
                   <span>Edit Profile & Modules</span>
                 </button>
 
@@ -2269,7 +2234,7 @@ export default function EmployeeManagement() {
                     disabled={resendingId === profileUser._id}
                     className="flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-left disabled:opacity-50"
                   >
-                    <Send size={14} className={resendingId === profileUser._id ? 'animate-pulse text-indigo-600 shrink-0' : 'text-indigo-600 shrink-0'} />
+                    <Send size={14} className={resendingId === profileUser._id ? 'animate-pulse text-brand-600 shrink-0' : 'text-brand-600 shrink-0'} />
                     <span>{resendingId === profileUser._id ? 'Sending Invite...' : 'Resend Welcome Invite'}</span>
                   </button>
                 )}

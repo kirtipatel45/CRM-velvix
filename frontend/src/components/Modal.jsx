@@ -1,6 +1,7 @@
 import { memo, useEffect } from 'react';
+import { X } from 'lucide-react';
 
-function Modal({ isOpen = true, onClose, title, children, size = 'md', zIndex = 50 }) {
+function Modal({ isOpen = true, onClose, title, subtitle, children, size = 'md', zIndex = 50 }) {
   useEffect(() => {
     if (!isOpen) return;
 
@@ -27,25 +28,33 @@ function Modal({ isOpen = true, onClose, title, children, size = 'md', zIndex = 
 
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex }} role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <div
-        className={`relative z-10 w-full ${sizes[size]} max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl`}
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        className={`relative z-10 w-full ${sizes[size] || sizes.md} max-h-[90vh] overflow-y-auto rounded-xl bg-white border border-[#E5E7EB] shadow-[0_20px_24px_-4px_rgba(16,24,40,0.08),0_8px_8px_-4px_rgba(16,24,40,0.03)]`}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E5E7EB] bg-white px-6 py-4">
+          <div>
+            <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
+            {subtitle && <p className="text-xs text-[#667085] mt-0.5">{subtitle}</p>}
+          </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-lg p-1.5 text-[#667085] hover:bg-[#F2F4F7] hover:text-[#111827] transition"
             aria-label="Close modal"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
-        {children}
+        <div className="p-6">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
 export default memo(Modal);
-

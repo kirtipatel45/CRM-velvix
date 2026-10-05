@@ -70,21 +70,20 @@ export default function CandidateLogin() {
               Your gateway to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">career opportunities.</span>
             </h2>
-            <p className="text-slate-600 text-lg leading-relaxed font-medium">
+            <p className="text-slate-600 text-lg leading-relaxed font-normal">
               Access your talent profile, track applications, review interview schedules, and communicate directly with your dedicated recruiters.
             </p>
           </div>
         </div>
 
-        {/* Right side - Light Glassmorphism Form Card */}
+        {/* Right side - Enterprise Form Card */}
         <div className="w-full lg:w-[460px] flex items-center justify-center p-6 sm:p-10 shrink-0">
           <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/80 rounded-2xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] relative overflow-hidden">
             {/* Top glare edge */}
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white to-transparent"></div>
-
             <div className="mb-8 text-center lg:text-left">
-              <h2 className="text-2xl font-bold text-slate-900 mb-1.5">Candidate Sign In</h2>
-              <p className="text-slate-500 font-medium text-sm">Sign in to manage your talent profile and applications.</p>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-1.5">Candidate Sign In</h2>
+              <p className="text-slate-500 font-normal text-sm">Sign in to manage your talent profile and applications.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -101,11 +100,11 @@ export default function CandidateLogin() {
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Email address</label>
+                  <label htmlFor="email" className="block text-xs font-medium text-slate-700 mb-1.5 uppercase tracking-wider">Email address</label>
                   <input
                     id="email"
                     type="email"
-                    className="block w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-3 text-slate-900 text-sm outline-none transition placeholder:text-slate-400 hover:border-brand-300 focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/15"
+                    className="input-field h-10 px-3.5 text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -114,11 +113,11 @@ export default function CandidateLogin() {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Password</label>
+                  <label htmlFor="password" className="block text-xs font-medium text-slate-700 mb-1.5 uppercase tracking-wider">Password</label>
                   <input
                     id="password"
                     type="password"
-                    className="block w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-3 text-slate-900 text-sm outline-none transition placeholder:text-slate-400 hover:border-brand-300 focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/15"
+                    className="input-field h-10 px-3.5 text-sm"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -132,7 +131,7 @@ export default function CandidateLogin() {
                 className="mt-4 flex w-full items-center justify-center rounded-lg bg-brand-600 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/25 hover:bg-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/25 active:scale-[0.99] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                 disabled={loading}
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? "Signing in..." : "Sign In to Portal"}
               </button>
             </form>
 

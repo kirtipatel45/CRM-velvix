@@ -221,348 +221,352 @@ export default function Marketing() {
   });
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 pb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-5">
         <div>
-          <h1 className="text-page-title text-slate-800">Marketing Team</h1>
-          <p className="text-page-subtitle">
+          <h1 className="text-page-title text-[#111827]">Marketing</h1>
+          <p className="text-page-subtitle mt-0.5">
             Track candidates, applications, screening, assessments & interviews
           </p>
         </div>
         <div className="flex items-center gap-3">
           {activeTab === "logs" && (
-            <button onClick={openCreate} className="btn-primary text-button">
-              <Plus size={16} className="mr-2" />
-              Add Entry
+            <button onClick={openCreate} className="btn-primary text-xs h-9">
+              <Plus size={16} />
+              <span>Add Entry</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex border-b border-slate-200">
+      <div className="flex border-b border-[#E5E7EB]">
         <button
           onClick={() => setActiveTab("candidates")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-button transition ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-medium transition ${
             activeTab === "candidates"
-              ? "border-brand-600 text-brand-600"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-[#2563EB] text-[#2563EB] font-semibold"
+              : "border-transparent text-[#667085] hover:text-[#111827]"
           }`}
         >
-          <Users size={16} />
+          <Users size={15} />
           <span>Assigned Candidates</span>
-          <span className="text-badge rounded-full bg-brand-50 px-2 py-0.5 text-brand-700">
+          <span className="text-[11px] rounded-full bg-[#EFF6FF] text-[#175CD3] px-2 py-0.5 font-medium border border-[#B2DDFF]">
             {assignedCandidates.length}
           </span>
         </button>
         <button
           onClick={() => setActiveTab("logs")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-button transition ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-medium transition ${
             activeTab === "logs"
-              ? "border-brand-600 text-brand-600"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-[#2563EB] text-[#2563EB] font-semibold"
+              : "border-transparent text-[#667085] hover:text-[#111827]"
           }`}
         >
-          <Calendar size={16} />
+          <Calendar size={15} />
           <span>Daily Marketing Logs</span>
-          <span className="text-badge rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
+          <span className="text-[11px] rounded-full bg-[#F9FAFB] text-[#667085] px-2 py-0.5 font-medium border border-[#E5E7EB]">
             {records.length}
           </span>
         </button>
       </div>
 
       {activeTab === "candidates" ? (
-        <div>
-          <div className="card mb-6">
-            <div className="relative flex-1">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                id="cand-search"
-                className="input-field pl-9 text-body"
-                placeholder="Search candidates by name, email, or phone..."
-                value={candidateSearch}
-                onChange={(e) => setCandidateSearch(e.target.value)}
-                aria-label="Search candidates"
-              />
-            </div>
+        <div className="space-y-4">
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]"
+            />
+            <input
+              id="cand-search"
+              className="input-field pl-9 text-xs"
+              placeholder="Search candidates by name, email, or phone..."
+              value={candidateSearch}
+              onChange={(e) => setCandidateSearch(e.target.value)}
+              aria-label="Search candidates"
+            />
           </div>
 
-          <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
+          <div className="card p-0 overflow-hidden">
             {candidatesLoading ? (
-              <SkeletonTable
-                rows={6}
-                cardWrapper={false}
-                columns={[
-                  { width: '22%', type: 'avatar-text' },
-                  { width: '22%', type: 'text', twoLines: true },
-                  { width: '16%', type: 'badge' },
-                  { width: '16%', type: 'text' },
-                  { width: '12%', type: 'badge' },
-                  { width: '12%', type: 'actions' },
-                ]}
-              />
+              <div className="p-6">
+                <SkeletonTable
+                  rows={6}
+                  cardWrapper={false}
+                  columns={[
+                    { width: '22%', type: 'avatar-text' },
+                    { width: '22%', type: 'text', twoLines: true },
+                    { width: '16%', type: 'badge' },
+                    { width: '16%', type: 'text' },
+                    { width: '12%', type: 'badge' },
+                    { width: '12%', type: 'actions' },
+                  ]}
+                />
+              </div>
             ) : filteredCandidates.length === 0 ? (
               <div className="py-12 text-center">
-                <Users size={40} className="mx-auto text-slate-300 mb-2" />
-                <p className="text-empty-heading text-slate-700">No assigned candidates found</p>
-                <p className="text-empty-body mt-1">
+                <Users size={40} className="mx-auto text-[#98A2B3] mb-2" />
+                <p className="text-empty-heading text-[#111827]">No assigned candidates found</p>
+                <p className="text-empty-body text-[#667085] mt-1">
                   Candidates converted from leads and assigned to marketing recruiters will appear here.
                 </p>
               </div>
             ) : (
-              <table className="w-full text-body">
-                <thead className="border-b border-slate-200 bg-slate-50">
-                  <tr>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Candidate
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Contact Details
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Assigned Marketing Recruiter
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Portal Status
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Converted Date
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-right">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredCandidates.map((c) => (
-                    <tr key={c._id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold text-xs uppercase">
-                            {c.firstName?.[0] || 'C'}{c.lastName?.[0] || ''}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-body text-slate-800">
-                              {c.firstName} {c.lastName}
-                            </p>
-                            <p className="text-meta">
-                              ID: {c._id.slice(-6)}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-meta text-slate-600">
-                            <Mail size={13} className="text-slate-400" />
-                            <span>{c.email}</span>
-                          </div>
-                          {c.phone && (
-                            <div className="flex items-center gap-1.5 text-meta text-slate-500">
-                              <Phone size={13} className="text-slate-400" />
-                              <span>{c.phone}</span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {c.assignedTo ? (
-                          <div>
-                            <p className="font-medium text-body text-slate-700">
-                              {c.assignedTo.name}
-                            </p>
-                            <p className="text-meta">
-                              {c.assignedTo.email}
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="text-meta italic">Unassigned</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`text-badge capitalize ${
-                            c.accountStatus === 'active'
-                              ? 'text-emerald-600'
-                              : c.accountStatus === 'invited'
-                              ? 'text-amber-600'
-                              : 'text-slate-600'
-                          }`}
-                        >
-                          {c.accountStatus || 'invited'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-meta text-slate-500">
-                        {c.convertedAt ? new Date(c.convertedAt).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleCopyEmail(c.email, c._id)}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-button text-slate-600 shadow-sm hover:bg-slate-50"
-                          title="Copy candidate email"
-                        >
-                          {copiedId === c._id ? (
-                            <>
-                              <Check size={12} className="text-green-600" />
-                              <span className="text-green-600">Copied</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={12} />
-                              <span>Copy</span>
-                            </>
-                          )}
-                        </button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Candidate
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Contact Details
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Assigned Marketing Recruiter
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Portal Status
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Converted Date
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3 text-right">
+                        Action
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5E7EB]">
+                    {filteredCandidates.map((c) => (
+                      <tr key={c._id} className="hover:bg-[#F9FAFB] transition-colors">
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFF6FF] border border-[#B2DDFF] text-[#175CD3] font-semibold text-xs shrink-0">
+                              {c.firstName?.[0] || 'C'}{c.lastName?.[0] || ''}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-[#111827]">
+                                {c.firstName} {c.lastName}
+                              </p>
+                              <p className="text-[11px] text-[#667085]">
+                                ID: {c._id.slice(-6)}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-xs text-[#344054]">
+                              <Mail size={12} className="text-[#98A2B3]" />
+                              <span>{c.email}</span>
+                            </div>
+                            {c.phone && (
+                              <div className="flex items-center gap-1.5 text-xs text-[#667085]">
+                                <Phone size={12} className="text-[#98A2B3]" />
+                                <span>{c.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          {c.assignedTo ? (
+                            <div>
+                              <p className="font-medium text-[#111827]">
+                                {c.assignedTo.name}
+                              </p>
+                              <p className="text-[11px] text-[#667085]">
+                                {c.assignedTo.email}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#98A2B3] italic">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                              c.accountStatus === 'active'
+                                ? 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]'
+                                : c.accountStatus === 'invited'
+                                ? 'bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]'
+                                : 'bg-[#F2F4F7] text-[#667085] border-[#E5E7EB]'
+                            }`}
+                          >
+                            {c.accountStatus === 'active' ? 'Active' : c.accountStatus === 'invited' ? 'Invited' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-xs text-[#667085]">
+                          {c.convertedAt ? new Date(c.convertedAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <button
+                            onClick={() => handleCopyEmail(c.email, c._id)}
+                            className="inline-flex items-center gap-1 rounded-md border border-[#E5E7EB] bg-white px-2.5 py-1 text-xs text-[#344054] shadow-2xs hover:bg-[#F9FAFB] transition"
+                            title="Copy candidate email"
+                          >
+                            {copiedId === c._id ? (
+                              <>
+                                <Check size={12} className="text-[#12B76A]" />
+                                <span className="text-[#027A48] font-medium">Copied</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={12} className="text-[#667085]" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
       ) : (
-        <div>
-          <div className="card mb-6">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="mktg-search"
-                  className="input-field pl-9 text-body"
-                  placeholder="Search by recruiter name..."
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                  aria-label="Search by recruiter name"
-                />
-              </div>
+        <div className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]"
+              />
               <input
-                id="mktg-date-filter"
-                type="date"
-                className="input-field sm:w-48 text-body"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                aria-label="Filter by date"
+                id="mktg-search"
+                className="input-field pl-9 text-xs"
+                placeholder="Search by recruiter name..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                aria-label="Search by recruiter name"
               />
             </div>
+            <input
+              id="mktg-date-filter"
+              type="date"
+              className="input-field sm:w-48 text-xs h-9"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              aria-label="Filter by date"
+            />
           </div>
 
-          <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
+          <div className="card p-0 overflow-hidden">
             {loading ? (
-              <SkeletonTable
-                rows={6}
-                cardWrapper={false}
-                columns={[
-                  { width: '20%', type: 'avatar-text' },
-                  { width: '15%', type: 'text' },
-                  { width: '25%', type: 'text', twoLines: true },
-                  { width: '20%', type: 'badge' },
-                  { width: '10%', type: 'badge' },
-                  { width: '10%', type: 'actions' },
-                ]}
-              />
+              <div className="p-6">
+                <SkeletonTable
+                  rows={6}
+                  cardWrapper={false}
+                  columns={[
+                    { width: '20%', type: 'avatar-text' },
+                    { width: '15%', type: 'text' },
+                    { width: '25%', type: 'text', twoLines: true },
+                    { width: '20%', type: 'badge' },
+                    { width: '10%', type: 'badge' },
+                    { width: '10%', type: 'actions' },
+                  ]}
+                />
+              </div>
             ) : records.length === 0 ? (
               <div className="py-12 text-center">
-                <p className="text-empty-heading text-slate-700 mb-1">No records found</p>
-                <p className="text-empty-body">No daily marketing logs found matching your criteria.</p>
+                <p className="text-empty-heading text-[#111827] mb-1">No records found</p>
+                <p className="text-empty-body text-[#667085]">No daily marketing logs found matching your criteria.</p>
               </div>
             ) : (
-              <table className="w-full text-body">
-                <thead className="border-b border-slate-200 bg-slate-50">
-                  <tr>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      TL / Recruiter
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Date
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Candidate(s)
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Applications (Long / Easy)
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-left">
-                      Notes
-                    </th>
-                    <th scope="col" className="text-table-header px-4 py-3 text-right">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
-                    <tr key={r._id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-body text-slate-900">{r.employeeName}</p>
-                        <p className="text-meta">
-                          TL: {r.teamLeaderName}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3 text-meta text-slate-700">
-                        {new Date(r.entryDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="space-y-1">
-                          {r.candidates && r.candidates.length > 0 ? (
-                            r.candidates.map((c, ci) => (
-                              <div key={ci} className="text-body">
-                                <span className="font-semibold text-slate-800">{c.candidateName}</span>
-                                {c.jobTitle && <span className="text-meta"> • {c.jobTitle}</span>}
-                              </div>
-                            ))
-                          ) : (
-                            <span className="text-meta italic">No candidates</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-body text-brand-700">
-                            {r.totalApplications || (r.longApplicationsSubmitted + r.easyApplicationsSubmitted)}
-                          </span>
-                          <span className="text-meta text-slate-500">
-                            (Long: {r.longApplicationsSubmitted || 0}, Easy: {r.easyApplicationsSubmitted || 0})
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-meta text-slate-600 max-w-xs truncate">
-                        {r.notes || "—"}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (r.createdBy?._id || r.createdBy)) && (
-                            <button
-                              onClick={() => openEdit(r)}
-                              className="p-1 text-brand-600 hover:text-brand-800 rounded transition"
-                              aria-label={`Edit marketing entry for ${r.employeeName}`}
-                              title="Edit Entry"
-                            >
-                              <Pencil size={16} />
-                            </button>
-                          )}
-                          {user?.role === 'admin' && (
-                            <button
-                              onClick={() => handleDelete(r._id)}
-                              className="p-1 text-red-500 hover:text-red-700 rounded transition"
-                              aria-label={`Delete marketing entry for ${r.employeeName}`}
-                              title="Delete Entry"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                    <tr>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        TL / Recruiter
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Date
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Candidate(s)
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Applications (Long / Easy)
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3">
+                        Notes
+                      </th>
+                      <th scope="col" className="text-table-header px-4 py-3 text-right">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5E7EB]">
+                    {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
+                      <tr key={r._id} className="hover:bg-[#F9FAFB] transition-colors">
+                        <td className="px-4 py-3.5">
+                          <p className="font-semibold text-[#111827]">{r.employeeName}</p>
+                          <p className="text-[11px] text-[#667085]">
+                            TL: {r.teamLeaderName}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3.5 text-xs text-[#667085] whitespace-nowrap">
+                          {new Date(r.entryDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="space-y-1">
+                            {r.candidates && r.candidates.length > 0 ? (
+                              r.candidates.map((c, ci) => (
+                                <div key={ci} className="text-xs">
+                                  <span className="font-medium text-[#111827]">{c.candidateName}</span>
+                                  {c.jobTitle && <span className="text-[#667085]"> • {c.jobTitle}</span>}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="text-xs text-[#98A2B3] italic">No candidates</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-[#175CD3]">
+                              {r.totalApplications || (r.longApplicationsSubmitted + r.easyApplicationsSubmitted)}
+                            </span>
+                            <span className="text-[11px] text-[#667085]">
+                              (Long: {r.longApplicationsSubmitted || 0}, Easy: {r.easyApplicationsSubmitted || 0})
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-xs text-[#667085] max-w-xs truncate">
+                          {r.notes || "—"}
+                        </td>
+                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1">
+                            {(user?.role === 'admin' || user?.role === 'manager' || user?._id === (r.createdBy?._id || r.createdBy)) && (
+                              <button
+                                onClick={() => openEdit(r)}
+                                className="p-1 text-[#667085] hover:text-[#2563EB] rounded transition"
+                                aria-label={`Edit marketing entry for ${r.employeeName}`}
+                                title="Edit Entry"
+                              >
+                                <Pencil size={15} />
+                              </button>
+                            )}
+                            {user?.role === 'admin' && (
+                              <button
+                                onClick={() => handleDelete(r._id)}
+                                className="p-1 text-[#667085] hover:text-[#F04438] rounded transition"
+                                aria-label={`Delete marketing entry for ${r.employeeName}`}
+                                title="Delete Entry"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
@@ -735,7 +739,7 @@ export default function Marketing() {
                             }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              <div className="h-7 w-7 rounded-lg bg-[#EFF6FF] border border-[#B2DDFF] text-[#175CD3] flex items-center justify-center font-semibold text-xs flex-shrink-0">
                                 {cand.firstName?.charAt(0) || "C"}
                               </div>
                               <div className="min-w-0">

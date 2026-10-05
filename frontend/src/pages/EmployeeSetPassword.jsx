@@ -3,6 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Lock, Check, AlertCircle, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import BenchTrixLogo from '../components/BenchTrixLogo';
 
 export default function EmployeeSetPassword() {
   const navigate = useNavigate();
@@ -60,37 +61,33 @@ export default function EmployeeSetPassword() {
   return (
     <main className="flex min-h-screen bg-white">
       {/* Left side - Branding */}
-      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/95 via-brand-900/80 to-brand-900/50" />
+      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden bg-navy-950">
         <div className="relative z-10 mx-auto max-w-lg">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-brand-100 border border-white/15 mb-6 backdrop-blur-sm">
-            <ShieldCheck size={14} className="text-brand-300" />
+          <div className="mb-6">
+            <BenchTrixLogo variant="white" size="text-5xl" subtitle="Staffing & CRM Platform" />
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100 border border-white/15 mb-6">
+            <ShieldCheck size={14} className="text-blue-300" />
             <span>Employee Security Setup</span>
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight">Configure Your Permanent Password</h1>
-          <p className="text-lg leading-relaxed text-brand-100">
+          <h1 className="mb-6 text-4xl sm:text-5xl font-semibold tracking-tight text-white leading-tight">Configure Your Permanent Password</h1>
+          <p className="text-lg leading-relaxed text-slate-300 font-normal">
             Welcome to the BenchTrix CRM Platform. Since this is your initial login with temporary credentials, please configure your new permanent password to secure your staff account.
           </p>
         </div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/2 bg-slate-50/50">
-        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2 bg-[#F7F8FA]">
+        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl border border-[#E5E7EB] shadow-xs">
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-3 lg:hidden">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">
-                <Lock size={18} />
-              </div>
-              <span className="font-logo text-xl tracking-normal text-slate-900">
-                Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span>
-              </span>
+            <div className="lg:hidden mb-4">
+              <BenchTrixLogo variant="default" size="text-2xl" subtitle="Staffing & CRM Platform" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Set New Password</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
-              Welcome, <span className="font-semibold text-slate-800">{employeeUser?.name || 'Staff Member'}</span> (
-              <span className="text-slate-600">{employeeUser?.email}</span>)
+            <h2 className="text-2xl font-semibold text-[#111827]">Set New Password</h2>
+            <p className="mt-1.5 text-sm text-[#667085] font-normal">
+              Welcome, <span className="font-semibold text-[#111827]">{employeeUser?.name || 'Staff Member'}</span> (
+              <span className="text-[#475467]">{employeeUser?.email}</span>)
             </p>
           </div>
 

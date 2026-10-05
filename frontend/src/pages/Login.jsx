@@ -70,26 +70,25 @@ export default function Login() {
               Empower your teams to <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">close more deals.</span>
             </h2>
-            <p className="text-slate-600 text-lg leading-relaxed font-medium">
+            <p className="text-slate-600 text-lg leading-relaxed font-normal">
               A comprehensive, professional solution integrating Lead Generation, Sales Pipelines, and Marketing automation.
             </p>
           </div>
         </div>
 
-        {/* Right side - Light Glassmorphism Form Card */}
+        {/* Right side - Enterprise Form Card */}
         <div className="w-full lg:w-[460px] flex items-center justify-center p-6 sm:p-10 shrink-0">
           <div className="w-full max-w-[420px] bg-white/70 backdrop-blur-2xl border border-white/80 rounded-2xl p-8 sm:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.08)] relative overflow-hidden">
             {/* Top glare edge */}
             <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white to-transparent"></div>
-
             <div className="mb-8 text-center lg:text-left">
-              <h2 className="text-2xl font-bold text-slate-900 mb-1.5">Welcome back</h2>
-              <p className="text-slate-500 font-medium text-sm">Enter your credentials to sign in.</p>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-1.5">Welcome back</h2>
+              <p className="text-slate-500 font-normal text-sm">Enter your credentials to sign in.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="rounded-xl bg-red-50 p-3.5 border border-red-200 flex items-start gap-3">
+                <div className="rounded-lg bg-red-50 p-3.5 border border-red-200 flex items-start gap-3">
                   <div className="shrink-0 mt-0.5">
                     <svg className="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
@@ -101,11 +100,11 @@ export default function Login() {
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Email</label>
+                  <label htmlFor="email" className="block text-xs font-medium text-slate-700 mb-1.5 uppercase tracking-wider">Email</label>
                   <input
                     id="email"
                     type="email"
-                    className="block w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-3 text-slate-900 text-sm outline-none transition placeholder:text-slate-400 hover:border-brand-300 focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/15"
+                    className="input-field h-10 px-3.5 text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -115,7 +114,7 @@ export default function Login() {
 
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label htmlFor="password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wider">Password</label>
+                    <label htmlFor="password" className="block text-xs font-medium text-slate-700 uppercase tracking-wider">Password</label>
                     <Link to="/forgot-password" className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition">
                       Forgot?
                     </Link>
@@ -123,7 +122,7 @@ export default function Login() {
                   <input
                     id="password"
                     type="password"
-                    className="block w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-3 text-slate-900 text-sm outline-none transition placeholder:text-slate-400 hover:border-brand-300 focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-500/15"
+                    className="input-field h-10 px-3.5 text-sm"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

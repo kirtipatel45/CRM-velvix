@@ -15,6 +15,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const EmployeeManagement = lazy(() => import("./pages/EmployeeManagement"));
 const AssignedLeads = lazy(() => import("./pages/AssignedLeads"));
 const Candidates = lazy(() => import("./pages/Candidates"));
+const ActivityLogs = lazy(() => import("./pages/ActivityLogs"));
 
 // Candidate Portal Pages
 const CandidateLogin = lazy(() => import("./pages/candidate/CandidateLogin"));
@@ -200,6 +201,18 @@ export default function App() {
           <Route 
             path="profile" 
             element={<Profile />} 
+          />
+          <Route 
+            path="settings" 
+            element={<Profile />} 
+          />
+          <Route 
+            path="activity-logs" 
+            element={
+              <PrivateRoute adminOnly>
+                <ActivityLogs />
+              </PrivateRoute>
+            } 
           />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
