@@ -232,16 +232,16 @@ export default function StartCallModal({
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Contact Header Card */}
-        <div className="rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-white p-4 shadow-xs">
+        <div className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-[#2563EB] uppercase tracking-wider block">
                 Calling Lead
               </span>
-              <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+              <h3 className="text-base font-semibold text-[#111827] mt-0.5">
                 {contactName}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#667085]">
                 Source: {lead.leadSource || "LinkedIn"} • Sourced By: {lead.employeeName}
               </p>
             </div>
@@ -260,7 +260,7 @@ export default function StartCallModal({
                   <span>Call {contactPhone}</span>
                 </a>
               ) : (
-                <span className="inline-flex items-center gap-1 text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                <span className="inline-flex items-center gap-1 text-xs text-[#98A2B3] bg-white px-2.5 py-1 rounded-md border border-[#E5E7EB]">
                   <Phone size={12} /> No phone provided
                 </span>
               )}
@@ -283,11 +283,11 @@ export default function StartCallModal({
         </div>
 
         {/* Live Call Duration / Stopwatch Section */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <span className="text-xs font-bold text-[#344054] uppercase tracking-wider">
                   Call Duration
                 </span>
                 {timerRunning && (
@@ -299,7 +299,7 @@ export default function StartCallModal({
               </div>
 
               {durationMode === "timer" ? (
-                <div className="mt-1 font-mono text-3xl font-bold tracking-wider text-slate-900">
+                <div className="mt-1 font-mono text-3xl font-bold tracking-wider text-[#111827]">
                   {formatTimerDisplay(timerSeconds)}
                 </div>
               ) : (
@@ -312,9 +312,9 @@ export default function StartCallModal({
                       placeholder="0"
                       value={manualMinutes}
                       onChange={(e) => setManualMinutes(e.target.value)}
-                      className="w-16 rounded-lg bg-white border border-slate-300 px-2.5 py-1 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="w-16 rounded-lg bg-white border border-[#D0D5DD] px-2.5 py-1 text-center text-sm font-semibold text-[#111827] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] focus:outline-none"
                     />
-                    <span className="text-xs text-slate-500">min</span>
+                    <span className="text-xs text-[#667085]">min</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <input
@@ -324,9 +324,9 @@ export default function StartCallModal({
                       placeholder="0"
                       value={manualSeconds}
                       onChange={(e) => setManualSeconds(e.target.value)}
-                      className="w-16 rounded-lg bg-white border border-slate-300 px-2.5 py-1 text-center text-sm font-bold text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="w-16 rounded-lg bg-white border border-[#D0D5DD] px-2.5 py-1 text-center text-sm font-semibold text-[#111827] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] focus:outline-none"
                     />
-                    <span className="text-xs text-slate-500">sec</span>
+                    <span className="text-xs text-[#667085]">sec</span>
                   </div>
                 </div>
               )}
@@ -340,7 +340,7 @@ export default function StartCallModal({
                     <button
                       type="button"
                       onClick={handleStartTimer}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-xs"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition"
                     >
                       <Play size={13} />
                       <span>{timerSeconds > 0 ? "Resume Timer" : "Start Timer"}</span>
@@ -349,7 +349,7 @@ export default function StartCallModal({
                     <button
                       type="button"
                       onClick={handlePauseTimer}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700 transition shadow-xs"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 transition"
                     >
                       <Pause size={13} />
                       <span>Pause Timer</span>
@@ -360,7 +360,7 @@ export default function StartCallModal({
                     type="button"
                     onClick={handleResetTimer}
                     disabled={timerSeconds === 0}
-                    className="inline-flex items-center gap-1 rounded-lg bg-white border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition disabled:opacity-40 shadow-xs"
+                    className="inline-flex items-center gap-1 rounded-lg bg-white border border-[#E5E7EB] px-2.5 py-1.5 text-xs font-medium text-[#475467] hover:bg-[#F9FAFB] hover:text-[#111827] transition disabled:opacity-40"
                     title="Reset timer"
                   >
                     <RotateCcw size={12} />
@@ -373,7 +373,7 @@ export default function StartCallModal({
                 onClick={() =>
                   setDurationMode(durationMode === "timer" ? "manual" : "timer")
                 }
-                className="text-xs text-indigo-600 font-semibold hover:text-indigo-800 hover:underline transition ml-1"
+                className="text-xs text-[#2563EB] font-medium hover:text-blue-700 hover:underline transition ml-1"
               >
                 {durationMode === "timer"
                   ? "Enter Manually"
@@ -518,10 +518,10 @@ export default function StartCallModal({
                   setHasFollowUp(true);
                   if (!followUpDate) setTomorrowMorning();
                 }}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold border transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold border transition ${
                   interestStatus === "Call Back Later"
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                    : "bg-white text-indigo-800 border-indigo-200 hover:bg-indigo-100/50"
+                    ? "bg-[#2563EB] text-white border-[#2563EB] shadow-sm"
+                    : "bg-white text-[#2563EB] border-blue-200 hover:bg-blue-50"
                 }`}
               >
                 <Clock4 size={13} />
@@ -533,10 +533,10 @@ export default function StartCallModal({
                 onClick={() => {
                   setInterestStatus("Not Interested");
                 }}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold border transition ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold border transition ${
                   interestStatus === "Not Interested"
                     ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                    : "bg-white text-rose-800 border-rose-200 hover:bg-rose-100/50"
+                    : "bg-white text-rose-800 border-rose-200 hover:bg-rose-50"
                 }`}
               >
                 <XCircle size={13} />
@@ -547,11 +547,11 @@ export default function StartCallModal({
         )}
 
         {/* Follow-up Call Scheduler */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 space-y-3">
           <div className="flex items-center justify-between">
             <label
               htmlFor="toggle-follow-up"
-              className="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-slate-800"
+              className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-[#111827]"
             >
               <input
                 id="toggle-follow-up"
@@ -563,25 +563,25 @@ export default function StartCallModal({
                     setTomorrowMorning();
                   }
                 }}
-                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="h-4 w-4 rounded border-[#D0D5DD] text-[#2563EB] focus:ring-[#2563EB]"
               />
               <span className="flex items-center gap-1.5">
-                <Calendar size={14} className="text-indigo-600" />
+                <Calendar size={14} className="text-[#2563EB]" />
                 Schedule Follow-up Call
               </span>
             </label>
 
             {hasFollowUp && (
-              <span className="text-[11px] font-medium text-indigo-600">
+              <span className="text-[11px] font-medium text-[#2563EB]">
                 Reminder notification will be created
               </span>
             )}
           </div>
 
           {hasFollowUp && (
-            <div className="pt-2 border-t border-slate-100 space-y-3">
+            <div className="pt-2 border-t border-[#E5E7EB] space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-[11px] font-semibold text-[#475467] mb-1">
                   Follow-up Date & Time *
                 </label>
                 <input
@@ -595,32 +595,32 @@ export default function StartCallModal({
 
               {/* Quick Presets */}
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] text-slate-400 mr-1">Quick Select:</span>
+                <span className="text-[11px] text-[#98A2B3] mr-1">Quick Select:</span>
                 <button
                   type="button"
                   onClick={() => setQuickFollowUp(1)}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[11px] font-medium text-[#475467] hover:bg-gray-100"
                 >
                   +1 Hour
                 </button>
                 <button
                   type="button"
                   onClick={() => setQuickFollowUp(3)}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[11px] font-medium text-[#475467] hover:bg-gray-100"
                 >
                   +3 Hours
                 </button>
                 <button
                   type="button"
                   onClick={setTomorrowMorning}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[11px] font-medium text-[#475467] hover:bg-gray-100"
                 >
                   Tomorrow 10 AM
                 </button>
                 <button
                   type="button"
                   onClick={() => setQuickFollowUp(48)}
-                  className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100"
+                  className="rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-2 py-1 text-[11px] font-medium text-[#475467] hover:bg-gray-100"
                 >
                   In 2 Days
                 </button>
@@ -631,7 +631,7 @@ export default function StartCallModal({
 
         {/* Call Notes & Discussion Points */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-bold text-[#344054] uppercase tracking-wider mb-1">
             Call Notes & Discussion Summary (Optional)
           </label>
           <textarea
@@ -652,7 +652,7 @@ export default function StartCallModal({
         )}
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
           <button
             type="button"
             onClick={onClose}

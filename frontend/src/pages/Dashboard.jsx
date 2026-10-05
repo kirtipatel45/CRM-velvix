@@ -3,22 +3,16 @@ import { Link } from 'react-router-dom';
 import {
   Users,
   Phone,
-  Megaphone,
-  AlertTriangle,
   TrendingUp,
-  PieChart as PieChartIcon,
-  BarChart2,
-  Briefcase,
   UserCheck,
-  Award,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  PhoneCall,
+  Briefcase,
+  Megaphone,
   ArrowUpRight,
   ShieldAlert,
+  ArrowRight,
   Calendar,
   Layers,
+  PieChart as PieChartIcon,
 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -36,45 +30,48 @@ import {
   Cell,
   Legend,
 } from 'recharts';
+import Badge from '../components/ui/Badge';
+import AlertBanner from '../components/ui/AlertBanner';
+import SegmentedControl from '../components/ui/SegmentedControl';
+import { pluralize, pluralizeWord, formatTalkTime } from '../utils/formatters';
 
-const ExecutiveCard = memo(function ExecutiveCard({
-  title,
+// Clean Enterprise KPI Card (Divider-free, Spacing-driven Hierarchy)
+const KpiCard = memo(function KpiCard({
+  label,
   value,
-  subtitle,
+  supportingText,
   icon: Icon,
-  gradient,
-  badge,
-  badgeType = 'default',
+  trend,
+  trendType = 'positive', // 'positive' | 'negative' | 'neutral'
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-200">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-kpi-label">{title}</p>
-          <p className="mt-2 text-kpi-value text-slate-900">{value}</p>
-          {subtitle && <p className="mt-1.5 text-meta">{subtitle}</p>}
+    <div className="card flex flex-col justify-between p-5 transition-colors hover:border-[#D0D5DD]">
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#667085]">{label}</p>
+          {Icon && (
+            <Icon size={19} strokeWidth={1.8} className="text-[#667085]" />
+          )}
         </div>
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr ${gradient} text-white shadow-md shadow-brand-500/15`}
-        >
-          <Icon size={22} />
-        </div>
+        <p className="mt-2 text-3xl font-semibold tracking-tight text-[#111827]">{value}</p>
       </div>
-      {badge && (
-        <div className="mt-3 flex items-center gap-1.5 pt-3 border-t border-slate-100">
+
+      <div className="mt-3 flex items-center justify-between text-xs text-[#667085]">
+        <span className="truncate">{supportingText}</span>
+        {trend && (
           <span
-            className={`text-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
-              badgeType === 'success'
-                ? 'bg-emerald-50 text-emerald-700'
-                : badgeType === 'warning'
-                ? 'bg-amber-50 text-amber-700'
-                : 'bg-brand-50 text-brand-700'
+            className={`font-semibold shrink-0 ml-2 ${
+              trendType === 'positive'
+                ? 'text-[#12B76A]'
+                : trendType === 'negative'
+                ? 'text-[#F04438]'
+                : 'text-[#667085]'
             }`}
           >
-            {badge}
+            {trend}
           </span>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 });
@@ -83,7 +80,7 @@ export default function Dashboard() {
   const { user, hasModule } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [timeframe, setTimeframe] = useState('today'); // 'today' | 'all' | 'date'
+  const [timeframe, setTimeframe] = useState('today'); // 'today' | 'all' | 'custom'
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
@@ -117,8 +114,6 @@ export default function Dashboard() {
   const leaderboard = stats?.leaderboard || [];
   const alerts = stats?.alerts || [];
 
-  const [callOutcomeView, setCallOutcomeView] = useState('detailed'); // 'detailed' | 'overview'
-
   const pickedUpBreakdown = callingStats?.pickedUpBreakdown || {};
   const totalPickedUp = callingStats?.outcomes?.pickedUp || 0;
   const pickedUpInterested = pickedUpBreakdown.interested ?? (callingStats?.interestLevels?.interested || 0);
@@ -126,140 +121,100 @@ export default function Dashboard() {
   const pickedUpCallBackLater = pickedUpBreakdown.callBackLater ?? (callingStats?.interestLevels?.callBackLater || 0);
   const pickedUpOther = Math.max(0, totalPickedUp - (pickedUpInterested + pickedUpNotInterested + pickedUpCallBackLater));
 
-  const interestedPercent = totalPickedUp > 0 ? Math.round((pickedUpInterested / totalPickedUp) * 100) : 0;
-  const notInterestedPercent = totalPickedUp > 0 ? Math.round((pickedUpNotInterested / totalPickedUp) * 100) : 0;
-  const callBackLaterPercent = totalPickedUp > 0 ? Math.round((pickedUpCallBackLater / totalPickedUp) * 100) : 0;
-  const otherPercent = totalPickedUp > 0 ? Math.max(0, 100 - interestedPercent - notInterestedPercent - callBackLaterPercent) : 0;
-
-  // 1. Funnel Data
+  // 1. Pipeline Performance Funnel Data
   const funnelData = useMemo(() => {
     return [
       {
         stage: '1. Sourced',
         count: executiveKpis.totalLeadsSourced || 0,
-        fill: '#3b82f6',
+        fill: '#2563EB',
       },
       {
-        stage: '2. Calls Made',
+        stage: '2. Contacted',
         count: executiveKpis.totalCalls || 0,
-        fill: '#10b981',
+        fill: '#3B82F6',
       },
       {
         stage: '3. Converted',
         count: executiveKpis.convertedCandidates || 0,
-        fill: '#8b5cf6',
+        fill: '#12B76A',
       },
     ];
   }, [executiveKpis]);
 
-  // 2. Call Outcomes Data
+  // Dynamic Y-Axis Domain with sensible headroom (~20-25%)
+  const maxPipelineValue = useMemo(() => {
+    return Math.max(
+      executiveKpis.totalLeadsSourced || 0,
+      executiveKpis.totalCalls || 0,
+      executiveKpis.convertedCandidates || 0
+    );
+  }, [executiveKpis]);
+
+  const yAxisDomain = useMemo(() => {
+    if (maxPipelineValue === 0) return [0, 4];
+    if (maxPipelineValue === 1) return [0, 2]; // 1 sits clearly visible at 50% height with 50% headroom
+    if (maxPipelineValue <= 5) return [0, maxPipelineValue + 1];
+    const ceiling = Math.ceil(maxPipelineValue * 1.25);
+    return [0, ceiling];
+  }, [maxPipelineValue]);
+
+  // 2. Call Outcomes Data (only active non-zero categories)
   const callOutcomesData = useMemo(() => {
     const outcomes = callingStats.outcomes || {};
+    const interest = callingStats.interestLevels || {};
+    const notInterestedCount = (outcomes.notAnswered || 0) + (interest.notInterested || 0);
 
-    if (callOutcomeView === 'detailed') {
-      const items = [];
-      if (pickedUpInterested > 0) {
-        items.push({ name: 'Picked Up: Interested', value: pickedUpInterested, color: '#10b981' });
-      }
-      if (pickedUpNotInterested > 0) {
-        items.push({ name: 'Picked Up: Not Interested', value: pickedUpNotInterested, color: '#ef4444' });
-      }
-      if (pickedUpCallBackLater > 0) {
-        items.push({ name: 'Picked Up: Call Back', value: pickedUpCallBackLater, color: '#6366f1' });
-      }
-      if (pickedUpOther > 0) {
-        items.push({ name: 'Picked Up: Other', value: pickedUpOther, color: '#14b8a6' });
-      }
-      if (items.length === 0 && (outcomes.pickedUp || 0) > 0) {
-        items.push({ name: 'Picked Up', value: outcomes.pickedUp, color: '#10b981' });
-      }
-
-      if (outcomes.voicemail > 0) {
-        items.push({ name: 'Voicemail', value: outcomes.voicemail, color: '#f59e0b' });
-      }
-      if (outcomes.notAnswered > 0) {
-        items.push({ name: 'Not Answered', value: outcomes.notAnswered, color: '#dc2626' });
-      }
-      if (outcomes.callCut > 0) {
-        items.push({ name: 'Call Cut', value: outcomes.callCut, color: '#64748b' });
-      }
-      return items;
-    }
-
-    return [
-      { name: 'Picked Up', value: outcomes.pickedUp || 0, color: '#10b981' },
-      { name: 'Voicemail', value: outcomes.voicemail || 0, color: '#f59e0b' },
-      { name: 'Not Answered', value: outcomes.notAnswered || 0, color: '#ef4444' },
-      { name: 'Call Cut', value: outcomes.callCut || 0, color: '#64748b' },
+    const items = [
+      { name: 'Picked Up', value: outcomes.pickedUp || 0, color: '#12B76A' },
+      { name: 'Not Interested', value: notInterestedCount, color: '#F04438' },
+      { name: 'Voicemail', value: outcomes.voicemail || 0, color: '#F79009' },
+      { name: 'Call Cut', value: outcomes.callCut || 0, color: '#98A2B3' },
+      { name: 'Callback', value: interest.callBackLater || pickedUpCallBackLater || 0, color: '#2E90FA' },
     ].filter((item) => item.value > 0);
-  }, [callingStats, callOutcomeView, pickedUpInterested, pickedUpNotInterested, pickedUpCallBackLater, pickedUpOther]);
+
+    return items;
+  }, [callingStats, pickedUpCallBackLater]);
 
   if (loading) {
     return <SkeletonDashboard />;
   }
 
-  // Format talk time
-  const talkHours = Math.floor((executiveKpis.totalTalkTimeMinutes || 0) / 60);
-  const talkMins = (executiveKpis.totalTalkTimeMinutes || 0) % 60;
-  const talkTimeFormatted = `${talkHours}h ${talkMins}m`;
+  const dateFilterOptions = [
+    { label: 'Today', value: 'today' },
+    { label: 'All Time', value: 'all' },
+    { label: 'Custom', value: 'custom' },
+  ];
+
+  const accountsCount = leadGenStats.accountsCount || 0;
+  const totalCalls = executiveKpis.totalCalls || 0;
+  const sourcedCount = executiveKpis.totalLeadsSourced || 0;
+  const convertedCount = executiveKpis.convertedCandidates || 0;
+  const benchTotal = benchStats.total || 0;
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Header & Filter Controls */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
+    <div className="pb-8">
+      {/* Top Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-5 mb-6">
         <div>
-          <h1 className="text-page-title text-slate-900">
-            {isAdmin ? 'Executive Command Dashboard' : 'Performance Dashboard'}
-          </h1>
+          <h1 className="text-page-title text-[#111827]">Dashboard</h1>
           <p className="text-page-subtitle mt-0.5">
-            {isAdmin
-              ? 'Real-time pipeline analytics, conversion metrics, and employee activity'
-              : `Operational workspace for ${user?.name || 'your role'}`}
+            Pipeline performance and team activity
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 text-xs font-semibold">
-            <button
-              onClick={() => {
-                setTimeframe('today');
-                setFilterDate(new Date().toISOString().split('T')[0]);
-              }}
-              className={`text-button rounded-lg px-3 py-1.5 transition ${
-                timeframe === 'today'
-                  ? 'bg-white text-brand-700 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 font-medium'
-              }`}
-            >
-              Today
-            </button>
-            <button
-              onClick={() => setTimeframe('all')}
-              className={`text-button rounded-lg px-3 py-1.5 transition ${
-                timeframe === 'all'
-                  ? 'bg-white text-slate-900 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 font-medium'
-              }`}
-            >
-              All Time
-            </button>
-            <button
-              onClick={() => setTimeframe('date')}
-              className={`text-button rounded-lg px-3 py-1.5 transition ${
-                timeframe === 'date'
-                  ? 'bg-white text-slate-900 font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 font-medium'
-              }`}
-            >
-              By Date
-            </button>
-          </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <SegmentedControl
+            options={dateFilterOptions}
+            value={timeframe}
+            onChange={(val) => setTimeframe(val)}
+          />
 
-          {timeframe === 'date' && (
+          {timeframe === 'custom' && (
             <input
               id="dashboard-date-filter"
               type="date"
-              className="text-body rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 font-semibold text-slate-700 shadow-xs focus:border-brand-500 focus:outline-none"
+              className="input-field text-xs h-8 w-auto"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
               aria-label="Filter records by date"
@@ -268,358 +223,343 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Health & Red Flag Alerts (If any) */}
+      {/* Row 1: 4 Structured KPI Cards (Divider-free spacing layout) */}
+      <div className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ${alerts.length > 0 ? 'mb-4' : 'mb-6'}`}>
+        <KpiCard
+          label="Total Leads Sourced"
+          value={sourcedCount}
+          supportingText={`${accountsCount} ${pluralizeWord(accountsCount, 'active account', 'active accounts')}`}
+          icon={Users}
+        />
+        <KpiCard
+          label="Calls Made"
+          value={totalCalls}
+          supportingText={`${totalPickedUp} picked up · ${formatTalkTime(executiveKpis.totalTalkTimeMinutes)} talk time`}
+          icon={Phone}
+        />
+        <KpiCard
+          label="Candidates on Bench"
+          value={benchTotal}
+          supportingText={`${benchStats.active || 0} active · ${benchStats.atsResumeReady || 0} ATS ready`}
+          icon={UserCheck}
+        />
+        <KpiCard
+          label="Conversion Rate"
+          value={`${typeof executiveKpis.conversionRate === 'number' ? executiveKpis.conversionRate.toFixed(1) : (executiveKpis.conversionRate || '0.0')}%`}
+          supportingText={`${convertedCount} converted / ${sourcedCount} sourced`}
+          icon={TrendingUp}
+        />
+      </div>
+
+      {/* Row 1.5: Operational Attention Alerts (Reduced height: 44-48px) */}
       {alerts.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {alerts.map((alt) => (
-            <div
-              key={alt.id}
-              className={`flex items-start gap-3 rounded-xl p-3.5 border ${
-                alt.severity === 'warning'
-                  ? 'bg-amber-50/70 border-amber-200 text-amber-900'
-                  : 'bg-brand-50/70 border-brand-200 text-brand-900'
-              }`}
-            >
-              <ShieldAlert
-                size={18}
-                className={alt.severity === 'warning' ? 'text-amber-600 shrink-0 mt-0.5' : 'text-brand-600 shrink-0 mt-0.5'}
+        <div className="space-y-2.5 mb-6">
+          {alerts.map((alt) => {
+            const countMatch = alt.message?.match(/\d+/);
+            const count = countMatch ? parseInt(countMatch[0], 10) : 1;
+            let formattedTitle = alt.title;
+            let formattedMsg = alt.message;
+
+            if (alt.id === 'leadgen-target') {
+              formattedTitle = 'Lead Gen Target Missed';
+              formattedMsg = `${count} ${pluralizeWord(count, 'entry', 'entries')} missed today's target`;
+            } else if (alt.id === 'sales-target') {
+              formattedTitle = 'Calling Quota Missed';
+              formattedMsg = `${count} ${pluralizeWord(count, 'entry', 'entries')} fell below calling quota`;
+            } else if (alt.id === 'missing-ats') {
+              formattedTitle = 'Pending ATS Resumes';
+              formattedMsg = `${count} ${pluralizeWord(count, 'candidate', 'candidates')} awaiting ATS-formatted ${count === 1 ? 'resume' : 'resumes'}`;
+            }
+
+            return (
+              <AlertBanner
+                key={alt.id}
+                type={alt.severity === 'warning' ? 'warning' : 'info'}
+                title={formattedTitle}
+                message={formattedMsg}
+                actionLabel={
+                  alt.id === 'leadgen-target'
+                    ? 'View lead gen →'
+                    : alt.id === 'sales-target'
+                    ? 'View sales →'
+                    : 'Review candidates →'
+                }
+                actionTo={
+                  alt.id === 'leadgen-target'
+                    ? '/lead-generation'
+                    : alt.id === 'sales-target'
+                    ? '/leads'
+                    : '/candidates'
+                }
               />
-              <div>
-                <p className="text-section-heading">{alt.title}</p>
-                <p className="text-body mt-0.5 opacity-90">{alt.message}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Row 1: Top 3 Executive Scorecards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <ExecutiveCard
-          title="Total Leads Sourced"
-          value={executiveKpis.totalLeadsSourced || 0}
-          subtitle={`${leadGenStats.resumeLeads || 0} Resume | ${leadGenStats.chatLeads || 0} Chat`}
-          icon={Users}
-          gradient="from-blue-600 to-indigo-600"
-          badge={`${leadGenStats.accountsCount || 0} Active LinkedIn Accounts`}
-          badgeType="default"
-        />
-        <ExecutiveCard
-          title="Calls & Talk Time"
-          value={executiveKpis.totalCalls || 0}
-          subtitle={`Total Speaking: ${talkTimeFormatted}`}
-          icon={Phone}
-          gradient="from-emerald-600 to-teal-600"
-          badge={`${callingStats.outcomes?.pickedUp || 0} Picked Up (${pickedUpInterested} Interested)`}
-          badgeType="success"
-        />
-        <ExecutiveCard
-          title="Lead ➔ Candidate Conv."
-          value={`${executiveKpis.conversionRate || 0}%`}
-          subtitle={`${executiveKpis.convertedCandidates || 0} Converted / ${executiveKpis.totalLeadsSourced || 0} Sourced`}
-          icon={TrendingUp}
-          gradient="from-purple-600 to-brand-600"
-          badge={`${benchStats.total || 0} Candidates On Bench`}
-          badgeType="default"
-        />
-      </div>
-
-      {/* Row 2: Visual Charts & Analytics */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* End-to-End Pipeline Funnel */}
-        <div className="card">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Layers size={18} className="text-brand-600" />
-              <h2 className="text-section-heading text-slate-900">End-to-End Pipeline Velocity</h2>
-            </div>
-            <span className="text-meta">Sourced ➔ Converted</span>
-          </div>
-          <div className="h-64 w-full" style={{ outline: 'none' }}>
-            <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
-              <BarChart accessibilityLayer={false} data={funnelData} margin={{ top: 15, right: 20, left: -10, bottom: 5 }} style={{ outline: 'none' }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                <Tooltip
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-                />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {funnelData.map((entry, index) => (
-                    <Cell key={`funnel-cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Call Outcomes & Reachability */}
-        <div className="card flex flex-col justify-between">
+      {/* Row 2: Analytics & Visual Performance Grid (24px spacing, visually aligned heights) */}
+      <div className="grid gap-4 lg:grid-cols-12 mb-6">
+        {/* Pipeline Performance Chart (approx 60% width) */}
+        <div className="card lg:col-span-7 flex flex-col justify-between min-h-[310px]">
           <div>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <PieChartIcon size={18} className="text-brand-600" />
-                <div>
-                  <h2 className="text-section-heading text-slate-900">Call Outcomes Distribution</h2>
-                  <p className="text-meta">Total Dials: {callingStats.totalCalls || 0}</p>
-                </div>
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#E5E7EB] pb-3">
+              <div>
+                <h2 className="text-section-heading text-[#111827]">Pipeline Performance</h2>
+                <p className="text-small text-[#667085] mt-0.5">Sourced → Contacted → Converted</p>
               </div>
-              
-              {/* View Toggle */}
-              <div className="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-xs font-semibold self-start sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setCallOutcomeView('detailed')}
-                  className={`text-badge rounded-md px-2.5 py-1 transition ${
-                    callOutcomeView === 'detailed'
-                      ? 'bg-white text-brand-700 font-bold shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 font-medium'
-                  }`}
-                >
-                  Sub-Breakdown
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCallOutcomeView('overview')}
-                  className={`text-badge rounded-md px-2.5 py-1 transition ${
-                    callOutcomeView === 'overview'
-                      ? 'bg-white text-slate-900 font-bold shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900 font-medium'
-                  }`}
-                >
-                  Overview
-                </button>
+              <div className="flex items-center gap-2.5 text-xs">
+                <span className="text-[#344054]">
+                  <strong className="font-semibold text-[#111827]">{sourcedCount}</strong>{' '}
+                  {pluralizeWord(sourcedCount, 'Sourced', 'Sourced')}
+                </span>
+                <span className="text-[#D0D5DD]">·</span>
+                <span className="text-[#344054]">
+                  <strong className="font-semibold text-[#111827]">{totalCalls}</strong>{' '}
+                  {pluralizeWord(totalCalls, 'Call', 'Calls')}
+                </span>
+                <span className="text-[#D0D5DD]">·</span>
+                <span className={convertedCount > 0 ? 'text-[#027A48]' : 'text-[#667085]'}>
+                  <strong className="font-semibold">{convertedCount}</strong> Converted
+                </span>
               </div>
             </div>
 
-            {/* Donut Chart */}
-            <div className="h-48 w-full">
-              {callOutcomesData.length === 0 ? (
-                <div className="text-empty-body flex h-full items-center justify-center">
-                  No call logs recorded yet
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart accessibilityLayer={false}>
-                    <Pie
-                      data={callOutcomesData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={46}
-                      outerRadius={70}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {callOutcomesData.map((entry, index) => (
-                        <Cell key={`outcome-cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(val, name) => [`${val} calls`, name]}
-                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-                    />
-                    <Legend verticalAlign="bottom" height={32} wrapperStyle={{ fontSize: '10px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Sub-distribution Box for Call Picked Up */}
-          <div className="mt-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-body font-semibold text-slate-800 flex items-center gap-1.5">
-                <PhoneCall size={13} className="text-emerald-600" />
-                Call Picked Up Sub-distribution
-              </span>
-              <span className="text-badge inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-800">
-                {totalPickedUp} Picked Up
-              </span>
-            </div>
-
-            {/* Proportional Split Bar */}
-            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 flex">
-              {totalPickedUp === 0 ? (
-                <div className="h-full w-full bg-slate-200" />
-              ) : (
-                <>
-                  {interestedPercent > 0 && (
-                    <div
-                      style={{ width: `${interestedPercent}%` }}
-                      className="h-full bg-emerald-500 transition-all"
-                      title={`Interested: ${pickedUpInterested} (${interestedPercent}%)`}
-                    />
-                  )}
-                  {notInterestedPercent > 0 && (
-                    <div
-                      style={{ width: `${notInterestedPercent}%` }}
-                      className="h-full bg-rose-500 transition-all"
-                      title={`Not Interested: ${pickedUpNotInterested} (${notInterestedPercent}%)`}
-                    />
-                  )}
-                  {callBackLaterPercent > 0 && (
-                    <div
-                      style={{ width: `${callBackLaterPercent}%` }}
-                      className="h-full bg-indigo-500 transition-all"
-                      title={`Call Back Later: ${pickedUpCallBackLater} (${callBackLaterPercent}%)`}
-                    />
-                  )}
-                  {otherPercent > 0 && (
-                    <div
-                      style={{ width: `${otherPercent}%` }}
-                      className="h-full bg-slate-400 transition-all"
-                      title={`Other: ${pickedUpOther} (${otherPercent}%)`}
-                    />
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Individual Sub-Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
-              <div className="rounded-lg bg-white p-2 border border-emerald-200/80 flex items-center gap-2 shadow-2xs">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
-                  <CheckCircle2 size={14} />
-                </div>
-                <div>
-                  <p className="text-meta uppercase font-semibold">Interested</p>
-                  <p className="text-body font-bold text-emerald-700">
-                    {pickedUpInterested}{' '}
-                    <span className="text-meta text-emerald-600 font-medium">({interestedPercent}%)</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-white p-2 border border-rose-200/80 flex items-center gap-2 shadow-2xs">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-rose-50 text-rose-600">
-                  <XCircle size={14} />
-                </div>
-                <div>
-                  <p className="text-meta uppercase font-semibold">Not Interested</p>
-                  <p className="text-body font-bold text-rose-700">
-                    {pickedUpNotInterested}{' '}
-                    <span className="text-meta text-rose-600 font-medium">({notInterestedPercent}%)</span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="col-span-2 sm:col-span-1 rounded-lg bg-white p-2 border border-indigo-200/80 flex items-center gap-2 shadow-2xs">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
-                  <Clock size={14} />
-                </div>
-                <div>
-                  <p className="text-meta uppercase font-semibold">Call Back Later</p>
-                  <p className="text-body font-bold text-indigo-700">
-                    {pickedUpCallBackLater}{' '}
-                    <span className="text-meta text-indigo-600 font-medium">({callBackLaterPercent}%)</span>
-                  </p>
-                </div>
-              </div>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={funnelData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EAECF0" />
+                  <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#667085' }} />
+                  <YAxis domain={yAxisDomain} allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#667085' }} />
+                  <Tooltip
+                    cursor={{ fill: '#F9FAFB' }}
+                    contentStyle={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '8px',
+                      border: '1px solid #E5E7EB',
+                      boxShadow: '0 1px 3px rgba(16,24,40,0.08)',
+                      fontSize: '12px',
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[5, 5, 0, 0]} maxBarSize={56}>
+                    {funnelData.map((entry, index) => (
+                      <Cell key={`bar-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
+
+        {/* Call Outcomes Distribution (approx 40% width, adaptive visualization) */}
+        <div className="card lg:col-span-5 flex flex-col justify-between min-h-[310px]">
+          <div>
+            <div className="mb-4 flex items-center justify-between border-b border-[#E5E7EB] pb-3">
+              <div>
+                <h2 className="text-section-heading text-[#111827]">Call Outcomes</h2>
+                <p className="text-small text-[#667085] mt-0.5">Distribution of call results</p>
+              </div>
+              <span className="text-xs font-semibold text-[#111827] bg-[#F9FAFB] border border-[#E5E7EB] px-2.5 py-1 rounded-md">
+                {callingStats.totalCalls || 0} {pluralizeWord(callingStats.totalCalls || 0, 'dial', 'dials')}
+              </span>
+            </div>
+
+            {callOutcomesData.length === 0 ? (
+              <div className="text-empty-body flex h-48 items-center justify-center text-xs text-[#667085]">
+                No call outcomes recorded yet
+              </div>
+            ) : callOutcomesData.length === 1 ? (
+              /* Compact single outcome: clean progress bar instead of giant empty donut */
+              <div className="py-6 px-2 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-3 w-3 rounded-full shrink-0"
+                      style={{ backgroundColor: callOutcomesData[0].color }}
+                    />
+                    <span className="text-sm font-semibold text-[#111827]">
+                      {callOutcomesData[0].name}
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-[#111827]">
+                    100%
+                  </span>
+                </div>
+
+                <div className="h-3 w-full rounded-full bg-[#F2F4F7] overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: '100%',
+                      backgroundColor: callOutcomesData[0].color,
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-[#667085] pt-1">
+                  <span>
+                    {callOutcomesData[0].value}{' '}
+                    {pluralizeWord(callOutcomesData[0].value, 'call', 'calls')}
+                  </span>
+                  <span>100% of recorded volume</span>
+                </div>
+              </div>
+            ) : (
+              /* Donut for multiple categories */
+              <div className="flex flex-col sm:flex-row items-center gap-4 py-2">
+                <div className="h-40 w-40 shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={callOutcomesData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={42}
+                        outerRadius={62}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {callOutcomesData.map((entry, index) => (
+                          <Cell key={`pie-cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name) => [`${val} calls`, name]}
+                        contentStyle={{
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: '8px',
+                          border: '1px solid #E5E7EB',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Flat, Clean Legend & Breakdown */}
+                <div className="flex-1 w-full space-y-2 text-xs">
+                  {callOutcomesData.map((item) => {
+                    const total = callingStats.totalCalls || 1;
+                    const percent = Math.round((item.value / total) * 100);
+                    return (
+                      <div key={item.name} className="flex items-center justify-between py-0.5">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-[#344054] font-medium">{item.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className="font-semibold text-[#111827]">{item.value}</span>
+                          <span className="text-[#98A2B3]">({percent}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Clean Picked-Up Sub-Breakdown row */}
+          {totalPickedUp > 0 && (
+            <div className="mt-4 pt-3 border-t border-[#E5E7EB] text-xs">
+              <div className="flex items-center justify-between mb-2 text-[#667085]">
+                <span className="font-medium">Picked Up Sentiment:</span>
+                <span>{totalPickedUp} Answered</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 rounded-lg bg-[#ECFDF3] border border-[#A6F4C5]">
+                  <p className="text-[11px] text-[#027A48] font-medium uppercase">Interested</p>
+                  <p className="text-sm font-bold text-[#027A48] mt-0.5">{pickedUpInterested}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-[#FEF3F2] border border-[#FECDCA]">
+                  <p className="text-[11px] text-[#B42318] font-medium uppercase">Not Int.</p>
+                  <p className="text-sm font-bold text-[#B42318] mt-0.5">{pickedUpNotInterested}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-[#EFF8FF] border border-[#B2DDFF]">
+                  <p className="text-[11px] text-[#175CD3] font-medium uppercase">Callback</p>
+                  <p className="text-sm font-bold text-[#175CD3] mt-0.5">{pickedUpCallBackLater}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-
-      {/* Row 4: Admin Team Performance Leaderboard (Only shown for Admin) */}
+      {/* Row 3: Recruiter / Team Performance Table (24px spacing, 10-12px rounded, compact rows) */}
       {isAdmin && (
-        <div className="card overflow-hidden">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Award size={18} className="text-brand-600" />
-              <div>
-                <h2 className="text-section-heading text-slate-900">Top 5 Employee Performance Scorecard</h2>
-                <p className="text-meta">Live activity metrics breakdown & top performers by actual working output</p>
-              </div>
+        <div className="card p-0 overflow-hidden mb-6">
+          <div className="p-5 border-b border-[#E5E7EB] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="text-section-heading text-[#111827]">Recruiter / Team Performance</h2>
+              <p className="text-small text-[#667085] mt-0.5">Live operational output and targets breakdown</p>
             </div>
             <Link
               to="/employees"
-              className="text-button text-brand-600 hover:text-brand-700 flex items-center gap-1"
+              className="btn-secondary text-xs h-8 self-start sm:self-auto"
             >
-              Manage Employees <ArrowUpRight size={14} />
+              <span>Manage Employees</span>
+              <ArrowUpRight size={14} />
             </Link>
           </div>
 
           <div className="overflow-x-auto">
             {leaderboard.length === 0 ? (
-              <div className="text-empty-body py-8 text-center">
+              <div className="text-empty-body py-8 text-center text-xs text-[#667085]">
                 No employee records found. Create employees in the Employee Management portal.
               </div>
             ) : (
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 uppercase border-y border-slate-100">
+                <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                   <tr>
-                    <th className="text-table-header py-3 px-4 w-12 text-center">#</th>
-                    <th className="text-table-header py-3 px-4">Employee</th>
-                    <th className="text-table-header py-3 px-4">Designation</th>
-                    <th className="text-table-header py-3 px-4">Modules Access</th>
-                    <th className="text-table-header py-3 px-4">Sourced Leads</th>
-                    <th className="text-table-header py-3 px-4">Calls Made</th>
-                    <th className="text-table-header py-3 px-4">Conversions</th>
-                    <th className="text-table-header py-3 px-4">Applications</th>
-                    <th className="text-table-header py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-table-header w-12 text-center">#</th>
+                    <th className="py-3 px-4 text-table-header">Recruiter</th>
+                    <th className="py-3 px-4 text-table-header text-right">Leads</th>
+                    <th className="py-3 px-4 text-table-header text-right">Calls</th>
+                    <th className="py-3 px-4 text-table-header text-right">Interested</th>
+                    <th className="py-3 px-4 text-table-header text-right">Interviews</th>
+                    <th className="py-3 px-4 text-table-header text-right">Placements</th>
+                    <th className="py-3 px-4 text-table-header">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#E5E7EB]">
                   {leaderboard.map((emp, index) => (
-                    <tr key={emp.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3 px-4 text-center">
-                        <span
-                          className={`text-badge inline-flex h-6 w-6 items-center justify-center rounded-full ${
-                            emp.rank === 1
-                              ? 'bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs'
-                              : emp.rank === 2
-                              ? 'bg-slate-200 text-slate-700 border border-slate-300 shadow-2xs'
-                              : emp.rank === 3
-                              ? 'bg-amber-50 text-amber-900/80 border border-amber-200'
-                              : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {emp.rank || (index + 1)}
-                        </span>
+                    <tr key={emp.id} className="hover:bg-[#F9FAFB] transition-colors">
+                      <td className="py-2.5 px-4 text-center font-medium text-[#667085]">
+                        {emp.rank || index + 1}
                       </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-[10px]">
+                      <td className="py-2.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-7 w-7 rounded-lg bg-[#EFF6FF] text-[#175CD3] border border-[#B2DDFF] flex items-center justify-center font-semibold text-xs shrink-0">
                             {emp.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-body font-semibold text-slate-900">{emp.name}</p>
-                            <p className="text-meta">{emp.email}</p>
+                            <p className="font-semibold text-[#111827]">{emp.name}</p>
+                            <p className="text-[11px] text-[#667085]">{emp.designation || emp.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="text-body py-3 px-4 text-slate-600">{emp.designation}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {emp.allowedModules.map((m, mIdx) => (
-                            <span
-                              key={m}
-                              className="text-badge text-indigo-700 capitalize"
-                            >
-                              {m === 'leads' ? 'Sales Team' : m.replace('_', ' ')}{mIdx < emp.allowedModules.length - 1 ? ' ·' : ''}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="text-body py-3 px-4 font-bold text-blue-600">{emp.leadsSourced}</td>
-                      <td className="text-body py-3 px-4 font-bold text-emerald-600">{emp.callsMade}</td>
-                      <td className="text-body py-3 px-4 font-bold text-purple-600">{emp.conversions}</td>
-                      <td className="text-body py-3 px-4 font-bold text-amber-600">{emp.applications}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`text-badge ${
+                      <td className="py-2.5 px-4 text-right font-medium text-[#111827]">{emp.leadsSourced}</td>
+                      <td className="py-2.5 px-4 text-right font-medium text-[#111827]">{emp.callsMade}</td>
+                      <td className="py-2.5 px-4 text-right font-medium text-[#111827]">{emp.interested ?? emp.applications ?? 0}</td>
+                      <td className="py-2.5 px-4 text-right font-medium text-[#111827]">{emp.interviews || 0}</td>
+                      <td className="py-2.5 px-4 text-right font-medium text-[#12B76A]">{emp.conversions || 0}</td>
+                      <td className="py-2.5 px-4">
+                        <Badge
+                          variant={
                             emp.targetStatus === 'Top Performer'
-                              ? 'text-emerald-700 font-bold'
+                              ? 'success'
                               : emp.targetStatus === 'On Track'
-                              ? 'text-emerald-600'
-                              : 'text-amber-600'
-                          }`}
+                              ? 'info'
+                              : 'warning'
+                          }
+                          size="sm"
+                          dot
                         >
                           {emp.targetStatus}
-                        </span>
+                        </Badge>
                       </td>
                     </tr>
                   ))}
@@ -630,67 +570,87 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Row 5: Quick Access Navigation */}
+      {/* Row 4: Workspace Module Direct Navigation */}
       <div className="card">
-        <h2 className="text-section-heading mb-4 text-slate-900">Direct Module Navigation</h2>
+        <h2 className="text-section-heading mb-3 text-[#111827]">Direct Module Access</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {canLeadGen && (
             <Link
               to="/lead-generation"
-              className="flex items-center gap-3 rounded-xl border border-slate-200/80 p-3.5 transition hover:border-blue-300 hover:bg-blue-50/40"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-[#E5E7EB] hover:border-[#2563EB] hover:bg-[#EFF6FF]/40 transition group"
             >
-              <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
-                <Users size={18} />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#667085] group-hover:text-[#2563EB]">
+                  <Users size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#111827]">Lead Generation</p>
+                  <p className="text-[11px] text-[#667085] mt-0.5">
+                    {stats?.totals?.leadGeneration || 0} {pluralizeWord(stats?.totals?.leadGeneration || 0, 'Record', 'Records')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-body font-bold text-slate-800">Lead Generation</p>
-                <p className="text-meta">{stats?.totals?.leadGeneration || 0} Records</p>
-              </div>
+              <ArrowRight size={14} className="text-[#98A2B3] group-hover:text-[#2563EB] transition" />
             </Link>
           )}
 
           {canLeads && (
             <Link
               to="/leads"
-              className="flex items-center gap-3 rounded-xl border border-slate-200/80 p-3.5 transition hover:border-emerald-300 hover:bg-emerald-50/40"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-[#E5E7EB] hover:border-[#2563EB] hover:bg-[#EFF6FF]/40 transition group"
             >
-              <div className="rounded-lg bg-emerald-100 p-2 text-emerald-600">
-                <Briefcase size={18} />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#667085] group-hover:text-[#2563EB]">
+                  <Briefcase size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#111827]">Sales Team</p>
+                  <p className="text-[11px] text-[#667085] mt-0.5">
+                    {callingStats.totalCalls || 0} {pluralizeWord(callingStats.totalCalls || 0, 'Call', 'Calls')} Made
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-body font-bold text-slate-800">Sales Team</p>
-                <p className="text-meta">{callingStats.totalCalls || 0} Calls Made</p>
-              </div>
+              <ArrowRight size={14} className="text-[#98A2B3] group-hover:text-[#2563EB] transition" />
             </Link>
           )}
 
           {canMarketing && (
             <Link
               to="/candidates"
-              className="flex items-center gap-3 rounded-xl border border-slate-200/80 p-3.5 transition hover:border-purple-300 hover:bg-purple-50/40"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-[#E5E7EB] hover:border-[#2563EB] hover:bg-[#EFF6FF]/40 transition group"
             >
-              <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
-                <UserCheck size={18} />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#667085] group-hover:text-[#2563EB]">
+                  <UserCheck size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#111827]">Candidates</p>
+                  <p className="text-[11px] text-[#667085] mt-0.5">
+                    {benchStats.total || 0} {pluralizeWord(benchStats.total || 0, 'Candidate', 'Candidates')} on Bench
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-body font-bold text-slate-800">Candidate Bench</p>
-                <p className="text-meta">{benchStats.total || 0} Profiles</p>
-              </div>
+              <ArrowRight size={14} className="text-[#98A2B3] group-hover:text-[#2563EB] transition" />
             </Link>
           )}
 
           {canMarketing && (
             <Link
               to="/marketing"
-              className="flex items-center gap-3 rounded-xl border border-slate-200/80 p-3.5 transition hover:border-amber-300 hover:bg-amber-50/40"
+              className="flex items-center justify-between p-3.5 rounded-lg border border-[#E5E7EB] hover:border-[#2563EB] hover:bg-[#EFF6FF]/40 transition group"
             >
-              <div className="rounded-lg bg-amber-100 p-2 text-amber-600">
-                <Megaphone size={18} />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#F9FAFB] border border-[#E5E7EB] text-[#667085] group-hover:text-[#2563EB]">
+                  <Megaphone size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#111827]">Marketing</p>
+                  <p className="text-[11px] text-[#667085] mt-0.5">
+                    {marketingStats.totalApplications || 0} {pluralizeWord(marketingStats.totalApplications || 0, 'Submission', 'Submissions')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-body font-bold text-slate-800">Marketing Team</p>
-                <p className="text-meta">{marketingStats.totalApplications || 0} Applications</p>
-              </div>
+              <ArrowRight size={14} className="text-[#98A2B3] group-hover:text-[#2563EB] transition" />
             </Link>
           )}
         </div>
@@ -698,4 +658,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

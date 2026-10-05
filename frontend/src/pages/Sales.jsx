@@ -146,11 +146,12 @@ export default function Sales() {
   };
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-5">
         <div>
-          <h1 className="text-page-title text-slate-800">Sales Team</h1>
-          <p className="text-page-subtitle">
+          <h1 className="text-page-title text-[#111827]">Sales Team</h1>
+          <p className="text-page-subtitle text-[#667085]">
             Track calls, talk time, dispositions & follow-ups
           </p>
         </div>
@@ -162,38 +163,33 @@ export default function Sales() {
         </div>
       </div>
 
-      <div className="card mb-6">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              id="sales-search"
-              className="input-field pl-9 text-body"
-              placeholder="Search by executive name..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              aria-label="Search by executive name"
-            />
-          </div>
+      {/* Search & Date Filter */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]"
+          />
           <input
-            id="sales-date-filter"
-            type="date"
-            className="input-field sm:w-48 text-body"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            aria-label="Filter by date"
+            id="sales-search"
+            className="input-field pl-9 text-body bg-white border-[#E5E7EB]"
+            placeholder="Search by executive name..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            aria-label="Search by executive name"
           />
         </div>
-        <p className="mt-3 text-meta">
-          Targets: Min 100 calls & 2h 30m talk time daily. Rows in red = target
-          not met.
-        </p>
+        <input
+          id="sales-date-filter"
+          type="date"
+          className="input-field sm:w-48 text-body bg-white border-[#E5E7EB]"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          aria-label="Filter by date"
+        />
       </div>
 
-      <div className="card overflow-x-auto p-0 shadow-sm border border-slate-200">
+      <div className="card overflow-x-auto p-0 border border-[#E5E7EB] bg-white">
         {loading ? (
           <SkeletonTable
             rows={7}
@@ -209,52 +205,52 @@ export default function Sales() {
             ]}
           />
         ) : records.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="text-empty-heading text-slate-700 mb-1">No records found</p>
-            <p className="text-empty-body">No sales entries match your filter criteria.</p>
+          <div className="py-12 text-center text-[#667085]">
+            <p className="text-empty-heading text-[#111827] mb-1">No records found</p>
+            <p className="text-empty-body text-[#667085]">No sales entries match your filter criteria.</p>
           </div>
         ) : (
-          <table className="w-full text-body">
-            <thead className="border-b border-slate-200 bg-slate-50">
+          <table className="w-full text-body text-[#475467]">
+            <thead className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
               <tr>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Executive
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Date
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Leads
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Calls
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Duration
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Dispositions
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Interested
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-left">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-left">
                   Status
                 </th>
-                <th scope="col" className="text-table-header px-4 py-3 text-right">
+                <th scope="col" className="text-table-header text-[#475467] font-semibold px-4 py-3 text-right">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#E5E7EB]">
               {records.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((r) => (
                 <tr
                   key={r._id}
                   className={
-                    r.targetsNotMet ? "alert-row" : "hover:bg-slate-50"
+                    r.targetsNotMet ? "alert-row" : "hover:bg-[#F9FAFB] transition-colors"
                   }
                 >
-                  <td className="px-4 py-3 text-body font-medium text-slate-800">
+                  <td className="px-4 py-3 text-body font-medium text-[#111827]">
                     {r.salesExecutiveName}
                   </td>
                   <td className="px-4 py-3 text-meta">

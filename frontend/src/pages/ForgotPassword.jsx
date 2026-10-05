@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { isValidEmail, EMAIL_ERROR_MSG } from '../utils/validation';
+import BenchTrixLogo from '../components/BenchTrixLogo';
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -52,14 +53,12 @@ export default function ForgotPassword() {
   return (
     <main className="flex min-h-screen bg-white">
       {/* Left side - Branding */}
-      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/70 to-brand-900/40"></div>
+      <div className="hidden w-1/2 flex-col justify-center p-12 text-white lg:flex relative overflow-hidden bg-navy-950">
         <div className="relative z-10 mx-auto max-w-lg">
-          <h1 className="mb-6 font-logo text-5xl tracking-normal text-white">
-            Bench<span className="bg-gradient-to-r from-blue-300 to-indigo-200 bg-clip-text text-transparent">Trix</span>
-          </h1>
-          <p className="text-lg leading-relaxed text-brand-100">
+          <div className="mb-6">
+            <BenchTrixLogo variant="white" size="text-5xl" subtitle="Staffing & CRM Platform" />
+          </div>
+          <p className="text-lg leading-relaxed text-slate-300">
             A comprehensive, professional solution for Lead Generation, Sales, and Marketing.
             Empower your teams to close more deals faster.
           </p>
@@ -70,13 +69,13 @@ export default function ForgotPassword() {
       <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
         <div className="w-full max-w-md">
           <div className="mb-10">
-            <h2 className="font-logo text-3xl tracking-normal text-slate-900 lg:hidden mb-2">
-              Bench<span className="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">Trix</span>
-            </h2>
-            <h3 className="text-2xl font-semibold text-slate-800">
+            <div className="lg:hidden mb-4">
+              <BenchTrixLogo variant="default" size="text-2xl" subtitle="Staffing & CRM Platform" />
+            </div>
+            <h3 className="text-2xl font-semibold text-[#111827]">
               {step === 1 ? 'Forgot Password' : 'Reset Password'}
             </h3>
-            <p className="mt-2 text-slate-500">
+            <p className="mt-2 text-[#667085] text-sm">
               {step === 1 
                 ? "Enter your email address to receive an OTP." 
                 : "Enter the OTP sent to your email and your new password."}

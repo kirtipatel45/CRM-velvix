@@ -407,10 +407,9 @@ export default function CandidatePortalHome() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-10">
+    <div className="space-y-6 pb-8">
       {/* Hero Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-900 via-brand-800 to-indigo-950 p-6 sm:p-8 text-white shadow-lg">
-        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-white/5 blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-xl bg-navy-950 p-6 sm:p-8 text-white border border-navy-800">
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -1094,33 +1093,33 @@ export default function CandidatePortalHome() {
                 {/* Metrics Grid */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   {/* Long Applications */}
-                  <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/70 to-white p-4 space-y-1.5 shadow-2xs">
+                  <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-900">Long Applications Submitted</span>
-                      <span className="rounded-full bg-blue-100/80 px-2 py-0.5 text-[10px] font-bold text-blue-800 border border-blue-200">
+                      <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">Long Applications Submitted</span>
+                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 border border-brand-200">
                         Enterprise Portals
                       </span>
                     </div>
-                    <div className="text-2xl font-extrabold text-blue-950">
+                    <div className="text-2xl font-semibold text-txt-primary">
                       {appMetrics.totalLongApplications}
                     </div>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-xs text-txt-secondary">
                       Detailed enterprise applications and direct vendor client submissions
                     </p>
                   </div>
 
                   {/* Easy Applications */}
-                  <div className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 to-white p-4 space-y-1.5 shadow-2xs">
+                  <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-indigo-900">Easy Applications Submitted</span>
-                      <span className="rounded-full bg-indigo-100/80 px-2 py-0.5 text-[10px] font-bold text-indigo-800 border border-indigo-200">
+                      <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">Easy Applications Submitted</span>
+                      <span className="rounded-full bg-surface-secondary px-2 py-0.5 text-[10px] font-medium text-txt-secondary border border-border">
                         Fast-Track
                       </span>
                     </div>
-                    <div className="text-2xl font-extrabold text-indigo-950">
+                    <div className="text-2xl font-semibold text-txt-primary">
                       {appMetrics.totalEasyApplications}
                     </div>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-xs text-txt-secondary">
                       Fast-track 1-click job postings & direct recruiter applications
                     </p>
                   </div>
@@ -1470,15 +1469,15 @@ export default function CandidatePortalHome() {
               </div>
 
               {/* ATS-Optimized Resume (Prepared by Recruiter) */}
-              <div className="card shadow-xs border border-purple-200 bg-gradient-to-b from-purple-50/30 to-white space-y-4">
-                <div className="flex items-center gap-2.5 border-b border-purple-100 pb-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100 text-purple-700 border border-purple-200">
+              <div className="card border border-border bg-surface space-y-4">
+                <div className="flex items-center gap-2.5 border-b border-border pb-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-700 border border-brand-200">
                     <Sparkles size={18} />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-slate-800 text-sm">ATS-Formatted Resume</h3>
-                      <span className="rounded-full bg-purple-100 px-2 py-0.2 text-[10px] font-bold text-purple-700 border border-purple-200">
+                      <h3 className="font-semibold text-slate-800 text-sm">ATS-Formatted Resume</h3>
+                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 border border-brand-200">
                         Recruiter Provided
                       </span>
                     </div>
