@@ -198,6 +198,10 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="employee"
+            element={<Navigate to="/employees" replace />}
+          />
           <Route 
             path="profile" 
             element={<Profile />} 

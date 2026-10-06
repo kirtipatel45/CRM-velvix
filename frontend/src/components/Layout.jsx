@@ -7,6 +7,7 @@ import {
   Briefcase,
   Megaphone,
   UserCheck,
+  UserCog,
   Menu,
   X,
   LogOut,
@@ -31,6 +32,12 @@ export default function Layout() {
       icon: LayoutDashboard,
       label: "Dashboard",
       visible: true,
+    },
+    {
+      to: "/employees",
+      icon: UserCog,
+      label: "Employees",
+      visible: isAdmin,
     },
     {
       to: "/lead-generation",
