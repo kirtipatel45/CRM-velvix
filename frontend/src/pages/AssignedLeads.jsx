@@ -513,7 +513,7 @@ export default function AssignedLeads() {
                 ? 'Assigned Candidates'
                 : 'Sales Team'}
             </h1>
-            <span className="text-xs font-semibold text-[#667085] bg-[#F9FAFB] border border-[#E5E7EB] px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-semibold text-[#667085] ">
               {filteredLeads.length} {user?.role === 'marketing' ? (filteredLeads.length === 1 ? "candidate" : "candidates") : (filteredLeads.length === 1 ? "lead" : "leads")}
             </span>
           </div>
@@ -650,7 +650,7 @@ export default function AssignedLeads() {
                 <div className="h-2 w-2 rounded-full bg-[#2563EB]" />
                 <h2 className="text-section-heading text-[#111827]">Sales Queue</h2>
               </div>
-              <span className="text-xs font-semibold text-[#175CD3] bg-[#EFF6FF] border border-[#B2DDFF] px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-[#175CD3] ">
                 {kanbanData.queueLeads.length}
               </span>
             </div>
@@ -782,7 +782,7 @@ export default function AssignedLeads() {
                 <div className="h-2 w-2 rounded-full bg-[#12B76A]" />
                 <h2 className="text-section-heading text-[#111827]">Interested Candidates</h2>
               </div>
-              <span className="text-xs font-semibold text-[#027A48] bg-[#ECFDF3] border border-[#A6F4C5] px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-[#027A48] ">
                 {kanbanData.interestedProfiles.length}
               </span>
             </div>
@@ -896,7 +896,7 @@ export default function AssignedLeads() {
                 <div className="h-2 w-2 rounded-full bg-[#F04438]" />
                 <h2 className="text-section-heading text-[#111827]">Not Interested</h2>
               </div>
-              <span className="text-xs font-semibold text-[#B42318] bg-[#FEF3F2] border border-[#FECDCA] px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-[#B42318] ">
                 {kanbanData.notInterestedProfiles.length}
               </span>
             </div>
@@ -1054,7 +1054,7 @@ export default function AssignedLeads() {
                       {renderCallBadge(primaryProfile || r)}
                     </td>
                     <td className="px-4 py-3.5 text-xs">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-[#667085] bg-[#F9FAFB] border border-[#E5E7EB]">
+                      <span className="inline-flex items-center text-xs font-medium text-[#667085] ">
                         Available
                       </span>
                     </td>
@@ -1149,7 +1149,7 @@ export default function AssignedLeads() {
                     Lead Source
                   </span>
                   <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#111827] border border-[#E5E7EB] shadow-2xs">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#111827] ">
                       <Tag size={11} className="text-[#667085]" />
                       {selectedLead.leadSource || "LinkedIn"}
                     </span>

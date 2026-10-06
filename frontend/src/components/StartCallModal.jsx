@@ -291,7 +291,7 @@ export default function StartCallModal({
                   Call Duration
                 </span>
                 {timerRunning && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600 border border-red-200 animate-pulse">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 animate-pulse">
                     <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                     LIVE CALL ACTIVE
                   </span>

@@ -279,7 +279,7 @@ export default function Profile() {
 
     if (!status || status === 'not_called') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200">
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 ">
           <Clock size={10} className="text-slate-400" />
           Not Called
         </span>
@@ -289,7 +289,7 @@ export default function Profile() {
     if (status === 'picked_up') {
       if (interestStatus === 'Interested' || isInterested) {
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200 shadow-xs">
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 ">
             <PhoneCall size={10} className="text-emerald-600" />
             Interested
           </span>
@@ -297,14 +297,14 @@ export default function Profile() {
       }
       if (interestStatus === 'Call Back Later') {
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700 border border-brand-200">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-700 ">
             <Clock size={10} className="text-brand-600" />
             Call Back Later
           </span>
         );
       }
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700 border border-slate-200">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 ">
           <PhoneCall size={10} className="text-slate-500" />
           Picked Up
         </span>
@@ -313,7 +313,7 @@ export default function Profile() {
 
     if (status === 'call_cut') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700 border border-rose-200">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 ">
           <PhoneOff size={10} className="text-rose-500" />
           Call Cut
         </span>
@@ -322,7 +322,7 @@ export default function Profile() {
 
     if (status === 'voicemail') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 border border-amber-200">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 ">
           <Voicemail size={10} className="text-amber-600" />
           Voicemail
         </span>
@@ -331,7 +331,7 @@ export default function Profile() {
 
     if (status === 'not_answered') {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200">
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 ">
           <PhoneMissed size={10} className="text-slate-400" />
           Not Answered
         </span>
@@ -433,7 +433,7 @@ export default function Profile() {
                 <p className="text-xs font-semibold text-[#667085] uppercase tracking-wider flex items-center gap-1.5">
                   <CheckCircle2 size={14} className="text-[#98A2B3]" /> Status
                 </p>
-                <span className="mt-1 inline-flex items-center rounded-full bg-[#ECFDF3] px-2.5 py-0.5 text-xs font-semibold text-[#027A48] border border-[#A6F4C5]">
+                <span className="mt-1 inline-flex items-center text-xs font-semibold text-[#027A48] ">
                   {user?.status || 'Active'}
                 </span>
               </div>
@@ -529,7 +529,7 @@ export default function Profile() {
               <h2 className="text-section-heading text-[#111827] flex items-center gap-2">
                 {isMarketing ? <UserCheck className="text-[#2563EB]" size={18} /> : <Briefcase className="text-[#2563EB]" size={18} />}
                 <span>{isMarketing ? 'My Assigned Candidates' : 'Sales Team - My Assigned Leads'}</span>
-                <span className="rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-xs font-semibold text-[#175CD3] border border-[#B2DDFF]">
+                <span className=" text-xs font-semibold text-[#175CD3] ">
                   {filteredAssignedLeads.length} {isMarketing ? (filteredAssignedLeads.length === 1 ? 'Candidate' : 'Candidates') : (filteredAssignedLeads.length === 1 ? 'Lead' : 'Leads')}
                 </span>
               </h2>
@@ -775,7 +775,7 @@ export default function Profile() {
                     Lead Source
                   </span>
                   <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#344054] border border-[#E5E7EB] shadow-2xs">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#344054] ">
                       <Tag size={11} className="text-[#667085]" />
                       {selectedLead.leadSource || 'LinkedIn'}
                     </span>

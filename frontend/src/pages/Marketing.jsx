@@ -354,7 +354,7 @@ export default function Marketing() {
         >
           <Users size={15} />
           <span>Assigned Candidates</span>
-          <span className="text-[11px] rounded-full bg-[#EFF6FF] text-[#175CD3] px-2 py-0.5 font-medium border border-[#B2DDFF]">
+          <span className="text-[11px] text-[#175CD3] font-medium ">
             {assignedCandidates.length}
           </span>
         </button>
@@ -368,7 +368,7 @@ export default function Marketing() {
         >
           <Calendar size={15} />
           <span>Daily Marketing Logs</span>
-          <span className="text-[11px] rounded-full bg-[#F9FAFB] text-[#667085] px-2 py-0.5 font-medium border border-[#E5E7EB]">
+          <span className="text-[11px] text-[#667085] font-medium ">
             {records.length}
           </span>
         </button>
@@ -745,7 +745,7 @@ export default function Marketing() {
                             {form.candidates[0].candidateName}
                           </span>
                           {selectedObj?.visaStatus && (
-                            <span className="text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-1.5 py-0.2 rounded-full flex-shrink-0">
+                            <span className="text-[10px] font-bold text-brand-700 flex-shrink-0">
                               {selectedObj.visaStatus}
                             </span>
                           )}
@@ -864,7 +864,7 @@ export default function Marketing() {
                               <div className="min-w-0">
                                 <div className="font-semibold text-slate-900 truncate flex items-center gap-1.5">
                                   <span>{fullName}</span>
-                                  <span className="text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-1.5 py-0.2 rounded-full">
+                                  <span className="text-[10px] font-bold text-brand-700 ">
                                     {cand.visaStatus || "Candidate"}
                                   </span>
                                 </div>
@@ -879,7 +879,7 @@ export default function Marketing() {
 
                             <div className="flex items-center gap-1.5 flex-shrink-0 pl-2">
                               {isSelected ? (
-                                <span className="text-xs font-bold text-brand-600 bg-brand-100 px-2 py-0.5 rounded-full">
+                                <span className="text-xs font-bold text-brand-600 ">
                                   Selected
                                 </span>
                               ) : (
@@ -1013,7 +1013,7 @@ export default function Marketing() {
                       Candidate Skills
                     </span>
                     {candidateSkills.length > 0 && (
-                      <span className="text-[11px] font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.2 rounded-full">
+                      <span className="text-[11px] font-semibold text-brand-700 ">
                         {candidateSkills.length} extracted from resume
                       </span>
                     )}
@@ -1065,7 +1065,7 @@ export default function Marketing() {
                             <span
                               key={s.skillId || s.id}
                               onClick={() => toggleSkillSelection(s)}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-600 text-white cursor-pointer hover:bg-brand-700 shadow-2xs transition"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 cursor-pointer hover: transition"
                               title="Click to deselect"
                             >
                               <Check size={11} className="stroke-[3]" />
@@ -1264,7 +1264,7 @@ export default function Marketing() {
                 {hoveredCandidate.primarySkill || hoveredCandidate.preferredJobTitles?.[0] || 'Candidate'}
               </p>
             </div>
-            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold text-brand-700 border border-brand-200 flex-shrink-0">
+            <span className=" text-[10px] font-bold text-brand-700 flex-shrink-0">
               {hoveredCandidate.visaStatus || 'Candidate'}
             </span>
           </div>

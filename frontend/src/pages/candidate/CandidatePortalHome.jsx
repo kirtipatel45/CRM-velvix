@@ -414,17 +414,17 @@ export default function CandidatePortalHome() {
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {candidate?.isOnboarded ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200 border border-emerald-500/40 shadow-xs">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 ">
                   <CheckCircle2 size={13} />
                   <span>Onboarding Completed</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-200 border border-amber-500/40 shadow-xs animate-pulse">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 animate-pulse">
                   <Clock size={13} />
                   <span>Onboarding Pending</span>
                 </span>
               )}
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-brand-100 border border-white/20">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-100 ">
                 <ShieldCheck size={13} />
                 <span>Candidate Portal</span>
               </span>
@@ -584,7 +584,7 @@ export default function CandidatePortalHome() {
                     Visa Work Authorization <span className="text-red-500">*</span>
                   </label>
                   {formData.visaStatus && (
-                    <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full border border-brand-200">
+                    <span className="text-xs font-semibold text-brand-700 ">
                       Selected: {formData.visaStatus}
                     </span>
                   )}
@@ -772,7 +772,7 @@ export default function CandidatePortalHome() {
                     formData.preferredJobTitles.map((title) => (
                       <span
                         key={title}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 text-white px-3 py-1 text-xs font-semibold shadow-xs animate-fadeIn"
+                        className="inline-flex items-center gap-1.5 text-brand-600 text-xs font-semibold animate-fadeIn"
                       >
                         <Briefcase size={11} />
                         <span>{title}</span>
@@ -846,7 +846,7 @@ export default function CandidatePortalHome() {
                     formData.preferredJobCities.map((city) => (
                       <span
                         key={city}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 text-white px-3 py-1 text-xs font-semibold shadow-xs animate-fadeIn"
+                        className="inline-flex items-center gap-1.5 text-brand-600 text-xs font-semibold animate-fadeIn"
                       >
                         <MapPin size={11} />
                         <span>{city}</span>
@@ -1021,7 +1021,7 @@ export default function CandidatePortalHome() {
                 Work Authorization
               </span>
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700 border border-brand-200">
+                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-700 ">
                   <Award size={14} className="text-brand-600" />
                   <span>{candidate?.visaStatus || "Not Set"}</span>
                 </span>
@@ -1051,7 +1051,7 @@ export default function CandidatePortalHome() {
                     type="button"
                     onClick={handleDownloadResume}
                     disabled={downloadingResume}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full hover:bg-emerald-100 transition"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover: transition"
                   >
                     <Download size={13} />
                     <span>{downloadingResume ? "Downloading..." : "Download"}</span>
@@ -1084,7 +1084,7 @@ export default function CandidatePortalHome() {
                       </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200 self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 self-start sm:self-auto">
                     <TrendingUp size={13} />
                     <span>{appMetrics.totalApplications} Total Submitted</span>
                   </span>
@@ -1096,7 +1096,7 @@ export default function CandidatePortalHome() {
                   <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">Long Applications Submitted</span>
-                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 border border-brand-200">
+                      <span className=" text-[10px] font-medium text-brand-700 ">
                         Enterprise Portals
                       </span>
                     </div>
@@ -1112,7 +1112,7 @@ export default function CandidatePortalHome() {
                   <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-txt-secondary uppercase tracking-wider">Easy Applications Submitted</span>
-                      <span className="rounded-full bg-surface-secondary px-2 py-0.5 text-[10px] font-medium text-txt-secondary border border-border">
+                      <span className=" text-[10px] font-medium text-txt-secondary ">
                         Fast-Track
                       </span>
                     </div>
@@ -1477,7 +1477,7 @@ export default function CandidatePortalHome() {
                   <div>
                     <div className="flex items-center gap-1.5">
                       <h3 className="font-semibold text-slate-800 text-sm">ATS-Formatted Resume</h3>
-                      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 border border-brand-200">
+                      <span className=" text-[10px] font-medium text-brand-700 ">
                         Recruiter Provided
                       </span>
                     </div>
@@ -1751,7 +1751,7 @@ export default function CandidatePortalHome() {
                 formData.preferredJobTitles.map((title) => (
                   <span
                     key={title}
-                    className="inline-flex items-center gap-1 rounded-full bg-indigo-600 text-white px-2.5 py-0.5 text-xs font-semibold"
+                    className="inline-flex items-center gap-1 text-brand-600 text-xs font-semibold"
                   >
                     <span>{title}</span>
                     <button
@@ -1799,7 +1799,7 @@ export default function CandidatePortalHome() {
               {formData.preferredJobCities.map((city) => (
                 <span
                   key={city}
-                  className="inline-flex items-center gap-1 rounded-full bg-brand-600 text-white px-2.5 py-0.5 text-xs font-semibold"
+                  className="inline-flex items-center gap-1 text-brand-600 text-xs font-semibold"
                 >
                   <span>{city}</span>
                   <button

@@ -613,7 +613,7 @@ export default function EmployeeManagement() {
         >
           <Activity size={18} className="text-amber-500" />
           <span>User Activity & Performance</span>
-          <span className="text-badge rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 border border-amber-200">
+          <span className="text-badge text-amber-700 ">
             Live Tracking
           </span>
         </button>

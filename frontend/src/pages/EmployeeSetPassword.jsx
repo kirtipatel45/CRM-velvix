@@ -66,7 +66,7 @@ export default function EmployeeSetPassword() {
           <div className="mb-6">
             <BenchTrixLogo variant="white" size="text-5xl" subtitle="Staffing & CRM Platform" />
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100 border border-white/15 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 mb-6">
             <ShieldCheck size={14} className="text-blue-300" />
             <span>Employee Security Setup</span>
           </div>

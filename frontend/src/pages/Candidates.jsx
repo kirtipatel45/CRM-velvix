@@ -431,7 +431,7 @@ export default function Candidates() {
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-page-title text-[#111827]">Candidates</h1>
-            <span className="text-xs font-semibold text-[#667085] bg-[#F9FAFB] border border-[#E5E7EB] px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-semibold text-[#667085] ">
               {candidates.length} total
             </span>
           </div>
@@ -896,7 +896,7 @@ export default function Candidates() {
                   <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                     Skills & Competencies
                   </h4>
-                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-semibold text-slate-500 ">
                     {candidateSkills.length} total
                   </span>
                 </div>
@@ -904,21 +904,21 @@ export default function Candidates() {
                 {/* Status Indicator */}
                 <div className="flex items-center gap-2 flex-wrap">
                   {candidateParsingStatus === "COMPLETED" && (
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-medium">
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
                       <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
                       <span>✓ Skills extracted from resume</span>
                     </div>
                   )}
 
                   {candidateParsingStatus === "PROCESSING" && (
-                    <div className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 font-medium animate-pulse">
+                    <div className="flex items-center gap-1.5 text-xs text-blue-700 font-medium animate-pulse">
                       <RefreshCw size={13} className="text-blue-600 animate-spin shrink-0" />
                       <span>⟳ Extracting skills from resume...</span>
                     </div>
                   )}
 
                   {candidateParsingStatus === "FAILED" && (
-                    <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-medium">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 font-medium">
                       <AlertCircle size={13} className="text-amber-600 shrink-0" />
                       <span>⚠ Skill extraction failed</span>
                       <button

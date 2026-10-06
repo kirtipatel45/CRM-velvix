@@ -62,7 +62,7 @@ export default function CandidateSetPassword() {
           <div className="mb-6">
             <BenchTrixLogo variant="white" size="text-5xl" subtitle="Candidate Portal" />
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100 border border-white/15 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 mb-6">
             <Lock size={14} className="text-blue-300" />
             <span>Secure Password Setup</span>
           </div>
