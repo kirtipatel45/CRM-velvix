@@ -629,7 +629,7 @@ export default function LeadGeneration() {
                   <span className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider block">Assigned Sales Rep</span>
                   <div className="mt-1">
                     {selectedLead.assignedTo ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-[#ECFDF3] px-2 py-0.5 text-xs font-semibold text-[#027A48] border border-[#A6F4C5]">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#027A48]">
                         <UserCheck size={12} className="text-[#12B76A]" />
                         {selectedLead.assignedTo.name}
                       </span>

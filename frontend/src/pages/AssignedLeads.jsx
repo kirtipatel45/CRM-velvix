@@ -1161,7 +1161,7 @@ export default function AssignedLeads() {
                     Assigned To
                   </span>
                   <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 rounded-md bg-[#ECFDF3] px-2 py-0.5 text-xs font-semibold text-[#027A48] border border-[#A6F4C5]">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#027A48]">
                       You ({user?.name})
                     </span>
                   </div>
