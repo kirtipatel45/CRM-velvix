@@ -19,6 +19,10 @@ import {
   UserCheck,
   Eye,
   X,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
+  ArrowRight,
 } from "lucide-react";
 import { marketingAPI } from "../services/api";
 import Modal from "../components/Modal";
@@ -26,6 +30,7 @@ import Pagination from "../components/Pagination";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { SkeletonTable } from "../components/skeleton";
+import { ALL_SKILL_CATEGORIES } from "./Candidates";
 
 const emptyCandidate = {
   candidateId: null,
@@ -60,6 +65,11 @@ export default function Marketing() {
   const [searchName, setSearchName] = useState("");
   const [candidateSearch, setCandidateSearch] = useState("");
   const [copiedId, setCopiedId] = useState(null);
+
+  // Marketing Entry Candidate Skills State
+  const [candidateSkills, setCandidateSkills] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [skillsLoading, setSkillsLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -101,8 +111,77 @@ export default function Marketing() {
     fetchAssignedCandidates();
   }, [filterDate, searchName]);
 
+  const loadCandidateSkills = async (candidateId, existingSelectedSkills = null) => {
+    if (!candidateId) {
+      setCandidateSkills([]);
+      if (!existingSelectedSkills) setSelectedSkills([]);
+      setSkillsLoading(false);
+      return;
+    }
+
+    setCandidateSkills([]);
+    if (!existingSelectedSkills) setSelectedSkills([]);
+    setSkillsLoading(true);
+
+    try {
+      const res = await marketingAPI.getCandidateSkills(candidateId);
+      const skills = res.data.skills || [];
+      setCandidateSkills(skills);
+      if (existingSelectedSkills) {
+        setSelectedSkills(existingSelectedSkills);
+      }
+    } catch (err) {
+      console.error("Failed to load candidate skills for marketing entry:", err);
+      setCandidateSkills([]);
+      toast.error("Unable to load candidate skills. Please try again.");
+    } finally {
+      setSkillsLoading(false);
+    }
+  };
+
+  const toggleSkillSelection = (skill) => {
+    const skillId = skill.id || skill.skillId || skill._id;
+    const isSelected = selectedSkills.some(
+      (s) => (s.skillId || s.id || s._id) === skillId
+    );
+
+    if (isSelected) {
+      setSelectedSkills((prev) =>
+        prev.filter((s) => (s.skillId || s.id || s._id) !== skillId)
+      );
+    } else {
+      setSelectedSkills((prev) => [
+        ...prev,
+        {
+          skillId: skillId,
+          id: skillId,
+          name: skill.name,
+          category: skill.category || "Other",
+        },
+      ]);
+    }
+  };
+
+  const selectAllSkills = () => {
+    setSelectedSkills(
+      candidateSkills.map((s) => ({
+        skillId: s.id,
+        id: s.id,
+        name: s.name,
+        category: s.category || "Other",
+      }))
+    );
+  };
+
+  const clearAllSelectedSkills = () => {
+    setSelectedSkills([]);
+  };
+
   const openCreate = () => {
     setEditingId(null);
+    setCandidateSkills([]);
+    setSelectedSkills([]);
+    setSkillsLoading(false);
     setForm({
       ...emptyForm,
       employeeName: user?.name || "",
@@ -115,6 +194,10 @@ export default function Marketing() {
 
   const openEdit = (record) => {
     setEditingId(record._id);
+    const initialSelectedSkills =
+      record.selectedSkills || record.candidates?.[0]?.selectedSkills || [];
+    setSelectedSkills(initialSelectedSkills);
+
     setForm({
       teamLeaderName: record.teamLeaderName || user?.teamLeader || "General",
       employeeName: record.employeeName || user?.name || "",
@@ -126,6 +209,7 @@ export default function Marketing() {
             jobTitle: c.jobTitle || "",
             experienceYears: c.experienceYears !== undefined ? c.experienceYears : "",
             experienceMonths: c.experienceMonths !== undefined ? c.experienceMonths : "",
+            selectedSkills: c.selectedSkills || [],
           }))
         : [{ ...emptyCandidate }],
       longApplicationsSubmitted: record.longApplicationsSubmitted || 0,
@@ -133,25 +217,44 @@ export default function Marketing() {
       entryDate: record.entryDate?.split("T")[0] || new Date().toISOString().split("T")[0],
       notes: record.notes || "",
     });
+
+    if (record.candidates?.[0]?.candidateId) {
+      loadCandidateSkills(record.candidates[0].candidateId, initialSelectedSkills);
+    } else {
+      setCandidateSkills([]);
+      setSkillsLoading(false);
+    }
+
     setModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const candidatesPayload = form.candidates
+        .filter((c) => c.candidateName.trim())
+        .map((c, idx) => ({
+          ...c,
+          selectedSkills: idx === 0 ? selectedSkills : c.selectedSkills || [],
+        }));
+
       const payload = {
         ...form,
-        candidates: form.candidates.filter((c) => c.candidateName.trim()),
+        candidates: candidatesPayload,
+        selectedSkills,
       };
+
       if (editingId) {
         await marketingAPI.update(editingId, payload);
+        toast.success("Marketing entry updated successfully");
       } else {
         await marketingAPI.create(payload);
+        toast.success("Marketing entry created successfully");
       }
       setModalOpen(false);
       fetchRecords();
     } catch (err) {
-      alert(err.response?.data?.message || "Error saving record");
+      toast.error(err.response?.data?.message || "Error saving record");
     }
   };
 
@@ -518,6 +621,21 @@ export default function Marketing() {
                                 <div key={ci} className="text-xs">
                                   <span className="font-medium text-[#111827]">{c.candidateName}</span>
                                   {c.jobTitle && <span className="text-[#667085]"> • {c.jobTitle}</span>}
+                                  {/* Saved Selected Skills Badges */}
+                                  {((c.selectedSkills && c.selectedSkills.length > 0) || (r.selectedSkills && r.selectedSkills.length > 0)) && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {(c.selectedSkills?.length ? c.selectedSkills : r.selectedSkills).slice(0, 3).map((sk, ski) => (
+                                        <span key={ski} className="text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.2 rounded border border-brand-200 font-medium">
+                                          {sk.name}
+                                        </span>
+                                      ))}
+                                      {(c.selectedSkills?.length ? c.selectedSkills : r.selectedSkills).length > 3 && (
+                                        <span className="text-[10px] text-slate-400 font-medium">
+                                          +{(c.selectedSkills?.length ? c.selectedSkills : r.selectedSkills).length - 3} more
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               ))
                             ) : (
@@ -731,6 +849,7 @@ export default function Marketing() {
                               setCandDropdownSearch("");
                               setHoveredCandidate(null);
                               toast.success(`Selected candidate ${fullName}`);
+                              loadCandidateSkills(cand._id);
                             }}
                             className={`flex items-center justify-between p-2.5 hover:bg-brand-50/70 cursor-pointer transition text-xs ${
                               isSelected
@@ -793,6 +912,7 @@ export default function Marketing() {
                         setCandDropdownOpen(false);
                         setCandDropdownSearch("");
                         setHoveredCandidate(null);
+                        loadCandidateSkills(null);
                       }}
                       className="p-2.5 hover:bg-slate-100 cursor-pointer transition text-xs text-slate-700 flex items-center gap-2 bg-slate-50/80 font-medium border-t border-slate-100"
                     >
@@ -882,6 +1002,171 @@ export default function Marketing() {
                 />
               </div>
             </div>
+
+            {/* Candidate Skills & Marketing Entry Skill Selection */}
+            {form.candidates[0]?.candidateId ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={15} className="text-brand-600" />
+                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      Candidate Skills
+                    </span>
+                    {candidateSkills.length > 0 && (
+                      <span className="text-[11px] font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.2 rounded-full">
+                        {candidateSkills.length} extracted from resume
+                      </span>
+                    )}
+                  </div>
+
+                  {candidateSkills.length > 0 && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <button
+                        type="button"
+                        onClick={selectAllSkills}
+                        className="text-[11px] text-brand-600 hover:text-brand-700 font-semibold"
+                      >
+                        Select All
+                      </button>
+                      <span className="text-slate-300">|</span>
+                      <button
+                        type="button"
+                        onClick={clearAllSelectedSkills}
+                        className="text-[11px] text-slate-500 hover:text-slate-700 font-semibold"
+                      >
+                        Clear Selection
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Loading State */}
+                {skillsLoading ? (
+                  <div className="py-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+                    <RefreshCw size={14} className="animate-spin text-brand-600" />
+                    <span>Loading candidate structured skills...</span>
+                  </div>
+                ) : candidateSkills.length > 0 ? (
+                  <div className="space-y-3.5">
+                    {/* Selected Marketing Skills preview bar */}
+                    <div className="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-slate-800">
+                          Selected Marketing Skills ({selectedSkills.length} of {candidateSkills.length})
+                        </span>
+                        <span className="text-slate-400 text-[10px]">
+                          Click any skill chip to toggle selection
+                        </span>
+                      </div>
+
+                      {selectedSkills.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedSkills.map((s) => (
+                            <span
+                              key={s.skillId || s.id}
+                              onClick={() => toggleSkillSelection(s)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-600 text-white cursor-pointer hover:bg-brand-700 shadow-2xs transition"
+                              title="Click to deselect"
+                            >
+                              <Check size={11} className="stroke-[3]" />
+                              <span>{s.name}</span>
+                              <X size={11} className="ml-0.5 opacity-70 hover:opacity-100" />
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 italic">
+                          No skills selected yet. Select the relevant skills for this marketing campaign below.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Available Skills categorized */}
+                    <div className="space-y-3">
+                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wide block">
+                        Available Candidate Skills
+                      </span>
+
+                      {Array.from(
+                        new Set([
+                          ...ALL_SKILL_CATEGORIES.filter((cat) =>
+                            candidateSkills.some(
+                              (s) => (s.category || "Other").toLowerCase() === cat.toLowerCase()
+                            )
+                          ),
+                          ...candidateSkills.map((s) => s.category || "Other"),
+                        ])
+                      ).map((cat) => {
+                        const inCat = candidateSkills.filter(
+                          (s) => (s.category || "Other").toLowerCase() === cat.toLowerCase()
+                        );
+                        if (inCat.length === 0) return null;
+
+                        return (
+                          <div key={cat} className="space-y-1.5">
+                            <span className="text-[11px] font-semibold text-slate-700 block">
+                              {cat} ({inCat.length})
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {inCat.map((skill) => {
+                                const skillId = skill.id || skill.candidateSkillId;
+                                const isSelected = selectedSkills.some(
+                                  (s) => (s.skillId || s.id || s._id) === skillId
+                                );
+                                return (
+                                  <button
+                                    type="button"
+                                    key={skillId}
+                                    onClick={() => toggleSkillSelection(skill)}
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
+                                      isSelected
+                                        ? "bg-brand-50 border-brand-500 text-brand-900 font-semibold shadow-2xs ring-1 ring-brand-500"
+                                        : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                                    }`}
+                                  >
+                                    {isSelected ? (
+                                      <span className="text-brand-600 font-bold text-xs">✓</span>
+                                    ) : (
+                                      <span className="text-slate-300 text-xs">+</span>
+                                    )}
+                                    <span>{skill.name}</span>
+                                    {skill.source === "manual" && (
+                                      <span className="text-[9px] px-1 rounded bg-amber-100 text-amber-800 font-semibold">
+                                        Manual
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-white rounded-lg border border-slate-200 text-center space-y-2">
+                    <p className="text-xs text-slate-600 font-medium">
+                      No skills have been extracted for this candidate yet.
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      Please upload or process the candidate's resume first.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalOpen(false);
+                        setActiveTab("candidates");
+                      }}
+                      className="btn-secondary text-xs h-7 px-3 inline-flex items-center gap-1 mt-1"
+                    >
+                      <ArrowRight size={12} />
+                      <span>Go to Candidate Profile</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
 
           {/* Application Metrics */}

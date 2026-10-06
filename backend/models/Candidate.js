@@ -111,6 +111,19 @@ const candidateSchema = new mongoose.Schema(
     onboardedAt: {
       type: Date,
     },
+    resumeParsingStatus: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'],
+      default: 'PENDING',
+      index: true,
+    },
+    resumeParsingError: {
+      type: String,
+      default: '',
+    },
+    resumeParsedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

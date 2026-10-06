@@ -179,7 +179,34 @@ export const marketingAPI = {
     }),
   downloadCandidateAtsResume: (id) =>
     api.get(`/marketing/candidates/${id}/ats-resume`, { responseType: 'blob' }),
+  getCandidateSkills: (id) => api.get(`/candidates/${id}/skills`),
+  uploadCandidateResume: (id, formData) =>
+    api.post(`/candidates/${id}/resume`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  reprocessCandidateResume: (id) =>
+    api.post(`/candidates/${id}/resume/reprocess`),
+  addCandidateSkill: (id, data) =>
+    api.post(`/candidates/${id}/skills`, data),
+  deleteCandidateSkill: (id, skillId) =>
+    api.delete(`/candidates/${id}/skills/${skillId}`),
+  getSkillCategories: () => api.get('/candidates/skills/categories'),
   export: (params) => api.get('/marketing/export', { params, responseType: 'blob' }),
+};
+
+export const candidateSkillsAPI = {
+  getSkills: (candidateId) => api.get(`/candidates/${candidateId}/skills`),
+  uploadResume: (candidateId, formData) =>
+    api.post(`/candidates/${candidateId}/resume`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  reprocessResume: (candidateId) =>
+    api.post(`/candidates/${candidateId}/resume/reprocess`),
+  addSkill: (candidateId, data) =>
+    api.post(`/candidates/${candidateId}/skills`, data),
+  deleteSkill: (candidateId, skillId) =>
+    api.delete(`/candidates/${candidateId}/skills/${skillId}`),
+  getCategories: () => api.get('/candidates/skills/categories'),
 };
 
 export const notificationAPI = {

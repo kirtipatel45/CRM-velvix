@@ -26,6 +26,10 @@ import {
   AlertCircle,
   UploadCloud,
   Trash2,
+  Plus,
+  X,
+  Sparkles,
+  Tag,
 } from "lucide-react";
 import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
@@ -33,6 +37,75 @@ import { toast } from "react-hot-toast";
 import { SkeletonTable } from "../components/skeleton";
 import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
+
+export const ALL_SKILL_CATEGORIES = [
+  "Sales & Marketing",
+  "Business & Management",
+  "Data & Analytics",
+  "Finance & Accounting",
+  "Human Resources",
+  "Customer Service",
+  "Design & Creative",
+  "Engineering & Operations",
+  "Healthcare & Medical",
+  "Programming Languages",
+  "Frontend",
+  "Backend",
+  "Databases",
+  "Cloud & DevOps",
+  "Tools",
+  "Other",
+];
+
+export const getCategoryBadgeClass = (category) => {
+  const cat = (category || "").toLowerCase();
+  if (cat.includes("sales") || cat.includes("marketing")) {
+    return "bg-rose-50/80 border-rose-200 text-rose-800";
+  }
+  if (cat.includes("business") || cat.includes("management") || cat.includes("leadership")) {
+    return "bg-indigo-50/80 border-indigo-200 text-indigo-800";
+  }
+  if (cat.includes("data") || cat.includes("analytics")) {
+    return "bg-teal-50/80 border-teal-200 text-teal-800";
+  }
+  if (cat.includes("finance") || cat.includes("accounting")) {
+    return "bg-emerald-50/80 border-emerald-200 text-emerald-800";
+  }
+  if (cat.includes("human") || cat.includes("hr")) {
+    return "bg-violet-50/80 border-violet-200 text-violet-800";
+  }
+  if (cat.includes("customer")) {
+    return "bg-sky-50/80 border-sky-200 text-sky-800";
+  }
+  if (cat.includes("design") || cat.includes("creative")) {
+    return "bg-fuchsia-50/80 border-fuchsia-200 text-fuchsia-800";
+  }
+  if (cat.includes("engineering") || cat.includes("operations")) {
+    return "bg-amber-50/80 border-amber-200 text-amber-800";
+  }
+  if (cat.includes("health") || cat.includes("medical")) {
+    return "bg-red-50/80 border-red-200 text-red-800";
+  }
+  if (cat.includes("programming") || cat.includes("language")) {
+    return "bg-amber-50/80 border-amber-200 text-amber-800";
+  }
+  if (cat.includes("frontend")) {
+    return "bg-blue-50/80 border-blue-200 text-blue-800";
+  }
+  if (cat.includes("backend")) {
+    return "bg-emerald-50/80 border-emerald-200 text-emerald-800";
+  }
+  if (cat.includes("database")) {
+    return "bg-purple-50/80 border-purple-200 text-purple-800";
+  }
+  if (cat.includes("cloud") || cat.includes("devops")) {
+    return "bg-cyan-50/80 border-cyan-200 text-cyan-800";
+  }
+  if (cat.includes("tools")) {
+    return "bg-slate-100/80 border-slate-300 text-slate-800";
+  }
+  return "bg-gray-100 border-gray-300 text-gray-800";
+};
 
 export default function Candidates() {
   const { user } = useAuth();
@@ -49,6 +122,16 @@ export default function Candidates() {
   const [uploadingAtsId, setUploadingAtsId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   
+  // Candidate Skills State
+  const [candidateSkills, setCandidateSkills] = useState([]);
+  const [candidateSkillsLoading, setCandidateSkillsLoading] = useState(false);
+  const [candidateParsingStatus, setCandidateParsingStatus] = useState("PENDING");
+  const [candidateParsingError, setCandidateParsingError] = useState("");
+  const [reprocessingId, setReprocessingId] = useState(null);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillCategory, setNewSkillCategory] = useState("Sales & Marketing");
+  const [addingSkill, setAddingSkill] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -197,6 +280,14 @@ export default function Candidates() {
       if (selectedCandidate && selectedCandidate._id === candidateId) {
         setSelectedCandidate((prev) => ({ ...prev, atsResume: updatedAtsResume }));
       }
+
+      if (res.data.skills) {
+        setCandidateSkills(res.data.skills);
+        setCandidateParsingStatus(res.data.parsingStatus || "COMPLETED");
+        setCandidateParsingError("");
+      } else {
+        fetchCandidateSkills(candidateId);
+      }
     } catch (err) {
       console.error("Failed to upload ATS resume:", err);
       toast.error(err.response?.data?.message || "Failed to upload ATS resume");
@@ -205,9 +296,81 @@ export default function Candidates() {
     }
   };
 
+  const fetchCandidateSkills = async (candidateId) => {
+    setCandidateSkillsLoading(true);
+    try {
+      const res = await marketingAPI.getCandidateSkills(candidateId);
+      setCandidateSkills(res.data.skills || []);
+      setCandidateParsingStatus(res.data.parsingStatus || "PENDING");
+      setCandidateParsingError(res.data.parsingError || "");
+    } catch (err) {
+      console.error("Failed to load candidate skills:", err);
+      setCandidateSkills([]);
+      setCandidateParsingStatus("FAILED");
+      setCandidateParsingError(err.response?.data?.message || "Failed to load skills");
+    } finally {
+      setCandidateSkillsLoading(false);
+    }
+  };
+
+  const handleReprocessSkills = async (candidateId) => {
+    setReprocessingId(candidateId);
+    try {
+      const res = await marketingAPI.reprocessCandidateResume(candidateId);
+      toast.success(res.data.message || "Skill extraction complete!");
+      setCandidateSkills(res.data.skills || []);
+      setCandidateParsingStatus("COMPLETED");
+      setCandidateParsingError("");
+      fetchCandidates();
+    } catch (err) {
+      console.error("Failed to reprocess resume:", err);
+      const errMsg = err.response?.data?.message || "Skill extraction failed";
+      toast.error(errMsg);
+      setCandidateParsingStatus("FAILED");
+      setCandidateParsingError(errMsg);
+    } finally {
+      setReprocessingId(null);
+    }
+  };
+
+  const handleAddManualSkill = async (candidateId) => {
+    if (!newSkillName.trim()) {
+      toast.error("Please enter a skill name");
+      return;
+    }
+    setAddingSkill(true);
+    try {
+      const res = await marketingAPI.addCandidateSkill(candidateId, {
+        name: newSkillName.trim(),
+        category: newSkillCategory || "Other",
+      });
+      toast.success(res.data.message || "Skill added!");
+      setNewSkillName("");
+      fetchCandidateSkills(candidateId);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add skill");
+    } finally {
+      setAddingSkill(false);
+    }
+  };
+
+  const handleDeleteSkill = async (candidateId, skillId, skillName) => {
+    if (!confirm(`Remove skill "${skillName}" from candidate profile?`)) return;
+    try {
+      await marketingAPI.deleteCandidateSkill(candidateId, skillId);
+      toast.success(`Removed "${skillName}"`);
+      setCandidateSkills((prev) =>
+        prev.filter((s) => s.id !== skillId && s.candidateSkillId !== skillId)
+      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to remove skill");
+    }
+  };
+
   const openCandidateDetails = (candidate) => {
     setSelectedCandidate(candidate);
     setDetailsModalOpen(true);
+    fetchCandidateSkills(candidate._id);
   };
 
   const filteredCandidates = candidates.filter((c) => {
@@ -721,6 +884,198 @@ export default function Candidates() {
                       }}
                     />
                   </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Candidate Skills Section */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-4 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-brand-600" />
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Skills & Competencies
+                  </h4>
+                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {candidateSkills.length} total
+                  </span>
+                </div>
+
+                {/* Status Indicator */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {candidateParsingStatus === "COMPLETED" && (
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-medium">
+                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                      <span>✓ Skills extracted from resume</span>
+                    </div>
+                  )}
+
+                  {candidateParsingStatus === "PROCESSING" && (
+                    <div className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 font-medium animate-pulse">
+                      <RefreshCw size={13} className="text-blue-600 animate-spin shrink-0" />
+                      <span>⟳ Extracting skills from resume...</span>
+                    </div>
+                  )}
+
+                  {candidateParsingStatus === "FAILED" && (
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-medium">
+                      <AlertCircle size={13} className="text-amber-600 shrink-0" />
+                      <span>⚠ Skill extraction failed</span>
+                      <button
+                        type="button"
+                        onClick={() => handleReprocessSkills(selectedCandidate._id)}
+                        disabled={reprocessingId === selectedCandidate._id}
+                        className="underline text-amber-900 font-bold hover:text-amber-950 ml-1"
+                      >
+                        {reprocessingId === selectedCandidate._id ? "Retrying..." : "Retry Extraction"}
+                      </button>
+                    </div>
+                  )}
+
+                  {candidateParsingStatus === "PENDING" && !selectedCandidate.atsResume?.filename && !selectedCandidate.resume?.filename && (
+                    <span className="text-xs text-slate-400 italic">No resume uploaded yet</span>
+                  )}
+
+                  {/* Manual Re-extract Button */}
+                  {(selectedCandidate.atsResume?.filename || selectedCandidate.resume?.filename) &&
+                    candidateParsingStatus !== "PROCESSING" && (
+                      <button
+                        type="button"
+                        onClick={() => handleReprocessSkills(selectedCandidate._id)}
+                        disabled={reprocessingId === selectedCandidate._id}
+                        className="btn-secondary text-[11px] h-7 px-2.5 py-0 flex items-center gap-1"
+                        title="Re-run automatic resume parser"
+                      >
+                        <RefreshCw
+                          size={11}
+                          className={reprocessingId === selectedCandidate._id ? "animate-spin text-brand-600" : ""}
+                        />
+                        <span>{reprocessingId === selectedCandidate._id ? "Extracting..." : "Re-extract"}</span>
+                      </button>
+                    )}
+                </div>
+              </div>
+
+              {/* Skills Grouped by Category */}
+              {candidateSkillsLoading ? (
+                <div className="py-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+                  <RefreshCw size={14} className="animate-spin text-brand-600" />
+                  <span>Loading candidate skills...</span>
+                </div>
+              ) : candidateSkills.length > 0 ? (
+                <div className="space-y-3.5">
+                  {Array.from(
+                    new Set([
+                      ...ALL_SKILL_CATEGORIES.filter((category) =>
+                        candidateSkills.some(
+                          (s) => (s.category || "Other").toLowerCase() === category.toLowerCase()
+                        )
+                      ),
+                      ...candidateSkills.map((s) => s.category || "Other"),
+                    ])
+                  ).map((category) => {
+                    const skillsInCat = candidateSkills.filter(
+                      (s) => (s.category || "Other").toLowerCase() === category.toLowerCase()
+                    );
+                    if (skillsInCat.length === 0) return null;
+
+                    return (
+                      <div key={category} className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wide">
+                            {category}
+                          </span>
+                          <span className="text-[10px] text-slate-400">({skillsInCat.length})</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {skillsInCat.map((skill) => {
+                            const isManual = skill.source === "manual";
+                            return (
+                              <div
+                                key={skill.id || skill.candidateSkillId}
+                                className={`group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition ${getCategoryBadgeClass(category)}`}
+                              >
+                                <span>{skill.name}</span>
+                                {isManual ? (
+                                  <span className="text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                                    Manual
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] text-slate-400 opacity-80" title="Extracted from resume">
+                                    ✓
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleDeleteSkill(
+                                      selectedCandidate._id,
+                                      skill.candidateSkillId || skill.id,
+                                      skill.name
+                                    )
+                                  }
+                                  className="text-slate-400 hover:text-red-600 transition ml-0.5 opacity-60 hover:opacity-100"
+                                  title="Remove skill"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-6 text-center text-xs text-slate-400 italic">
+                  {candidateParsingStatus === "COMPLETED"
+                    ? "No skills detected from this resume."
+                    : selectedCandidate.atsResume?.filename || selectedCandidate.resume?.filename
+                    ? "Skills have not been extracted yet. Click 'Re-extract' above to parse resume."
+                    : "No skills on file. Upload an ATS resume to automatically extract candidate skills, or add manually below."}
+                </div>
+              )}
+
+              {/* Add Skill Manually Form */}
+              <div className="pt-3 border-t border-slate-100">
+                <span className="text-[11px] font-semibold text-slate-600 block mb-2">
+                  + Add Custom / Additional Skill
+                </span>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Skill name (e.g. Market Research, SEO, Leadership, QuickBooks)"
+                    className="input-field text-xs flex-1 py-1.5"
+                    value={newSkillName}
+                    onChange={(e) => setNewSkillName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddManualSkill(selectedCandidate._id);
+                      }
+                    }}
+                  />
+                  <select
+                    className="input-field text-xs sm:w-48 py-1.5 bg-white"
+                    value={newSkillCategory}
+                    onChange={(e) => setNewSkillCategory(e.target.value)}
+                  >
+                    {ALL_SKILL_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => handleAddManualSkill(selectedCandidate._id)}
+                    disabled={addingSkill || !newSkillName.trim()}
+                    className="btn-primary text-xs h-8 px-3 shrink-0 flex items-center justify-center gap-1"
+                  >
+                    <Plus size={13} />
+                    <span>{addingSkill ? "Adding..." : "Add"}</span>
+                  </button>
                 </div>
               </div>
             </div>

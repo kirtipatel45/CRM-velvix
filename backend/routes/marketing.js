@@ -7,6 +7,8 @@ import { body, validationResult } from 'express-validator';
 import Marketing from '../models/Marketing.js';
 import Candidate from '../models/Candidate.js';
 import LeadGeneration from '../models/LeadGeneration.js';
+import CandidateSkill from '../models/CandidateSkill.js';
+import MarketingEntrySkill from '../models/MarketingEntrySkill.js';
 import { protect, authorize } from '../middleware/auth.js';
 import xlsx from 'xlsx';
 import { INTERVIEW_STAGES } from '../utils/calculations.js';
@@ -14,6 +16,7 @@ import { createExportWorksheet } from '../utils/exportHelper.js';
 import { sendCandidateInviteEmail } from '../utils/email.js';
 import { uploadResume } from '../config/multerConfig.js';
 import { logUserActivity } from '../utils/activityLogger.js';
+import { parseAndSaveCandidateSkills, getCandidateSkillsStructured } from '../utils/resumeParser.js';
 
 const generateSecureTempPassword = () => {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -97,6 +100,7 @@ const applyMetrics = (body, user) => {
     screeningCallsCompleted: Number(body.screeningCallsCompleted) || 0,
     totalInterviews: Number(body.totalInterviews) || 0,
     interviewStages: body.interviewStages || [],
+    selectedSkills: body.selectedSkills || [],
   };
 };
 
@@ -278,13 +282,78 @@ router.post('/candidates/:id/ats-resume', protect, uploadResume.single('atsResum
 
     await candidate.save();
 
+    // Automatically trigger Skill Extraction Pipeline
+    let extractionCount = 0;
+    let extractionError = null;
+    try {
+      const extractionResult = await parseAndSaveCandidateSkills(
+        candidateId,
+        req.file.path,
+        req.file.mimetype
+      );
+      extractionCount = extractionResult.count;
+    } catch (parseErr) {
+      extractionError = parseErr.message;
+      console.error('Automatic skill extraction error in marketing route:', parseErr);
+    }
+
+    const updatedSkills = await getCandidateSkillsStructured(candidateId);
+
     res.json({
       success: true,
-      message: 'ATS-friendly resume uploaded successfully!',
+      message: extractionError
+        ? 'ATS-friendly resume uploaded. Note: Skill extraction had warnings and can be retried.'
+        : `ATS-friendly resume uploaded and ${extractionCount} skills extracted!`,
       atsResume: candidate.atsResume,
+      skills: updatedSkills.skills,
+      totalSkills: updatedSkills.total,
+      parsingStatus: candidate.resumeParsingStatus,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// @route   POST /api/marketing/candidates/:id/reprocess-resume
+// @desc    Re-run skill extraction on candidate's existing ATS resume
+// @access  Protected
+router.post('/candidates/:id/reprocess-resume', protect, async (req, res) => {
+  try {
+    const candidateId = req.params.id;
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    const resumeObj = candidate.atsResume?.path ? candidate.atsResume : candidate.resume;
+    if (!resumeObj?.path || !fs.existsSync(resumeObj.path)) {
+      return res.status(400).json({
+        success: false,
+        message: 'No resume document on file for this candidate to process. Please upload an ATS resume first.',
+      });
+    }
+
+    const extractionResult = await parseAndSaveCandidateSkills(
+      candidateId,
+      resumeObj.path,
+      resumeObj.mimetype
+    );
+
+    const updatedSkills = await getCandidateSkillsStructured(candidateId);
+
+    res.json({
+      success: true,
+      message: `Skill extraction complete! ${extractionResult.count} skills identified.`,
+      parsingStatus: 'COMPLETED',
+      skills: updatedSkills.skills,
+      total: updatedSkills.total,
+    });
+  } catch (error) {
+    console.error('Marketing reprocess resume error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Skill extraction failed: ${error.message || 'Unable to read resume'}.`,
+    });
   }
 });
 
@@ -332,6 +401,20 @@ router.post('/', protect, async (req, res) => {
       createdBy: req.user._id,
     });
 
+    // Persist snapshot of selected skills in MarketingEntrySkill collection
+    if (Array.isArray(data.selectedSkills) && data.selectedSkills.length > 0) {
+      const skillsToInsert = data.selectedSkills.map((s) => ({
+        marketingEntry: record._id,
+        candidate: s.candidateId || data.candidates?.[0]?.candidateId || null,
+        skill: s.skillId || s.id,
+        name: s.name,
+        category: s.category || 'Other',
+      }));
+      await MarketingEntrySkill.insertMany(skillsToInsert, { ordered: false }).catch((err) => {
+        console.warn('Note on inserting marketing entry skills:', err.message);
+      });
+    }
+
     // Log Marketing Submission Activity
     logUserActivity({
       req,
@@ -361,6 +444,24 @@ router.put('/:id', protect, async (req, res) => {
       runValidators: true,
     });
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });
+
+    // Update snapshot of selected skills in MarketingEntrySkill collection
+    if (Array.isArray(data.selectedSkills)) {
+      await MarketingEntrySkill.deleteMany({ marketingEntry: req.params.id });
+      if (data.selectedSkills.length > 0) {
+        const skillsToInsert = data.selectedSkills.map((s) => ({
+          marketingEntry: req.params.id,
+          candidate: s.candidateId || data.candidates?.[0]?.candidateId || null,
+          skill: s.skillId || s.id,
+          name: s.name,
+          category: s.category || 'Other',
+        }));
+        await MarketingEntrySkill.insertMany(skillsToInsert, { ordered: false }).catch((err) => {
+          console.warn('Note on updating marketing entry skills:', err.message);
+        });
+      }
+    }
+
     res.json({ success: true, data: record });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -423,6 +524,10 @@ router.delete('/candidates/:id', protect, authorize('admin'), async (req, res) =
       { $pull: { candidates: { candidateId } } }
     );
 
+    // Clean up CandidateSkill and MarketingEntrySkill to avoid orphaned records
+    await CandidateSkill.deleteMany({ candidate: candidateId });
+    await MarketingEntrySkill.deleteMany({ candidate: candidateId });
+
     await Candidate.findByIdAndDelete(candidateId);
 
     res.json({
@@ -438,6 +543,7 @@ router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
     const record = await Marketing.findByIdAndDelete(req.params.id);
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });
+    await MarketingEntrySkill.deleteMany({ marketingEntry: req.params.id });
     res.json({ success: true, message: 'Record deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

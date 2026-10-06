@@ -11,6 +11,7 @@ import dashboardRoutes from './routes/dashboard.js';
 import notificationRoutes from './routes/notifications.js';
 import userRoutes from './routes/user.js';
 import candidateAuthRoutes from './routes/candidateAuth.js';
+import candidateSkillsRoutes from './routes/candidateSkills.js';
 import { startFollowUpCronJob } from './jobs/followUpReminder.js';
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/candidate-auth', candidateAuthRoutes);
+app.use('/api/candidates', candidateSkillsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/lead-generation', leadGenerationRoutes);
 app.use('/api/leads', leadGenerationRoutes);
