@@ -537,17 +537,17 @@ export default function LeadGeneration() {
                       </td>
                       <td className="px-4 py-3.5">
                         {isConverted ? (
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          <span className={`inline-flex items-center gap-1 text-xs font-medium ${
                             isCandidateActive
-                              ? "bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5]"
+                              ? "text-[#027A48]"
                               : isInviteExpired
-                              ? "bg-[#FFFAEB] text-[#B54708] border border-[#FEDF89]"
-                              : "bg-[#EFF8FF] text-[#175CD3] border border-[#B2DDFF]"
+                              ? "text-[#B54708]"
+                              : "text-[#175CD3]"
                           }`}>
                             {isCandidateActive ? "Active Candidate" : isInviteExpired ? "Invite Expired" : "Invite Sent"}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-[#667085] bg-[#F9FAFB] border border-[#E5E7EB]">
+                          <span className="inline-flex items-center text-xs font-medium text-[#667085]">
                             Lead Available
                           </span>
                         )}
@@ -645,12 +645,12 @@ export default function LeadGeneration() {
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-[#667085]">Candidate Portal:</span>
                   {selectedLead.convertedToCandidateId ? (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${
                       selectedLead.convertedToCandidateId.accountStatus === 'active'
-                        ? "bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]"
+                        ? "text-[#027A48]"
                         : selectedLead.convertedToCandidateId.tempCredential?.expiresAt && new Date(selectedLead.convertedToCandidateId.tempCredential.expiresAt) < new Date()
-                        ? "bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]"
-                        : "bg-[#EFF8FF] text-[#175CD3] border-[#B2DDFF]"
+                        ? "text-[#B54708]"
+                        : "text-[#175CD3]"
                     }`}>
                       <CheckCircle2 size={12} />
                       {selectedLead.convertedToCandidateId.accountStatus === 'active'
@@ -660,7 +660,7 @@ export default function LeadGeneration() {
                         : "Portal Invite Dispatched"}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#F2F4F7] px-2.5 py-0.5 text-xs font-medium text-[#667085] border border-[#E5E7EB]">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085]">
                       Not Converted Yet
                     </span>
                   )}

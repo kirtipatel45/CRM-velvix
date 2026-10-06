@@ -800,13 +800,13 @@ export default function Profile() {
                   <span className="text-xs font-medium text-[#667085]">Candidate Portal:</span>
                   {selectedLead.convertedToCandidateId ? (
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                      className={`inline-flex items-center gap-1 text-xs font-semibold ${
                         selectedLead.convertedToCandidateId.accountStatus === 'active'
-                          ? 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]'
+                          ? 'text-[#027A48]'
                           : selectedLead.convertedToCandidateId.tempCredential?.expiresAt &&
                             new Date(selectedLead.convertedToCandidateId.tempCredential.expiresAt) < new Date()
-                          ? 'bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]'
-                          : 'bg-[#EFF6FF] text-[#175CD3] border-[#B2DDFF]'
+                          ? 'text-[#B54708]'
+                          : 'text-[#175CD3]'
                       }`}
                     >
                       <CheckCircle2 size={12} />
@@ -818,7 +818,7 @@ export default function Profile() {
                         : 'Portal Invite Dispatched'}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-[#667085] border border-[#E5E7EB]">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-[#667085]">
                       Not Converted Yet
                     </span>
                   )}
@@ -933,12 +933,12 @@ export default function Profile() {
                             ) : (
                               <div className="flex items-center gap-1.5">
                                 <span
-                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                                  className={`inline-flex items-center gap-1 text-xs font-semibold ${
                                     candidateStatus === 'active'
-                                      ? 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]'
+                                      ? 'text-[#027A48]'
                                       : isInviteExpired
-                                      ? 'bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]'
-                                      : 'bg-[#EFF6FF] text-[#175CD3] border-[#B2DDFF]'
+                                      ? 'text-[#B54708]'
+                                      : 'text-[#175CD3]'
                                   }`}
                                 >
                                   <CheckCircle2 size={12} />

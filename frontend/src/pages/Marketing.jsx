@@ -488,12 +488,12 @@ export default function Marketing() {
                         </td>
                         <td className="px-4 py-3.5">
                           <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
+                            className={`inline-flex items-center text-xs font-medium ${
                               c.accountStatus === 'active'
-                                ? 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]'
+                                ? 'text-[#027A48]'
                                 : c.accountStatus === 'invited'
-                                ? 'bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]'
-                                : 'bg-[#F2F4F7] text-[#667085] border-[#E5E7EB]'
+                                ? 'text-[#B54708]'
+                                : 'text-[#667085]'
                             }`}
                           >
                             {c.accountStatus === 'active' ? 'Active' : c.accountStatus === 'invited' ? 'Invited' : 'Pending'}

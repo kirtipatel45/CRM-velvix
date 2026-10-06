@@ -806,7 +806,7 @@ export default function AssignedLeads() {
                       className="group relative rounded-xl border border-[#A6F4C5] bg-white p-4 shadow-2xs hover:border-[#12B76A] transition cursor-pointer"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF3] text-[#027A48] px-2 py-0.5 border border-[#A6F4C5] text-xs font-semibold">
+                        <span className="inline-flex items-center gap-1 text-[#027A48] text-xs font-semibold">
                           <CheckCircle2 size={11} className="text-[#12B76A]" />
                           Interested
                         </span>
@@ -918,7 +918,7 @@ export default function AssignedLeads() {
                     className="group relative rounded-xl border border-[#FECDCA] bg-white p-4 shadow-2xs hover:border-[#F04438] transition cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#FEF3F2] text-[#B42318] px-2 py-0.5 border border-[#FECDCA] text-xs font-semibold">
+                      <span className="inline-flex items-center gap-1 text-[#B42318] text-xs font-semibold">
                         <PhoneOff size={10} className="text-[#F04438]" />
                         Not Interested
                       </span>
