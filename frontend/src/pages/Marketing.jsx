@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Plus,
   Pencil,
@@ -23,6 +23,13 @@ import {
   AlertCircle,
   CheckCircle2,
   ArrowRight,
+  ExternalLink,
+  Building2,
+  Clock,
+  DollarSign,
+  Zap,
+  Filter,
+  Loader2,
 } from "lucide-react";
 import { marketingAPI } from "../services/api";
 import Modal from "../components/Modal";
@@ -70,6 +77,15 @@ export default function Marketing() {
   const [candidateSkills, setCandidateSkills] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillsLoading, setSkillsLoading] = useState(false);
+
+  // JSearch Job Recommendations State
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsError, setJobsError] = useState("");
+  const [jobDatePosted, setJobDatePosted] = useState("month");
+  const [jobEmploymentType, setJobEmploymentType] = useState("FULLTIME");
+  const [jobsExpanded, setJobsExpanded] = useState(true);
+  const jobSearchTimerRef = useRef(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -177,11 +193,151 @@ export default function Marketing() {
     setSelectedSkills([]);
   };
 
+  // ─── JSearch Job Recommendations (AND + OR search, merged & deduplicated) ───
+  const fetchRecommendedJobs = useCallback(async (skills, datePosted, employmentType) => {
+    if (!skills || skills.length === 0) {
+      setRecommendedJobs([]);
+      setJobsError("");
+      return;
+    }
+
+    setJobsLoading(true);
+    setJobsError("");
+
+    // Helper to extract jobs array from a JSearch response
+    const extractJobs = (res) => {
+      const raw = res.data?.data;
+      return raw?.data?.jobs || raw?.jobs || (Array.isArray(raw?.data) ? raw.data : []);
+    };
+
+    const sharedParams = {
+      page: "1",
+      num_pages: "5",
+      date_posted: datePosted || "month",
+      employment_types: employmentType || "FULLTIME",
+    };
+
+    try {
+      // ── 1. AND query: all skills combined ──
+      const skillNames = skills.slice(0, 5).map((s) => s.name).join(", ");
+      const andQuery = `${skillNames} developer jobs`;
+      const andPromise = marketingAPI.searchJobs({ ...sharedParams, query: andQuery });
+
+      // ── 2. OR queries: one per individual skill (capped at top 3) ──
+      const orSkills = skills.slice(0, 3);
+      const orPromises = orSkills.length > 1
+        ? orSkills.map((sk) =>
+            marketingAPI
+              .searchJobs({ ...sharedParams, query: `${sk.name} developer jobs` })
+              .catch((err) => {
+                console.warn(`JSearch OR query failed for "${sk.name}":`, err);
+                return null; // Don't let one failure kill the whole batch
+              })
+          )
+        : []; // Skip individual queries when only 1 skill is selected (AND already covers it)
+
+      // Fire all requests in parallel
+      const [andRes, ...orResults] = await Promise.all([andPromise, ...orPromises]);
+
+      // ── 3. Merge & deduplicate ──
+      const seenIds = new Set();
+      const mergedJobs = [];
+
+      const addJobs = (jobs) => {
+        for (const job of jobs) {
+          const id = job.job_id || `${job.employer_name}-${job.job_title}`;
+          if (!seenIds.has(id)) {
+            seenIds.add(id);
+            mergedJobs.push(job);
+          }
+        }
+      };
+
+      // Add AND results first
+      addJobs(extractJobs(andRes));
+
+      // Add each OR result set
+      for (const orRes of orResults) {
+        if (orRes) addJobs(extractJobs(orRes));
+      }
+
+      setRecommendedJobs(mergedJobs);
+
+      if (mergedJobs.length === 0) {
+        setJobsError("No matching jobs found for the selected skills. Try adjusting filters.");
+      }
+    } catch (err) {
+      console.error("JSearch error:", err);
+      const msg = err.response?.data?.message || "Failed to fetch job recommendations.";
+      setJobsError(msg);
+      setRecommendedJobs([]);
+    } finally {
+      setJobsLoading(false);
+    }
+  }, []);
+
+  // Debounced auto-search when selectedSkills change
+  useEffect(() => {
+    if (jobSearchTimerRef.current) {
+      clearTimeout(jobSearchTimerRef.current);
+    }
+
+    if (selectedSkills.length > 0 && modalOpen) {
+      jobSearchTimerRef.current = setTimeout(() => {
+        fetchRecommendedJobs(selectedSkills, jobDatePosted, jobEmploymentType);
+      }, 800);
+    } else {
+      setRecommendedJobs([]);
+      setJobsError("");
+    }
+
+    return () => {
+      if (jobSearchTimerRef.current) clearTimeout(jobSearchTimerRef.current);
+    };
+  }, [selectedSkills, modalOpen, fetchRecommendedJobs]);
+
+  const handleJobFilterChange = (datePosted, employmentType) => {
+    setJobDatePosted(datePosted);
+    setJobEmploymentType(employmentType);
+    if (selectedSkills.length > 0) {
+      fetchRecommendedJobs(selectedSkills, datePosted, employmentType);
+    }
+  };
+
+  const formatJobDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffDays = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+    return d.toLocaleDateString();
+  };
+
+  const formatSalary = (min, max, currency, period) => {
+    if (!min && !max) return null;
+    const fmt = (n) => {
+      if (!n) return "";
+      if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
+      return n.toLocaleString();
+    };
+    const cur = currency || "USD";
+    const per = period === "YEAR" ? "/yr" : period === "HOUR" ? "/hr" : "";
+    if (min && max) return `${cur} ${fmt(min)} – ${fmt(max)}${per}`;
+    if (min) return `${cur} ${fmt(min)}+${per}`;
+    return `Up to ${cur} ${fmt(max)}${per}`;
+  };
+
   const openCreate = () => {
     setEditingId(null);
     setCandidateSkills([]);
     setSelectedSkills([]);
     setSkillsLoading(false);
+    setRecommendedJobs([]);
+    setJobsError("");
+    setJobsExpanded(true);
     setForm({
       ...emptyForm,
       employeeName: user?.name || "",
@@ -1168,6 +1324,287 @@ export default function Marketing() {
               </div>
             ) : null}
           </div>
+
+          {/* ─── JSearch Skill-Based Job Recommendations ─── */}
+          {form.candidates[0]?.candidateId && selectedSkills.length > 0 && (
+            <div className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/60 p-4 space-y-3 shadow-2xs overflow-hidden">
+              {/* Header with collapse toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-sm">
+                    <Zap size={14} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                      Skill-Based Job Recommendations
+                      <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-100 border border-indigo-200 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
+                        Powered by JSearch
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Auto-matched from <strong className="text-indigo-600">{selectedSkills.length}</strong> selected skill{selectedSkills.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {!jobsLoading && recommendedJobs.length > 0 && (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      {recommendedJobs.length} jobs found
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setJobsExpanded(!jobsExpanded)}
+                    className="text-slate-400 hover:text-slate-700 transition p-1 rounded-lg hover:bg-white/80"
+                    title={jobsExpanded ? "Collapse" : "Expand"}
+                  >
+                    <ChevronDown
+                      size={16}
+                      className={`transition-transform duration-200 ${jobsExpanded ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {jobsExpanded && (
+                <div className="space-y-3 animate-fadeIn">
+                  {/* Filter Controls Row */}
+                  <div className="flex flex-wrap items-center gap-2 bg-white/70 rounded-lg p-2.5 border border-slate-100">
+                    <Filter size={13} className="text-slate-400 flex-shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-[11px] font-semibold text-slate-600">Posted:</label>
+                      <select
+                        value={jobDatePosted}
+                        onChange={(e) => handleJobFilterChange(e.target.value, jobEmploymentType)}
+                        className="text-[11px] border border-slate-200 rounded-md px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-indigo-400 cursor-pointer"
+                      >
+                        <option value="today">Today</option>
+                        <option value="3days">Last 3 Days</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="all">All Time</option>
+                      </select>
+                    </div>
+                    <span className="text-slate-200">|</span>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-[11px] font-semibold text-slate-600">Type:</label>
+                      <select
+                        value={jobEmploymentType}
+                        onChange={(e) => handleJobFilterChange(jobDatePosted, e.target.value)}
+                        className="text-[11px] border border-slate-200 rounded-md px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-indigo-400 cursor-pointer"
+                      >
+                        <option value="FULLTIME">Full-time</option>
+                        <option value="PARTTIME">Part-time</option>
+                        <option value="CONTRACTOR">Contract</option>
+                        <option value="INTERN">Internship</option>
+                      </select>
+                    </div>
+                    <span className="text-slate-200">|</span>
+                    <button
+                      type="button"
+                      onClick={() => fetchRecommendedJobs(selectedSkills, jobDatePosted, jobEmploymentType)}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition"
+                      disabled={jobsLoading}
+                    >
+                      <RefreshCw size={11} className={jobsLoading ? "animate-spin" : ""} />
+                      Refresh
+                    </button>
+                  </div>
+
+                  {/* Loading State */}
+                  {jobsLoading && (
+                    <div className="space-y-2.5">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white rounded-xl border border-slate-100 p-3.5 animate-pulse">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-slate-200 flex-shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-3.5 bg-slate-200 rounded w-3/4" />
+                              <div className="h-3 bg-slate-100 rounded w-1/2" />
+                              <div className="flex gap-2 mt-1">
+                                <div className="h-2.5 bg-slate-100 rounded w-16" />
+                                <div className="h-2.5 bg-slate-100 rounded w-20" />
+                                <div className="h-2.5 bg-slate-100 rounded w-12" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-center gap-2 py-2 text-xs text-indigo-500 font-medium">
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Searching JSearch for skill-matched jobs...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Error State */}
+                  {!jobsLoading && jobsError && (
+                    <div className="bg-white rounded-xl border border-amber-200 p-4 text-center space-y-1.5">
+                      <AlertCircle size={20} className="mx-auto text-amber-500" />
+                      <p className="text-xs text-slate-700 font-medium">{jobsError}</p>
+                      <button
+                        type="button"
+                        onClick={() => fetchRecommendedJobs(selectedSkills, jobDatePosted, jobEmploymentType)}
+                        className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Job Cards */}
+                  {!jobsLoading && recommendedJobs.length > 0 && (
+                    <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
+                      {recommendedJobs.map((job, idx) => {
+                        const salary = formatSalary(
+                          job.job_min_salary,
+                          job.job_max_salary,
+                          job.job_salary_currency,
+                          job.job_salary_period
+                        );
+
+                        return (
+                          <div
+                            key={job.job_id || idx}
+                            className="group bg-white rounded-xl border border-slate-100 hover:border-indigo-200 p-3.5 transition-all duration-200 hover:shadow-md hover:shadow-indigo-100/50 cursor-default"
+                          >
+                            <div className="flex items-start gap-3">
+                              {/* Employer Logo */}
+                              <div className="flex-shrink-0">
+                                {job.employer_logo ? (
+                                  <img
+                                    src={job.employer_logo}
+                                    alt={job.employer_name || "Company"}
+                                    className="w-10 h-10 rounded-lg object-contain border border-slate-100 bg-white p-0.5"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      e.target.nextSibling.style.display = "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <div
+                                  className={`w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100 border border-indigo-200 items-center justify-center text-indigo-600 font-bold text-sm ${job.employer_logo ? "hidden" : "flex"}`}
+                                >
+                                  {(job.employer_name || "C").charAt(0)}
+                                </div>
+                              </div>
+
+                              {/* Job Details */}
+                              <div className="flex-1 min-w-0 space-y-1.5">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-indigo-700 transition-colors">
+                                      {job.job_title}
+                                    </h4>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <Building2 size={11} className="text-slate-400 flex-shrink-0" />
+                                      <span className="text-[11px] text-slate-600 font-medium truncate">
+                                        {job.employer_name || "Company"}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Apply Button */}
+                                  {job.job_apply_link && (
+                                    <a
+                                      href={job.job_apply_link}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-sm hover:shadow-md transition-all duration-200 active:scale-95"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <ExternalLink size={10} />
+                                      Apply
+                                    </a>
+                                  )}
+                                </div>
+
+                                {/* Meta info row */}
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                                  {(job.job_city || job.job_state || job.job_country) && (
+                                    <span className="inline-flex items-center gap-1">
+                                      <MapPin size={10} className="text-slate-400" />
+                                      {[job.job_city, job.job_state, job.job_country].filter(Boolean).join(", ")}
+                                    </span>
+                                  )}
+                                  {job.job_is_remote && (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                      Remote
+                                    </span>
+                                  )}
+                                  {salary && (
+                                    <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                                      <DollarSign size={10} />
+                                      {salary}
+                                    </span>
+                                  )}
+                                  {job.job_posted_at_datetime_utc && (
+                                    <span className="inline-flex items-center gap-1">
+                                      <Clock size={10} className="text-slate-400" />
+                                      {formatJobDate(job.job_posted_at_datetime_utc)}
+                                    </span>
+                                  )}
+                                  {job.job_employment_type && (
+                                    <span className="inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                      {job.job_employment_type}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Job description snippet */}
+                                {job.job_description && (
+                                  <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2 mt-1">
+                                    {job.job_description.substring(0, 200)}...
+                                  </p>
+                                )}
+
+                                {/* Matched skills highlight */}
+                                {job.job_highlights?.Qualifications && (
+                                  <div className="flex flex-wrap gap-1 mt-1.5">
+                                    {selectedSkills
+                                      .filter((sk) =>
+                                        job.job_highlights.Qualifications.some(
+                                          (q) => q.toLowerCase().includes(sk.name.toLowerCase())
+                                        )
+                                      )
+                                      .slice(0, 4)
+                                      .map((sk) => (
+                                        <span
+                                          key={sk.skillId || sk.id}
+                                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                        >
+                                          <CheckCircle2 size={9} />
+                                          {sk.name}
+                                        </span>
+                                      ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Skills query info */}
+                  {!jobsLoading && !jobsError && recommendedJobs.length === 0 && selectedSkills.length > 0 && (
+                    <div className="bg-white rounded-xl border border-slate-100 p-4 text-center space-y-2">
+                      <Sparkles size={20} className="mx-auto text-indigo-400" />
+                      <p className="text-xs text-slate-600 font-medium">
+                        Select skills above to automatically find matching job openings
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Jobs are fetched from JSearch API based on candidate's selected skills
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Application Metrics */}
           <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-2xs">

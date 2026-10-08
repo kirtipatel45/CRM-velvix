@@ -383,6 +383,101 @@ router.get('/candidates/:id/ats-resume', protect, async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────
+// JSearch API (RapidAPI) – Skill-Based Job Search Proxy
+// ─────────────────────────────────────────────
+
+// Simple in-memory cache (query → { data, timestamp })
+const jsearchCache = new Map();
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+// @route   GET /api/marketing/job-search
+// @desc    Proxy JSearch API – search jobs by candidate skills
+// @query   ?query=React+Node.js&page=1&num_pages=1&date_posted=month&remote_jobs_only=false&employment_types=FULLTIME
+// @access  Protected
+router.get('/job-search', protect, async (req, res) => {
+  try {
+    const {
+      query,
+      page = '1',
+      num_pages = '5',
+      date_posted = 'month',
+      remote_jobs_only = 'false',
+      employment_types = 'FULLTIME',
+    } = req.query;
+
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a search query (skills) to find matching jobs.',
+      });
+    }
+
+    const apiKey = process.env.RAPIDAPI_KEY;
+    if (!apiKey || apiKey === 'YOUR_RAPIDAPI_KEY_HERE') {
+      return res.status(503).json({
+        success: false,
+        message: 'JSearch API key is not configured. Please add RAPIDAPI_KEY to your .env file.',
+      });
+    }
+
+    // Check cache first
+    const cacheKey = `${query}|${page}|${num_pages}|${date_posted}|${remote_jobs_only}|${employment_types}`;
+    const cached = jsearchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return res.json({ success: true, data: cached.data, fromCache: true });
+    }
+
+    // Dynamic import of node-fetch for ESM compatibility
+    const fetch = (await import('node-fetch')).default;
+
+    const searchParams = new URLSearchParams({
+      query: query.trim(),
+      page,
+      num_pages,
+      date_posted,
+      remote_jobs_only,
+      employment_types,
+    });
+
+    const response = await fetch(
+      `https://jsearch.p.rapidapi.com/search-v2?${searchParams.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'jsearch.p.rapidapi.com',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('JSearch API error:', response.status, errorText);
+      return res.status(response.status).json({
+        success: false,
+        message: `JSearch API returned status ${response.status}`,
+      });
+    }
+
+    const result = await response.json();
+
+    // Cache the result
+    jsearchCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    // Evict old entries if cache grows too large (max 100 entries)
+    if (jsearchCache.size > 100) {
+      const oldestKey = jsearchCache.keys().next().value;
+      jsearchCache.delete(oldestKey);
+    }
+
+    res.json({ success: true, data: result, fromCache: false });
+  } catch (error) {
+    console.error('JSearch proxy error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 router.get('/:id', protect, async (req, res) => {
   try {
     const record = await Marketing.findById(req.params.id);

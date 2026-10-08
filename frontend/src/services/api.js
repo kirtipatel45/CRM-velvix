@@ -192,6 +192,7 @@ export const marketingAPI = {
     api.delete(`/candidates/${id}/skills/${skillId}`),
   getSkillCategories: () => api.get('/candidates/skills/categories'),
   export: (params) => api.get('/marketing/export', { params, responseType: 'blob' }),
+  searchJobs: (params) => api.get('/marketing/job-search', { params }),
 };
 
 export const candidateSkillsAPI = {
