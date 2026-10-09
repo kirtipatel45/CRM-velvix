@@ -49,8 +49,7 @@ api.interceptors.response.use(
         localStorage.removeItem('user');
         const isEmployeeAuthPage =
           window.location.pathname === '/login' ||
-          window.location.pathname === '/set-password' ||
-          window.location.pathname === '/forgot-password';
+          window.location.pathname === '/set-password';
         if (!isEmployeeAuthPage) {
           window.location.href = '/login';
         }
@@ -63,8 +62,6 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   me: () => api.get('/auth/me'),
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
-  resetPassword: (data) => api.post('/auth/reset-password', data),
   changePassword: (data) => api.put('/auth/change-password', data),
   setPassword: (data, resetToken) =>
     api.post('/auth/set-password', data, {

@@ -5,7 +5,6 @@ import { lazy, Suspense } from "react";
 import Layout from "./components/Layout";
 
 const Login = lazy(() => import("./pages/Login"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const EmployeeSetPassword = lazy(() => import("./pages/EmployeeSetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const LeadGeneration = lazy(() => import("./pages/LeadGeneration"));
@@ -122,7 +121,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/set-password" element={<EmployeeSetPassword />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<Navigate to="/login" replace />} />
 
         {/* Candidate Portal Routes */}
         <Route path="/candidate/login" element={<CandidateLogin />} />

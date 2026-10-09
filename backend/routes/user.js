@@ -833,7 +833,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// POST /api/users/:id/reset-password - Admin reset employee password
+// POST /api/users/:id/reset-password - Admin reset/change employee password
 router.post(
   '/:id/reset-password',
   [body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')],
@@ -847,18 +847,27 @@ router.post(
 
       user.password = req.body.newPassword;
       user.passwordChangedAt = new Date();
+      user.mustResetPassword = false;
+      if (user.accountStatus === 'invited') {
+        user.accountStatus = 'active';
+      }
+      if (user.tempCredential) {
+        user.tempCredential.used = true;
+      }
+      user.resetPasswordOtp = undefined;
+      user.resetPasswordOtpExpire = undefined;
       await user.save();
 
       await createAuditLog({
         req,
         action: 'RESET_PASSWORD',
         targetEmployee: user,
-        details: `Admin reset password for employee "${user.name}" (${user.email})`,
+        details: `Admin changed password for employee "${user.name}" (${user.email})`,
       });
 
       res.json({
         success: true,
-        message: `Password reset successfully for employee ${user.name}`,
+        message: `Password updated successfully for employee ${user.name}`,
       });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });

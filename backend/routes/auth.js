@@ -226,6 +226,13 @@ router.put(
   validate,
   async (req, res) => {
     try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'Only administrators can change passwords. Please contact an administrator.',
+        });
+      }
+
       const user = await User.findById(req.user._id).select('+password');
       
       if (!(await user.matchPassword(req.body.currentPassword))) {
@@ -243,92 +250,19 @@ router.put(
   }
 );
 
-router.post(
-  '/forgot-password',
-  [body('email').isEmail().withMessage('Valid email is required')],
-  validate,
-  async (req, res) => {
-    try {
-      const email = req.body.email?.trim();
-      if (!isValidEmail(email)) {
-        return res.status(400).json({ success: false, message: EMAIL_ERROR_MSG });
-      }
+// Forgot password self-service disabled - Only Admin can change passwords
+router.post('/forgot-password', (req, res) => {
+  return res.status(403).json({
+    success: false,
+    message: 'Forgot password functionality has been disabled. Only administrators can change employee passwords.',
+  });
+});
 
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'There is no user with that email address.' });
-      }
-
-      // Generate 6 digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      user.resetPasswordOtp = otp;
-      user.resetPasswordOtpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-      await user.save({ validateBeforeSave: false });
-
-      const message = `You requested a password reset. Your OTP is: ${otp}\nThis OTP is valid for 10 minutes.`;
-
-      const emailSent = await sendEmail({
-        email: user.email,
-        subject: 'Password Reset OTP',
-        message,
-      });
-
-      if (!emailSent) {
-        user.resetPasswordOtp = undefined;
-        user.resetPasswordOtpExpire = undefined;
-        await user.save({ validateBeforeSave: false });
-        return res.status(500).json({ success: false, message: 'Email could not be sent' });
-      }
-
-      res.status(200).json({ success: true, message: 'OTP sent to email' });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-);
-
-router.post(
-  '/reset-password',
-  [
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('otp').notEmpty().withMessage('OTP is required'),
-    body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  ],
-  validate,
-  async (req, res) => {
-    try {
-      const { email, otp, newPassword } = req.body;
-      const user = await User.findOne({
-        email,
-        resetPasswordOtp: otp,
-        resetPasswordOtpExpire: { $gt: Date.now() },
-      }).select('+password');
-
-      if (!user) {
-        return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
-      }
-
-      user.password = newPassword;
-      user.resetPasswordOtp = undefined;
-      user.resetPasswordOtpExpire = undefined;
-      await user.save();
-
-      res.status(200).json({
-        success: true,
-        message: 'Password reset successful',
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          token: generateToken(user._id),
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
-    }
-  }
-);
+router.post('/reset-password', (req, res) => {
+  return res.status(403).json({
+    success: false,
+    message: 'Self-service password reset is disabled. Only administrators can change employee passwords.',
+  });
+});
 
 export default router;

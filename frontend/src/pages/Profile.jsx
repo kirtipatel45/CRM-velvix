@@ -448,76 +448,95 @@ export default function Profile() {
             <span>Change Password</span>
           </h2>
 
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-[#FEF3F2] p-3 text-xs font-medium text-[#B42318] border border-[#FECDCA] flex items-center gap-2">
-                <AlertCircle size={16} className="text-[#F04438] shrink-0" />
-                <span>{error}</span>
+          {user?.role === 'admin' ? (
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              {error && (
+                <div className="rounded-lg bg-[#FEF3F2] p-3 text-xs font-medium text-[#B42318] border border-[#FECDCA] flex items-center gap-2">
+                  <AlertCircle size={16} className="text-[#F04438] shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="rounded-lg bg-[#ECFDF3] p-3 text-xs font-medium text-[#027A48] border border-[#A6F4C5] flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#12B76A] shrink-0" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="profile-current-password" className="label text-xs font-medium text-[#344054] mb-1 block">
+                  Current Password *
+                </label>
+                <input
+                  id="profile-current-password"
+                  type="password"
+                  required
+                  className="input-field text-xs h-9"
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
               </div>
-            )}
 
-            {successMessage && (
-              <div className="rounded-lg bg-[#ECFDF3] p-3 text-xs font-medium text-[#027A48] border border-[#A6F4C5] flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-[#12B76A] shrink-0" />
-                <span>{successMessage}</span>
+              <div>
+                <label htmlFor="profile-new-password" className="label text-xs font-medium text-[#344054] mb-1 block">
+                  New Password *
+                </label>
+                <input
+                  id="profile-new-password"
+                  type="password"
+                  required
+                  className="input-field text-xs h-9"
+                  placeholder="At least 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
               </div>
-            )}
 
-            <div>
-              <label htmlFor="profile-current-password" className="label text-xs font-medium text-[#344054] mb-1 block">
-                Current Password *
-              </label>
-              <input
-                id="profile-current-password"
-                type="password"
-                required
-                className="input-field text-xs h-9"
-                placeholder="Enter current password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
+              <div>
+                <label htmlFor="profile-confirm-password" className="label text-xs font-medium text-[#344054] mb-1 block">
+                  Confirm New Password *
+                </label>
+                <input
+                  id="profile-confirm-password"
+                  type="password"
+                  required
+                  className="input-field text-xs h-9"
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
 
-            <div>
-              <label htmlFor="profile-new-password" className="label text-xs font-medium text-[#344054] mb-1 block">
-                New Password *
-              </label>
-              <input
-                id="profile-new-password"
-                type="password"
-                required
-                className="input-field text-xs h-9"
-                placeholder="At least 6 characters"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="btn-primary w-full h-9 text-xs font-semibold"
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="py-2 space-y-3">
+              <div className="rounded-xl bg-slate-50 border border-slate-200/80 p-4 flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-blue-50 text-brand-600 shrink-0 mt-0.5">
+                  <Shield size={18} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xs font-bold text-slate-800">Centrally Managed Credentials</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Employee passwords are centrally administered. For security compliance, password updates can only be performed by a System Administrator.
+                  </p>
+                  <p className="text-[11px] text-slate-500 pt-1">
+                    Need your password changed? Please contact your company administrator.
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <div>
-              <label htmlFor="profile-confirm-password" className="label text-xs font-medium text-[#344054] mb-1 block">
-                Confirm New Password *
-              </label>
-              <input
-                id="profile-confirm-password"
-                type="password"
-                required
-                className="input-field text-xs h-9"
-                placeholder="Re-enter new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="btn-primary w-full h-9 text-xs font-semibold"
-                disabled={loading}
-              >
-                {loading ? 'Updating...' : 'Update Password'}
-              </button>
-            </div>
-          </form>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { isValidEmail, EMAIL_ERROR_MSG } from '../utils/validation';
 import BenchTrixLogo from '../components/BenchTrixLogo';
@@ -113,11 +113,8 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-1.5">
+                  <div className="mb-1.5">
                     <label htmlFor="password" className="block text-xs font-medium text-slate-700 uppercase tracking-wider">Password</label>
-                    <Link to="/forgot-password" className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition">
-                      Forgot?
-                    </Link>
                   </div>
                   <input
                     id="password"
