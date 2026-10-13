@@ -78,7 +78,7 @@ export default function Marketing() {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillsLoading, setSkillsLoading] = useState(false);
 
-  // JSearch Job Recommendations State
+  // JobSpy Job Recommendations State
   const [recommendedJobs, setRecommendedJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState("");
@@ -193,7 +193,7 @@ export default function Marketing() {
     setSelectedSkills([]);
   };
 
-  // ─── JSearch Job Recommendations (AND + OR search, merged & deduplicated) ───
+  // ─── JobSpy Multi-Board Job Recommendations (Skill-Matched) ───
   const fetchRecommendedJobs = useCallback(async (skills, datePosted, employmentType) => {
     if (!skills || skills.length === 0) {
       setRecommendedJobs([]);
@@ -204,70 +204,36 @@ export default function Marketing() {
     setJobsLoading(true);
     setJobsError("");
 
-    // Helper to extract jobs array from a JSearch response
+    // Helper to extract jobs array from response
     const extractJobs = (res) => {
       const raw = res.data?.data;
-      return raw?.data?.jobs || raw?.jobs || (Array.isArray(raw?.data) ? raw.data : []);
+      return raw?.data?.jobs || raw?.jobs || (Array.isArray(raw?.data) ? raw.data : (Array.isArray(raw) ? raw : []));
     };
 
     const sharedParams = {
-      page: "1",
-      num_pages: "5",
       date_posted: datePosted || "month",
       employment_types: employmentType || "FULLTIME",
+      results_wanted: 20,
     };
 
     try {
-      // ── 1. AND query: all skills combined ──
       const skillNames = skills.slice(0, 5).map((s) => s.name).join(", ");
       const andQuery = `${skillNames} developer jobs`;
-      const andPromise = marketingAPI.searchJobs({ ...sharedParams, query: andQuery });
 
-      // ── 2. OR queries: one per individual skill (capped at top 3) ──
-      const orSkills = skills.slice(0, 3);
-      const orPromises = orSkills.length > 1
-        ? orSkills.map((sk) =>
-            marketingAPI
-              .searchJobs({ ...sharedParams, query: `${sk.name} developer jobs` })
-              .catch((err) => {
-                console.warn(`JSearch OR query failed for "${sk.name}":`, err);
-                return null; // Don't let one failure kill the whole batch
-              })
-          )
-        : []; // Skip individual queries when only 1 skill is selected (AND already covers it)
+      const res = await marketingAPI.searchJobs({
+        ...sharedParams,
+        query: andQuery,
+        skills: skillNames,
+      });
 
-      // Fire all requests in parallel
-      const [andRes, ...orResults] = await Promise.all([andPromise, ...orPromises]);
+      const jobs = extractJobs(res);
+      setRecommendedJobs(jobs);
 
-      // ── 3. Merge & deduplicate ──
-      const seenIds = new Set();
-      const mergedJobs = [];
-
-      const addJobs = (jobs) => {
-        for (const job of jobs) {
-          const id = job.job_id || `${job.employer_name}-${job.job_title}`;
-          if (!seenIds.has(id)) {
-            seenIds.add(id);
-            mergedJobs.push(job);
-          }
-        }
-      };
-
-      // Add AND results first
-      addJobs(extractJobs(andRes));
-
-      // Add each OR result set
-      for (const orRes of orResults) {
-        if (orRes) addJobs(extractJobs(orRes));
-      }
-
-      setRecommendedJobs(mergedJobs);
-
-      if (mergedJobs.length === 0) {
-        setJobsError("No matching jobs found for the selected skills. Try adjusting filters.");
+      if (jobs.length === 0) {
+        setJobsError("No matching jobs found for the selected skills. Try adjusting filters or select fewer skills.");
       }
     } catch (err) {
-      console.error("JSearch error:", err);
+      console.error("JobSpy search error:", err);
       const msg = err.response?.data?.message || "Failed to fetch job recommendations.";
       setJobsError(msg);
       setRecommendedJobs([]);
@@ -275,6 +241,7 @@ export default function Marketing() {
       setJobsLoading(false);
     }
   }, []);
+
 
   // Debounced auto-search when selectedSkills change
   useEffect(() => {
@@ -1325,7 +1292,7 @@ export default function Marketing() {
             ) : null}
           </div>
 
-          {/* ─── JSearch Skill-Based Job Recommendations ─── */}
+          {/* ─── JobSpy Skill-Based Job Recommendations ─── */}
           {form.candidates[0]?.candidateId && selectedSkills.length > 0 && (
             <div className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/60 p-4 space-y-3 shadow-2xs overflow-hidden">
               {/* Header with collapse toggle */}
@@ -1338,7 +1305,7 @@ export default function Marketing() {
                     <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                       Skill-Based Job Recommendations
                       <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-100 border border-indigo-200 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
-                        Powered by JSearch
+                        Powered by JobSpy (LinkedIn, Indeed, Glassdoor)
                       </span>
                     </h3>
                     <p className="text-[11px] text-slate-500 mt-0.5">
@@ -1433,7 +1400,7 @@ export default function Marketing() {
                       ))}
                       <div className="flex items-center justify-center gap-2 py-2 text-xs text-indigo-500 font-medium">
                         <Loader2 size={14} className="animate-spin" />
-                        <span>Searching JSearch for skill-matched jobs...</span>
+                        <span>Searching for skill-matched jobs across job boards...</span>
                       </div>
                     </div>
                   )}
@@ -1551,6 +1518,11 @@ export default function Marketing() {
                                       {job.job_employment_type}
                                     </span>
                                   )}
+                                  {job.job_source && (
+                                    <span className="inline-flex items-center px-1.5 py-0 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 capitalize">
+                                      {job.job_source}
+                                    </span>
+                                  )}
                                 </div>
 
                                 {/* Job description snippet */}
@@ -1597,7 +1569,7 @@ export default function Marketing() {
                         Select skills above to automatically find matching job openings
                       </p>
                       <p className="text-[11px] text-slate-400">
-                        Jobs are fetched from JSearch API based on candidate's selected skills
+                        Live jobs aggregated across LinkedIn, Indeed, Glassdoor & ZipRecruiter based on candidate's resume skills
                       </p>
                     </div>
                   )}

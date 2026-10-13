@@ -17,6 +17,7 @@ import { sendCandidateInviteEmail } from '../utils/email.js';
 import { uploadResume } from '../config/multerConfig.js';
 import { logUserActivity } from '../utils/activityLogger.js';
 import { parseAndSaveCandidateSkills, getCandidateSkillsStructured } from '../utils/resumeParser.js';
+import { searchJobsWithJobSpy } from '../utils/jobspyService.js';
 
 const generateSecureTempPassword = () => {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -384,26 +385,24 @@ router.get('/candidates/:id/ats-resume', protect, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// JSearch API (RapidAPI) – Skill-Based Job Search Proxy
+// Python JobSpy – Skill-Based Multi-Board Job Search
+// (Aggregates Indeed, LinkedIn, Glassdoor, ZipRecruiter)
 // ─────────────────────────────────────────────
 
-// Simple in-memory cache (query → { data, timestamp })
-const jsearchCache = new Map();
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
-
 // @route   GET /api/marketing/job-search
-// @desc    Proxy JSearch API – search jobs by candidate skills
-// @query   ?query=React+Node.js&page=1&num_pages=1&date_posted=month&remote_jobs_only=false&employment_types=FULLTIME
+// @desc    Search jobs matching candidate skills using Python JobSpy
+// @query   ?query=React+Node.js&skills=React,Node.js&date_posted=month&remote_jobs_only=false&employment_types=FULLTIME
 // @access  Protected
 router.get('/job-search', protect, async (req, res) => {
   try {
     const {
       query,
-      page = '1',
-      num_pages = '5',
+      skills,
       date_posted = 'month',
       remote_jobs_only = 'false',
       employment_types = 'FULLTIME',
+      results_wanted = 15,
+      sites,
     } = req.query;
 
     if (!query || query.trim().length === 0) {
@@ -413,70 +412,55 @@ router.get('/job-search', protect, async (req, res) => {
       });
     }
 
-    const apiKey = process.env.RAPIDAPI_KEY;
-    if (!apiKey || apiKey === 'YOUR_RAPIDAPI_KEY_HERE') {
-      return res.status(503).json({
-        success: false,
-        message: 'JSearch API key is not configured. Please add RAPIDAPI_KEY to your .env file.',
-      });
+    // Parse skills from query string or explicit skills parameter
+    let candidateSkills = [];
+    if (skills) {
+      candidateSkills = Array.isArray(skills)
+        ? skills
+        : String(skills).split(',').map((s) => s.trim()).filter(Boolean);
+    } else {
+      // Extract skills from query (e.g. "React, Node.js developer jobs" -> ["React", "Node.js"])
+      const cleanedQuery = query.replace(/developer\s*jobs?|engineer\s*jobs?|jobs?/gi, '').trim();
+      candidateSkills = cleanedQuery.split(/[,/|]+/).map((s) => s.trim()).filter(Boolean);
     }
 
-    // Check cache first
-    const cacheKey = `${query}|${page}|${num_pages}|${date_posted}|${remote_jobs_only}|${employment_types}`;
-    const cached = jsearchCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      return res.json({ success: true, data: cached.data, fromCache: true });
-    }
+    const parsedSites = sites
+      ? (typeof sites === 'string' ? sites.split(',') : sites).map((s) => s.trim().toLowerCase())
+      : ['indeed', 'linkedin', 'glassdoor', 'zip_recruiter'];
 
-    // Dynamic import of node-fetch for ESM compatibility
-    const fetch = (await import('node-fetch')).default;
-
-    const searchParams = new URLSearchParams({
+    const result = await searchJobsWithJobSpy({
       query: query.trim(),
-      page,
-      num_pages,
+      skills: candidateSkills,
       date_posted,
       remote_jobs_only,
       employment_types,
+      results_wanted: Math.min(Number(results_wanted) || 15, 30),
+      sites: parsedSites,
     });
 
-    const response = await fetch(
-      `https://jsearch.p.rapidapi.com/search-v2?${searchParams.toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-rapidapi-key': apiKey,
-          'x-rapidapi-host': 'jsearch.p.rapidapi.com',
-        },
-      }
-    );
+    const jobs = result.data?.data || [];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('JSearch API error:', response.status, errorText);
-      return res.status(response.status).json({
-        success: false,
-        message: `JSearch API returned status ${response.status}`,
-      });
-    }
-
-    const result = await response.json();
-
-    // Cache the result
-    jsearchCache.set(cacheKey, { data: result, timestamp: Date.now() });
-
-    // Evict old entries if cache grows too large (max 100 entries)
-    if (jsearchCache.size > 100) {
-      const oldestKey = jsearchCache.keys().next().value;
-      jsearchCache.delete(oldestKey);
-    }
-
-    res.json({ success: true, data: result, fromCache: false });
+    // Return in format compatible with both extractJobs and direct array access
+    res.json({
+      success: true,
+      data: {
+        data: jobs,
+        jobs: jobs,
+        count: jobs.length,
+        query: query.trim(),
+        sites: result.data?.sites || parsedSites,
+      },
+      fromCache: result.fromCache || false,
+    });
   } catch (error) {
-    console.error('JSearch proxy error:', error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('JobSpy search error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to search jobs with JobSpy',
+    });
   }
 });
+
 
 router.get('/:id', protect, async (req, res) => {
   try {
